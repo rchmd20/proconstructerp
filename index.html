@@ -659,7 +659,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 2.1: LAPORAN HARIAN -->
             <!-- =================================================================== -->
-            <section id="sec-lap-harian" class="content-section hidden space-y-6">
+            <section id="sec-lap-harian" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -841,7 +841,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 2.2: LAPORAN MINGGUAN -->
             <!-- =================================================================== -->
-            <section id="sec-lap-mingguan" class="content-section hidden space-y-6">
+            <section id="sec-lap-mingguan" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -951,7 +951,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 2.3: LAPORAN BULANAN -->
             <!-- =================================================================== -->
-            <section id="sec-lap-bulanan" class="content-section hidden space-y-6">
+            <section id="sec-lap-bulanan" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1060,7 +1060,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 3.1: TIME SCHEDULE & KURVA S -->
             <!-- =================================================================== -->
-            <section id="sec-time-schedule" class="content-section hidden space-y-6">
+            <section id="sec-time-schedule" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1173,7 +1173,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 3.2: ACTION PLAN -->
             <!-- =================================================================== -->
-            <section id="sec-action-plan" class="content-section hidden space-y-6">
+            <section id="sec-action-plan" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1237,7 +1237,7 @@
             <!-- SECTION 4: MATERIAL & BACKUP QUANTITY -->
             <!-- =================================================================== -->
             <!-- 4.A BACKUP QUANTITY MODULE -->
-            <section id="sec-bq-estimasi" class="content-section hidden space-y-6">
+            <section id="sec-bq-estimasi" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1369,7 +1369,7 @@
             </section>
 
             <!-- 4.A2 BACKUP QUANTITY - MC0 (DALAM TAHAP PENGEMBANGAN) -->
-            <section id="sec-bq-mc0" class="content-section hidden space-y-6">
+            <section id="sec-bq-mc0" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1387,7 +1387,7 @@
             </section>
 
             <!-- 4.A3 BACKUP QUANTITY - OPNAME LAPANGAN -->
-            <section id="sec-bq-opname" class="content-section hidden space-y-6">
+            <section id="sec-bq-opname" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1404,22 +1404,96 @@
                     </div>
                 </div>
 
-                <!-- PILIH PEKERJAAN RAB SEBAGAI ACUAN JUDUL OPNAME -->
-                <div class="navy-card p-5 rounded-2xl space-y-3">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">1. Pilih Item Pekerjaan (Acuan dari RAB)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        <input type="text" id="bqOpSearchPekerjaan" oninput="filterBqOpPekerjaanOptions()" placeholder="Ketik untuk cari pekerjaan RAB..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
-                        <select id="bqOpPekerjaanSelect" onchange="selectBqOpnamePekerjaan()" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white">
-                            <option value="">-- Pilih Pekerjaan --</option>
-                        </select>
+                <!-- PILIH MINGGU OPNAME -->
+                <div class="navy-card p-4 rounded-2xl space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-b border-slate-700 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-calendar-week text-amber-400 text-base"></i>
+                            <span class="font-bold text-white text-sm">Pilih Minggu Opname (untuk lihat & input hasil opname):</span>
+                        </div>
+                        <div class="flex flex-col items-start sm:items-end">
+                            <select id="bqOpFilterMingguSelect" onchange="handleBqOpMingguChange()" class="bg-[#0b132b] border border-amber-500/50 rounded-xl px-4 py-2 font-bold text-amber-300 text-xs cursor-pointer">
+                                <!-- JS Populated Minggu 1 (tgl - tgl), Minggu 2 (tgl - tgl), ... -->
+                            </select>
+                            <div id="bqOpPeriodeLabel" class="text-[11px] text-slate-400 mt-1.5 text-left sm:text-right"></div>
+                        </div>
                     </div>
-                    <div id="bqOpJudulInfo" class="text-[11px] text-slate-400"></div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Total Item Pekerjaan RAB</span>
+                            <div id="bqOpSumTotalItem" class="text-base font-black text-white font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Sudah Diopname</span>
+                            <div id="bqOpSumSudah" class="text-base font-black text-emerald-400 font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Belum Diopname</span>
+                            <div id="bqOpSumBelum" class="text-base font-black text-red-400 font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Bobot Opname Minggu Ini</span>
+                            <div id="bqOpSumBobotIni" class="text-base font-black text-amber-400 font-mono mt-1">0.00 %</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Bobot Opname Komulatif</span>
+                            <div id="bqOpSumBobotKum" class="text-base font-black text-sky-400 font-mono mt-1">0.00 %</div>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-slate-400 bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2">
+                        <i class="fa-solid fa-circle-info text-amber-400 mr-1"></i>
+                        Hasil opname bersih (Tambah &ndash; Kurang) tiap item pada minggu terpilih akan otomatis masuk sebagai "Volume Minggu Ini" pada halaman Laporan Mingguan.
+                    </div>
                 </div>
 
+                <!-- TABEL RINCIAN HASIL OPNAME PER ITEM PEKERJAAN RAB -->
+                <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span class="font-bold text-xs text-slate-200">Rincian Hasil Opname per Item Pekerjaan (mengikuti data RAB)</span>
+                        <div class="relative w-full sm:w-72">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                            <input type="text" id="bqOpSearchInput" oninput="renderBqOpnameMaster()" placeholder="Cari No/Divisi, Sub Pekerjaan, Rincian, Satuan..." class="w-full bg-[#1c2541] border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-white text-xs">
+                            <button type="button" onclick="document.getElementById('bqOpSearchInput').value=''; renderBqOpnameMaster();" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-[11px]" title="Bersihkan Pencarian">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                <tr>
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">No/Div</th>
+                                    <th class="p-3">Divisi Pekerjaan</th>
+                                    <th class="p-3">Sub Pekerjaan</th>
+                                    <th class="p-3">Rincian Pekerjaan</th>
+                                    <th class="p-3">Satuan</th>
+                                    <th class="p-3">Volume RAB</th>
+                                    <th class="p-3">Opname Minggu Lalu</th>
+                                    <th class="p-3">Opname Minggu Ini</th>
+                                    <th class="p-3">Opname Komulatif</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bqOpnameMasterTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- AREA DETAIL OPNAME UNTUK 1 ITEM PEKERJAAN PADA MINGGU TERPILIH -->
                 <div id="bqOpDetailArea" class="hidden space-y-6">
+                    <div id="bqOpJudulInfo" class="text-[11px] text-slate-400"></div>
+
                     <!-- FORM TAMBAH/EDIT BARIS OPNAME -->
                     <div class="navy-card p-5 rounded-2xl space-y-4">
-                        <h3 id="bqOpFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">2. Input Perhitungan Opname</h3>
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <h3 id="bqOpFormTitle" class="text-xs font-bold text-white uppercase tracking-wider">Input Perhitungan Opname</h3>
+                            <button type="button" onclick="closeBqOpnameDetail()" class="text-slate-400 hover:text-white text-[11px] font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar
+                            </button>
+                        </div>
                         <form id="formBqOpname" onsubmit="handleBqOpnameSubmit(event)" class="space-y-3 text-xs">
                             <input type="hidden" id="bqOpEditId" value="">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1472,7 +1546,7 @@
                     <!-- TABEL HASIL OPNAME -->
                     <div class="navy-card rounded-2xl overflow-hidden">
                         <div class="p-3 bg-[#0b132b] border-b border-slate-700">
-                            <span class="font-bold text-slate-200 text-xs">3. Rincian Hasil Opname per Segmen/Posisi</span>
+                            <span class="font-bold text-slate-200 text-xs">Rincian Hasil Opname per Segmen/Posisi &mdash; Minggu Terpilih</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs text-slate-300">
@@ -1498,7 +1572,7 @@
             </section>
 
             <!-- 4.B STANDARD MATERIAL MODULE -->
-            <section id="sec-material" class="content-section hidden space-y-6">
+            <section id="sec-material" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 id="materialTitle" class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1576,7 +1650,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 5: ABSENSI KARYAWAN -->
             <!-- =================================================================== -->
-            <section id="sec-absen" class="content-section hidden space-y-6">
+            <section id="sec-absen" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 id="absenTitle" class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1665,7 +1739,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 5.1: DAFTAR HADIR (REKAP BULANAN) -->
             <!-- =================================================================== -->
-            <section id="sec-absen-daftar-hadir" class="content-section hidden space-y-6">
+            <section id="sec-absen-daftar-hadir" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1726,7 +1800,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 6.1: DATA KARYAWAN -->
             <!-- =================================================================== -->
-            <section id="sec-data-karyawan" class="content-section hidden space-y-6">
+            <section id="sec-data-karyawan" class="content-section hidden space-y-6" style="display:none;">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -1770,7 +1844,7 @@
             <!-- =================================================================== -->
             <!-- SECTION 6.2: PROFIL KARYAWAN & SETTING AKUN -->
             <!-- =================================================================== -->
-            <section id="sec-user-profile" class="content-section hidden space-y-6">
+            <section id="sec-user-profile" class="content-section hidden space-y-6" style="display:none;">
                 <div class="bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <h2 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-user-gear text-sky-400"></i>
@@ -3408,7 +3482,14 @@
                 tabId = 'rab';
             }
             currentTab = tabId;
-            document.querySelectorAll('.content-section').forEach(sec => sec.classList.add('hidden'));
+            // Sembunyikan SEMUA section lain secara ganda: lewat class "hidden" (Tailwind) DAN langsung lewat
+            // style.display (inline, prioritas paling tinggi & tidak bergantung pada CSS eksternal selesai
+            // dimuat/diproses). Ini mencegah 2 halaman tampil bertumpuk (mis. Laporan Mingguan & Opname
+            // sekaligus) pada koneksi/HP yang lambat memuat CSS Tailwind dari CDN.
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.add('hidden');
+                sec.style.display = 'none';
+            });
             document.querySelectorAll('.nav-sub-item').forEach(btn => btn.classList.remove('active'));
             closeSidebarMobile();
             // Selalu mulai dari atas halaman saat berpindah menu
@@ -3425,28 +3506,34 @@
                 stopWebcamStream();
             }
 
+            // Tampilkan HANYA 1 section yang aktif - juga lewat class & inline style sekaligus.
+            const showSection = (id) => {
+                const el = document.getElementById(id);
+                if (el) { el.classList.remove('hidden'); el.style.display = ''; }
+                return el;
+            };
+
             if (tabId.startsWith('mat-')) {
                 activeMaterialSub = tabId;
                 materialEditContext = null;
-                document.getElementById('sec-material').classList.remove('hidden');
+                showSection('sec-material');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderMaterialSection();
             } else if (tabId === 'absen-daftar-hadir') {
-                document.getElementById('sec-absen-daftar-hadir').classList.remove('hidden');
+                showSection('sec-absen-daftar-hadir');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderDaftarHadir();
             } else if (tabId.startsWith('absen-')) {
                 activeAbsenType = tabId;
-                document.getElementById('sec-absen').classList.remove('hidden');
+                showSection('sec-absen');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderAbsenSection();
                 startWebcam(); // Baru dinyalakan di sini, khusus halaman Absen Masuk/Keluar
             } else {
-                const sec = document.getElementById('sec-' + tabId);
-                if (sec) sec.classList.remove('hidden');
+                showSection('sec-' + tabId);
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderActiveTabContent();
@@ -6752,11 +6839,15 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // ===================================================================
         // BACKUP QUANTITY - OPNAME LAPANGAN
         // Setiap item pekerjaan RAB (judul: rincian, satuan, volume) dapat memiliki
-        // banyak baris hitungan opname (segmen/ruangan/posisi), masing-masing dengan
+        // banyak baris hitungan opname (segmen/ruangan/posisi) PER MINGGU, masing-masing dengan
         // metode input sendiri (volume/luas/panjang/satuan, memakai koefisien), serta
         // bertipe Tambah atau Kurang (deduction). Baris bisa diedit, dihapus, & diurutkan naik/turun.
+        // Rincian hasil opname ditampilkan sebagai daftar SELURUH item pekerjaan RAB (No/Divisi/Sub/Rincian)
+        // per minggu terpilih, sehingga terlihat mana yang sudah/belum diopname. Hasil opname bersih per
+        // minggu otomatis disinkronkan ke Laporan Mingguan (lapMingguanData) berdasarkan rabId + mingguKe.
         // ===================================================================
-        let bqOpnameSelectedPekerjaanId = null;
+        let bqOpnameSelectedPekerjaanId = null; // item RAB yang sedang dibuka detail opname-nya (null = daftar saja)
+        let bqOpnameSelectedMinggu = 'Minggu 1';
         let bqOpEditRowId = null;
 
         const BQ_OPNAME_METODE = {
@@ -6856,31 +6947,62 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             el.innerText = `Hasil Volume: ${formatAngka(volume)} ${rab ? rab.satuan : ''}`;
         }
 
-        // Filter opsi dropdown Pilih Pekerjaan (RAB) berdasarkan pencarian, khusus proyek aktif
-        function filterBqOpPekerjaanOptions() {
-            const query = (document.getElementById('bqOpSearchPekerjaan').value || '').toLowerCase();
-            const select = document.getElementById('bqOpPekerjaanSelect');
-            const currentVal = select.value;
-            const projRAB = rabData.filter(r => r.projId === activeProjectId);
-            const filtered = projRAB.filter(r => r.sub.toLowerCase().includes(query) || r.div.toLowerCase().includes(query) || r.rincian.toLowerCase().includes(query));
-
-            select.innerHTML = '<option value="">-- Pilih Pekerjaan --</option>' + filtered.map(r =>
-                `<option value="${r.id}" ${String(r.id) === String(currentVal) ? 'selected' : ''}>[${r.noDiv || ''}] ${r.sub} - ${r.rincian} (${r.satuan})</option>`
-            ).join('');
-        }
-
-        function selectBqOpnamePekerjaan() {
-            const select = document.getElementById('bqOpPekerjaanSelect');
-            bqOpnameSelectedPekerjaanId = select.value || null;
+        // Buka area detail input opname untuk 1 item pekerjaan RAB tertentu, pada minggu yang sedang dipilih.
+        function openBqOpnameDetail(rabId) {
+            bqOpnameSelectedPekerjaanId = rabId;
             bqOpEditRowId = null;
             const detailArea = document.getElementById('bqOpDetailArea');
-            if (!bqOpnameSelectedPekerjaanId) { detailArea.classList.add('hidden'); return; }
             detailArea.classList.remove('hidden');
             document.getElementById('formBqOpname').reset();
             document.getElementById('bqOpEditId').value = '';
             cancelBqOpnameEdit();
             renderBqOpnameFormFields();
-            renderBqOpname();
+            renderBqOpnameDetail();
+            detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Tutup area detail & kembali ke daftar rincian per item pekerjaan.
+        function closeBqOpnameDetail() {
+            bqOpnameSelectedPekerjaanId = null;
+            bqOpEditRowId = null;
+            document.getElementById('bqOpDetailArea').classList.add('hidden');
+        }
+
+        // Total opname bersih (Tambah - Kurang) untuk 1 item pekerjaan RAB pada 1 minggu tertentu.
+        function bqOpnameNetVolumeForWeek(rabId, mingguKe) {
+            const rows = bqOpnameData.filter(o => o.pekerjaanId == rabId && o.mingguKe === mingguKe);
+            const totalTambah = rows.filter(o => o.tipe === 'tambah').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            return totalTambah - totalKurang;
+        }
+
+        // Total opname bersih kumulatif untuk 1 item pekerjaan RAB dari Minggu 1 s/d sebelum `beforeWeekNum`
+        // (beforeWeekNum tidak diikutkan). Kalau beforeWeekNum tidak diisi, hitung SELURUH minggu.
+        function bqOpnameNetVolumeCumulative(rabId, beforeWeekNum) {
+            const rows = bqOpnameData.filter(o => {
+                if (o.pekerjaanId != rabId) return false;
+                if (beforeWeekNum === undefined) return true;
+                const wk = parseInt((o.mingguKe || '').replace(/\D/g, ''), 10) || 0;
+                return wk < beforeWeekNum;
+            });
+            const totalTambah = rows.filter(o => o.tipe === 'tambah').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            return totalTambah - totalKurang;
+        }
+
+        // Sinkronkan hasil opname bersih 1 item pekerjaan pada 1 minggu ke Laporan Mingguan (upsert
+        // berdasarkan rabId + mingguKe), supaya "Volume Minggu Ini" pada Laporan Mingguan otomatis
+        // mengikuti hasil opname lapangan tanpa perlu input ulang manual.
+        function syncOpnameToLapMingguan(rabId, mingguKe) {
+            const volumeBersih = bqR2(bqOpnameNetVolumeForWeek(rabId, mingguKe));
+            let entry = lapMingguanData.find(l => l.rabId == rabId && l.mingguKe === mingguKe);
+            if (entry) {
+                entry.volume = volumeBersih;
+            } else {
+                lapMingguanData.push({ id: Date.now() + Math.random(), projId: activeProjectId, rabId, mingguKe, volume: volumeBersih, keterangan: '' });
+            }
+            localStorage.setItem('erp_lap_mingguan', JSON.stringify(lapMingguanData));
+            if (typeof currentTab !== 'undefined' && currentTab === 'lap-mingguan') renderLapMingguan();
         }
 
         function renderBqOpnameJudulInfo() {
@@ -6888,19 +7010,22 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             if (!infoEl) return;
             const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
             if (!rab) { infoEl.innerHTML = ''; return; }
-            const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId);
-            const totalTambah = rows.filter(o => o.tipe === 'tambah').reduce((a, c) => a + (Number(c.volume) || 0), 0);
-            const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
-            const totalBersih = totalTambah - totalKurang;
-            const selisih = totalBersih - rab.volume;
+            const selectedWeekNum = parseInt((bqOpnameSelectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+            const volLalu = bqOpnameNetVolumeCumulative(bqOpnameSelectedPekerjaanId, selectedWeekNum);
+            const volIni = bqOpnameNetVolumeForWeek(bqOpnameSelectedPekerjaanId, bqOpnameSelectedMinggu);
+            const volKum = volLalu + volIni;
+            const selisih = volKum - rab.volume;
             const selisihColor = Math.abs(selisih) < 0.0001 ? 'text-emerald-400' : (selisih > 0 ? 'text-amber-300' : 'text-red-400');
             infoEl.innerHTML = `
                 <div class="bg-[#0b132b] border border-slate-700 rounded-xl p-3 space-y-1">
                     <div class="text-white font-bold text-xs">[${rab.noDiv || '-'}] ${rab.div || ''} &raquo; ${rab.sub} &mdash; ${rab.rincian}</div>
+                    <div class="text-amber-300 font-semibold text-[11px]"><i class="fa-solid fa-calendar-week mr-1"></i>${bqOpnameSelectedMinggu}</div>
                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
                         <span>Satuan: <span class="font-bold text-white">${rab.satuan}</span></span>
                         <span>Volume RAB: <span class="font-bold text-white">${formatAngka(rab.volume)} ${rab.satuan}</span></span>
-                        <span>Total Opname Bersih: <span class="font-bold text-sky-300">${formatAngka(totalBersih)} ${rab.satuan}</span></span>
+                        <span>Opname Minggu Lalu: <span class="font-bold text-slate-300">${formatAngka(volLalu)} ${rab.satuan}</span></span>
+                        <span>Opname Minggu Ini: <span class="font-bold text-amber-300">${formatAngka(volIni)} ${rab.satuan}</span></span>
+                        <span>Opname Komulatif: <span class="font-bold text-sky-300">${formatAngka(volKum)} ${rab.satuan}</span></span>
                         <span>Selisih thd RAB: <span class="font-bold ${selisihColor}">${selisih > 0 ? '+' : ''}${formatAngka(selisih)} ${rab.satuan}</span></span>
                     </div>
                 </div>`;
@@ -6915,19 +7040,20 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const tipe = document.getElementById('bqOpTipe').value;
             const catatan = document.getElementById('bqOpCatatan').value.trim();
 
-            const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: bqR2(volume) };
+            const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: bqR2(volume), mingguKe: bqOpnameSelectedMinggu };
 
             if (bqOpEditRowId) {
                 const idx = bqOpnameData.findIndex(o => o.id === bqOpEditRowId);
                 if (idx !== -1) bqOpnameData[idx] = { ...bqOpnameData[idx], ...rowValues };
             } else {
-                const siblingOrders = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).map(o => o.order || 0);
+                const siblingOrders = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu).map(o => o.order || 0);
                 const nextOrder = siblingOrders.length ? Math.max(...siblingOrders) + 1 : 1;
                 bqOpnameData.push({ id: Date.now(), pekerjaanId: bqOpnameSelectedPekerjaanId, order: nextOrder, ...rowValues });
             }
             localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+            syncOpnameToLapMingguan(bqOpnameSelectedPekerjaanId, bqOpnameSelectedMinggu);
             cancelBqOpnameEdit();
-            renderBqOpname();
+            renderBqOpnameDetail();
         }
 
         function editBqOpnameRow(id) {
@@ -6971,14 +7097,16 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
         function deleteBqOpnameRow(id) {
             if (!confirm('Hapus baris hasil opname ini?')) return;
+            const row = bqOpnameData.find(o => o.id === id);
             bqOpnameData = bqOpnameData.filter(o => o.id !== id);
             localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
-            renderBqOpname();
+            if (row) syncOpnameToLapMingguan(row.pekerjaanId, row.mingguKe);
+            renderBqOpnameDetail();
         }
 
-        // Naik/turun urutan baris opname (tukar nilai 'order' dengan baris tetangga dalam pekerjaan yang sama)
+        // Naik/turun urutan baris opname (tukar nilai 'order' dengan baris tetangga dalam pekerjaan & minggu yang sama)
         function moveBqOpnameRow(id, direction) {
-            const siblings = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).sort((a, b) => (a.order || 0) - (b.order || 0));
+            const siblings = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu).sort((a, b) => (a.order || 0) - (b.order || 0));
             const idx = siblings.findIndex(o => o.id === id);
             if (idx === -1) return;
             const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
@@ -6990,16 +7118,16 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             bqOpnameData[realIdxA].order = b.order;
             bqOpnameData[realIdxB].order = tmpOrder;
             localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
-            renderBqOpname();
+            renderBqOpnameDetail();
         }
 
         function renderBqOpnameTable() {
             const tbody = document.getElementById('bqOpnameTableBody');
             if (!tbody) return;
-            const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).sort((a, b) => (a.order || 0) - (b.order || 0));
+            const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu).sort((a, b) => (a.order || 0) - (b.order || 0));
             const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
             if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini pada ${bqOpnameSelectedMinggu}.</td></tr>`;
             } else {
                 tbody.innerHTML = rows.map((row, idx) => {
                     const tipeBadge = row.tipe === 'kurang'
@@ -7031,26 +7159,28 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
                 const totalBersih = totalTambah - totalKurang;
                 const satuan = rab ? rab.satuan : '';
+                const volLalu = bqOpnameNetVolumeCumulative(bqOpnameSelectedPekerjaanId, parseInt((bqOpnameSelectedMinggu || '').replace(/\D/g, ''), 10) || 1);
                 summaryEl.innerHTML = `
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 mb-3">Ringkasan Total Opname</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 mb-3">Ringkasan Opname &mdash; ${bqOpnameSelectedMinggu}</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
                         <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Total Tambah</div><div class="font-bold text-emerald-400 text-sm">${formatAngka(totalTambah)} ${satuan}</div></div>
                         <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Total Kurang</div><div class="font-bold text-red-400 text-sm">${formatAngka(totalKurang)} ${satuan}</div></div>
-                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Volume Opname Bersih</div><div class="font-bold text-sky-300 text-sm">${formatAngka(totalBersih)} ${satuan}</div></div>
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Opname Bersih Minggu Ini</div><div class="font-bold text-amber-300 text-sm">${formatAngka(totalBersih)} ${satuan}</div></div>
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Opname Komulatif</div><div class="font-bold text-sky-300 text-sm">${formatAngka(volLalu + totalBersih)} ${satuan}</div></div>
                         <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Volume RAB</div><div class="font-bold text-white text-sm">${formatAngka(rab ? rab.volume : 0)} ${satuan}</div></div>
                     </div>`;
             }
         }
 
-        function renderBqOpname() {
-            filterBqOpPekerjaanOptions();
+        // Render area detail (form input + tabel rincian segmen + ringkasan) untuk item pekerjaan yang
+        // sedang dibuka pada bqOpDetailArea. Dipanggil setiap ada perubahan data opname/minggu.
+        function renderBqOpnameDetail() {
             // Jika pekerjaan yang sedang dipilih bukan milik proyek aktif (mis. setelah ganti proyek), reset pilihan
             if (bqOpnameSelectedPekerjaanId) {
                 const rabCheck = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
                 if (!rabCheck || rabCheck.projId !== activeProjectId) bqOpnameSelectedPekerjaanId = null;
             }
             if (bqOpnameSelectedPekerjaanId) {
-                document.getElementById('bqOpPekerjaanSelect').value = bqOpnameSelectedPekerjaanId;
                 document.getElementById('bqOpDetailArea').classList.remove('hidden');
                 renderBqOpnameJudulInfo();
                 renderBqOpnameTable();
@@ -7067,17 +7197,143 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
         }
 
+        // Ketika minggu opname diganti dari dropdown filter: render ulang daftar master, dan jika sedang
+        // ada item yang dibuka detailnya, ikut render ulang detail-nya sesuai minggu baru.
+        function handleBqOpMingguChange() {
+            const sel = document.getElementById('bqOpFilterMingguSelect');
+            bqOpnameSelectedMinggu = sel ? sel.value : 'Minggu 1';
+            renderBqOpnameMaster();
+            if (bqOpnameSelectedPekerjaanId) {
+                cancelBqOpnameEdit();
+                renderBqOpnameDetail();
+            }
+        }
+
+        // Render daftar (master list) SELURUH item pekerjaan RAB proyek aktif, dikelompokkan per Divisi
+        // (sama seperti RAB/Laporan Mingguan), menampilkan status opname minggu lalu/ini/komulatif serta
+        // status sudah/belum diopname, supaya cepat diketahui item mana yang belum dicek di lapangan.
+        function renderBqOpnameMaster() {
+            const mingguSel = document.getElementById('bqOpFilterMingguSelect');
+            const searchEl = document.getElementById('bqOpSearchInput');
+            const periodeLabelEl = document.getElementById('bqOpPeriodeLabel');
+            const tbody = document.getElementById('bqOpnameMasterTableBody');
+            if (!tbody) return;
+
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+
+            if (mingguSel) {
+                const curVal = mingguSel.value || bqOpnameSelectedMinggu || 'Minggu 1';
+                mingguSel.innerHTML = '';
+                for (let i = 1; i <= 12; i++) {
+                    const range = getWeekDateRangeDetailed(i, proj.tglMulai, proj.tglSelesai);
+                    const opt = document.createElement('option');
+                    opt.value = `Minggu ${i}`;
+                    opt.textContent = range ? `Minggu ${i} (${range.labelShort})` : `Minggu ${i}`;
+                    if (`Minggu ${i}` === curVal) opt.selected = true;
+                    mingguSel.appendChild(opt);
+                }
+                bqOpnameSelectedMinggu = mingguSel.value;
+            }
+            const selectedMinggu = bqOpnameSelectedMinggu;
+            const selectedWeekNum = parseInt((selectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+
+            if (periodeLabelEl) {
+                const rangeDetailed = getWeekDateRangeDetailed(selectedWeekNum, proj.tglMulai, proj.tglSelesai);
+                periodeLabelEl.innerHTML = rangeDetailed
+                    ? `<i class="fa-solid fa-calendar-days mr-1"></i>Periode: <span class="text-amber-300 font-semibold">${rangeDetailed.labelFull}</span>`
+                    : `<i class="fa-solid fa-calendar-days mr-1"></i>Tanggal Mulai Proyek belum diatur, periode tanggal tidak dapat dihitung.`;
+            }
+
+            const projRAB = rabData.filter(r => r.projId === activeProjectId);
+            const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
+            const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+            const displayRAB = query
+                ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
+                : projRAB;
+
+            tbody.innerHTML = '';
+            if (displayRAB.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">${projRAB.length === 0 ? 'Belum ada data RAB / Pekerjaan.' : 'Tidak ada item yang cocok dengan pencarian.'}</td></tr>`;
+            } else {
+                const divGroups = [];
+                const divGroupMap = new Map();
+                displayRAB.forEach(item => {
+                    const key = (item.noDiv || '-') + '||' + (item.div || '-');
+                    if (!divGroupMap.has(key)) {
+                        const group = { noDiv: item.noDiv, div: item.div, items: [] };
+                        divGroupMap.set(key, group);
+                        divGroups.push(group);
+                    }
+                    divGroupMap.get(key).items.push(item);
+                });
+                divGroups.sort((ga, gb) => compareDivisionKey(ga.noDiv, gb.noDiv));
+
+                let no = 0, sudahCount = 0, belumCount = 0, sumBobotIni = 0, sumBobotKum = 0;
+                divGroups.forEach(group => {
+                    group.items.forEach(item => {
+                        no++;
+                        const bobotItemRab = subtotal > 0 ? ((item.volume * item.harga) / subtotal) * 100 : 0;
+                        const volLalu = bqOpnameNetVolumeCumulative(item.id, selectedWeekNum);
+                        const volIni = bqOpnameNetVolumeForWeek(item.id, selectedMinggu);
+                        const volKum = volLalu + volIni;
+                        const sudahDiopname = bqOpnameData.some(o => o.pekerjaanId == item.id);
+                        if (sudahDiopname) sudahCount++; else belumCount++;
+                        sumBobotIni += subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
+                        sumBobotKum += subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0;
+
+                        const statusBadge = sudahDiopname
+                            ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold whitespace-nowrap"><i class="fa-solid fa-circle-check mr-1"></i>Sudah Diopname</span>'
+                            : '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold whitespace-nowrap"><i class="fa-solid fa-circle-exclamation mr-1"></i>Belum Diopname</span>';
+
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-800/50 transition';
+                        tr.innerHTML = `
+                            <td class="p-3">${no}</td>
+                            <td class="p-3 font-mono font-bold text-amber-400">${item.noDiv || '-'}</td>
+                            <td class="p-3 font-semibold text-white">${item.div || '-'}</td>
+                            <td class="p-3">${item.sub}</td>
+                            <td class="p-3 text-slate-400">${item.rincian || ''}</td>
+                            <td class="p-3 font-mono">${item.satuan}</td>
+                            <td class="p-3 font-mono">${formatAngka(item.volume)}</td>
+                            <td class="p-3 font-mono text-slate-400">${formatAngka(volLalu)}</td>
+                            <td class="p-3 font-mono font-bold text-amber-300">${formatAngka(volIni)}</td>
+                            <td class="p-3 font-mono font-bold text-sky-300">${formatAngka(volKum)}</td>
+                            <td class="p-3">${statusBadge}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="openBqOpnameDetail(${item.id})" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-bold px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                                    <i class="fa-solid fa-ruler-combined mr-1"></i>Detail Opname
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+
+                document.getElementById('bqOpSumTotalItem').innerText = displayRAB.length;
+                document.getElementById('bqOpSumSudah').innerText = sudahCount;
+                document.getElementById('bqOpSumBelum').innerText = belumCount;
+                document.getElementById('bqOpSumBobotIni').innerText = sumBobotIni.toFixed(2) + ' %';
+                document.getElementById('bqOpSumBobotKum').innerText = sumBobotKum.toFixed(2) + ' %';
+            }
+        }
+
+        // Entry point render halaman Opname: render daftar master, lalu render detail jika sedang terbuka.
+        function renderBqOpname() {
+            renderBqOpnameMaster();
+            renderBqOpnameDetail();
+        }
+
         // Susunan data untuk Export Excel halaman Opname
         function buildBqOpnameExportRows() {
             return bqOpnameData
                 .filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; })
-                .sort((a, b) => (a.pekerjaanId - b.pekerjaanId) || ((a.order || 0) - (b.order || 0)))
+                .sort((a, b) => (a.pekerjaanId - b.pekerjaanId) || ((parseInt((a.mingguKe || '').replace(/\D/g, ''), 10) || 0) - (parseInt((b.mingguKe || '').replace(/\D/g, ''), 10) || 0)) || ((a.order || 0) - (b.order || 0)))
                 .map(o => {
                     const rab = rabData.find(r => r.id == o.pekerjaanId) || {};
                     return {
                         'No/Div': rab.noDiv || '', 'Divisi': rab.div || '', 'Sub Pekerjaan': rab.sub || '',
                         'Rincian': rab.rincian || '', 'Satuan': rab.satuan || '', 'Volume RAB': rab.volume || 0,
-                        'Segmen/Ruangan/Posisi': o.segmen, 'Tipe': o.tipe === 'kurang' ? 'Kurang' : 'Tambah',
+                        'Minggu Ke': o.mingguKe || '', 'Segmen/Ruangan/Posisi': o.segmen, 'Tipe': o.tipe === 'kurang' ? 'Kurang' : 'Tambah',
                         'Metode': BQ_OPNAME_METODE[o.metode] ? BQ_OPNAME_METODE[o.metode].label : o.metode,
                         'Jumlah': o.jumlah || '', 'Panjang': o.panjang || '', 'Lebar': o.lebar || '', 'Tinggi/Tebal': o.tinggi || '',
                         'Koefisien': o.koefisien || '', 'Volume Hasil': o.volume, 'Catatan': o.catatan || ''
