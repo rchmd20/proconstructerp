@@ -379,14 +379,28 @@
                     </div>
                 </div>
 
-                <!-- 4b. BACKUP QUANTITY -->
-                <div>
-                    <button onclick="switchTab('backup-quantity')" id="menu-backup-quantity" class="nav-sub-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition text-left font-semibold">
-                        <div class="flex items-center space-x-2.5">
+                <!-- 4b. BACKUP QUANTITY (Estimasi, MC0, Opname) -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
+                        <span class="flex items-center space-x-2">
                             <i class="fa-solid fa-calculator text-amber-400 w-4"></i>
-                            <span>Backup Quantity</span>
-                        </div>
-                    </button>
+                            <span>BACKUP QUANTITY</span>
+                        </span>
+                    </div>
+                    <div class="pl-4 space-y-1 border-l-2 border-slate-700 ml-3">
+                        <button onclick="switchTab('bq-estimasi')" id="menu-bq-estimasi" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                            <span>Estimasi</span>
+                        </button>
+                        <button onclick="switchTab('bq-mc0')" id="menu-bq-mc0" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-circle-check text-[10px]"></i>
+                            <span>MC0</span>
+                        </button>
+                        <button onclick="switchTab('bq-opname')" id="menu-bq-opname" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-ruler-combined text-[10px]"></i>
+                            <span>Opname</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 5. ABSEN KARYAWAN -->
@@ -1223,17 +1237,17 @@
             <!-- SECTION 4: MATERIAL & BACKUP QUANTITY -->
             <!-- =================================================================== -->
             <!-- 4.A BACKUP QUANTITY MODULE -->
-            <section id="sec-backup-quantity" class="content-section hidden space-y-6">
+            <section id="sec-bq-estimasi" class="content-section hidden space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
                             <i class="fa-solid fa-calculator text-amber-400"></i>
-                            <span>Backup Quantity & Material Takeoff AI</span>
+                            <span>Backup Quantity - Estimasi & Material Takeoff AI</span>
                         </h2>
                         <p class="text-xs text-slate-400 mt-0.5">Hitung kebutuhan material secara otomatis & detail hanya dengan menginput gambar atau screenshot denah/gambar kerja.</p>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="triggerExcelExport('backup-quantity')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                        <button onclick="triggerExcelExport('bq-estimasi')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Export Excel</span>
                         </button>
@@ -1351,6 +1365,135 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- 4.A2 BACKUP QUANTITY - MC0 (DALAM TAHAP PENGEMBANGAN) -->
+            <section id="sec-bq-mc0" class="content-section hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-file-circle-check text-amber-400"></i>
+                            <span>Backup Quantity - MC0</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Mutual Check Awal (MC0) proyek.</p>
+                    </div>
+                </div>
+                <div class="navy-card p-10 rounded-2xl text-center space-y-3">
+                    <i class="fa-solid fa-hammer text-4xl text-amber-400"></i>
+                    <h3 class="text-white font-bold text-sm">Halaman MC0 Dalam Tahap Pengembangan</h3>
+                    <p class="text-xs text-slate-400 max-w-lg mx-auto">Fitur Mutual Check 0 (MC0) akan dikembangkan menyusul pada revisi berikutnya. Untuk saat ini silakan gunakan halaman Estimasi & Opname.</p>
+                </div>
+            </section>
+
+            <!-- 4.A3 BACKUP QUANTITY - OPNAME LAPANGAN -->
+            <section id="sec-bq-opname" class="content-section hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-ruler-combined text-amber-400"></i>
+                            <span>Backup Quantity - Opname Lapangan</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Hitung volume hasil opname lapangan per item pekerjaan RAB, lengkap dengan segmen/ruangan, metode hitung, koefisien, dan deduction.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('bq-opname')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PILIH PEKERJAAN RAB SEBAGAI ACUAN JUDUL OPNAME -->
+                <div class="navy-card p-5 rounded-2xl space-y-3">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">1. Pilih Item Pekerjaan (Acuan dari RAB)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <input type="text" id="bqOpSearchPekerjaan" oninput="filterBqOpPekerjaanOptions()" placeholder="Ketik untuk cari pekerjaan RAB..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                        <select id="bqOpPekerjaanSelect" onchange="selectBqOpnamePekerjaan()" class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <option value="">-- Pilih Pekerjaan --</option>
+                        </select>
+                    </div>
+                    <div id="bqOpJudulInfo" class="text-[11px] text-slate-400"></div>
+                </div>
+
+                <div id="bqOpDetailArea" class="hidden space-y-6">
+                    <!-- FORM TAMBAH/EDIT BARIS OPNAME -->
+                    <div class="navy-card p-5 rounded-2xl space-y-4">
+                        <h3 id="bqOpFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">2. Input Perhitungan Opname</h3>
+                        <form id="formBqOpname" onsubmit="handleBqOpnameSubmit(event)" class="space-y-3 text-xs">
+                            <input type="hidden" id="bqOpEditId" value="">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="md:col-span-2">
+                                    <label class="block text-slate-400 mb-1">Segmen / Ruangan / Posisi Opname</label>
+                                    <input type="text" id="bqOpSegmen" required placeholder="Contoh: Lantai 2 - Ruang Kelas A / As 1-5 / Segmen STA 0+100" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 mb-1">Tipe Perhitungan</label>
+                                    <select id="bqOpTipe" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                        <option value="tambah">Tambah (Volume Terukur)</option>
+                                        <option value="kurang">Kurang (Deduction / Pengurangan)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1">Metode Input Perhitungan</label>
+                                <select id="bqOpMetode" onchange="renderBqOpnameFormFields()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                    <option value="plt">Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume)</option>
+                                    <option value="pl">Jumlah × Panjang × Lebar × Koefisien (Luas)</option>
+                                    <option value="p">Jumlah × Panjang × Koefisien (Panjang / Keliling)</option>
+                                    <option value="jml">Jumlah × Koefisien (Satuan / Unit / Titik)</option>
+                                    <option value="langsung">Volume / Nilai Langsung (Manual) × Koefisien</option>
+                                </select>
+                            </div>
+
+                            <div id="bqOpFieldsContainer" class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                <!-- JS populated: Jumlah, Panjang, Lebar, Tinggi, Koefisien -->
+                            </div>
+
+                            <div id="bqOpFormulaPreview" class="text-[11px] text-amber-300 font-mono"></div>
+
+                            <div>
+                                <label class="block text-slate-400 mb-1">Catatan (opsional)</label>
+                                <input type="text" id="bqOpCatatan" placeholder="Catatan tambahan mengenai hasil opname ini..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            </div>
+
+                            <div class="flex justify-end items-center gap-2 pt-1">
+                                <button type="button" id="bqOpCancelBtn" onclick="cancelBqOpnameEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">
+                                    <i class="fa-solid fa-xmark mr-1"></i> Batal Edit
+                                </button>
+                                <button type="submit" id="bqOpSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition">
+                                    <i class="fa-solid fa-plus mr-1"></i> Tambah Baris Opname
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TABEL HASIL OPNAME -->
+                    <div class="navy-card rounded-2xl overflow-hidden">
+                        <div class="p-3 bg-[#0b132b] border-b border-slate-700">
+                            <span class="font-bold text-slate-200 text-xs">3. Rincian Hasil Opname per Segmen/Posisi</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                    <tr>
+                                        <th class="p-3">No</th>
+                                        <th class="p-3">Segmen / Ruangan / Posisi</th>
+                                        <th class="p-3">Tipe</th>
+                                        <th class="p-3">Rumus / Detail Hitung</th>
+                                        <th class="p-3">Volume</th>
+                                        <th class="p-3">Catatan</th>
+                                        <th class="p-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bqOpnameTableBody" class="divide-y divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- RINGKASAN TOTAL -->
+                    <div id="bqOpnameSummary" class="navy-card p-5 rounded-2xl"></div>
                 </div>
             </section>
 
@@ -2271,6 +2414,8 @@
         let absenKeluarData = JSON.parse(localStorage.getItem('erp_absen_keluar')) || [];
         let leaveData = JSON.parse(localStorage.getItem('erp_leave')) || []; // Izin / Sakit / Cuti
         let bqResultsData = JSON.parse(localStorage.getItem('erp_bq_results')) || [];
+        // Data Opname Lapangan (Backup Quantity > Opname): tiap baris = 1 hitungan opname untuk 1 item pekerjaan RAB
+        let bqOpnameData = JSON.parse(localStorage.getItem('erp_bq_opname')) || [];
 
         // ===================================================================
         // FIREBASE CLOUD SYNC — supaya data terbagi & tersinkron di semua device/pengguna
@@ -2337,7 +2482,7 @@
             erp_lap_mingguan: 'lapMingguan', erp_div_schedule: 'divSchedule', erp_kebutuhan_mat: 'kebutuhanMat',
             erp_mat_order: 'materialOrder', erp_mat_masuk: 'materialMasuk', erp_mat_keluar: 'materialKeluar',
             erp_karyawan: 'karyawan', erp_absen_masuk: 'absenMasuk', erp_absen_keluar: 'absenKeluar',
-            erp_leave: 'leave', erp_bq_results: 'bqResults'
+            erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname'
         };
         let cloudWorkspaceId = null;
         let cloudWorkspaceUnsub = null;
@@ -2365,6 +2510,7 @@
                     case 'erp_absen_keluar': absenKeluarData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_leave': leaveData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_bq_results': bqResultsData = JSON.parse(localStorage.getItem(k)) || []; break;
+                    case 'erp_bq_opname': bqOpnameData = JSON.parse(localStorage.getItem(k)) || []; break;
                 }
             });
             // Jika sesi sedang login, refresh currentUser dari daftar users terbaru (mis. status approval berubah)
@@ -3314,7 +3460,8 @@
             else if (currentTab === 'lap-bulanan') renderLapBulanan();
             else if (currentTab === 'time-schedule') renderTimeSchedule();
             else if (currentTab === 'action-plan') renderActionPlan();
-            else if (currentTab === 'backup-quantity') renderBackupQuantity();
+            else if (currentTab === 'bq-estimasi') renderBackupQuantity();
+            else if (currentTab === 'bq-opname') renderBqOpname();
             else if (currentTab === 'data-karyawan') renderEmployeeTable();
             else if (currentTab === 'user-profile') updateUserHeaderUI();
         }
@@ -6603,6 +6750,342 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         }
 
         // ===================================================================
+        // BACKUP QUANTITY - OPNAME LAPANGAN
+        // Setiap item pekerjaan RAB (judul: rincian, satuan, volume) dapat memiliki
+        // banyak baris hitungan opname (segmen/ruangan/posisi), masing-masing dengan
+        // metode input sendiri (volume/luas/panjang/satuan, memakai koefisien), serta
+        // bertipe Tambah atau Kurang (deduction). Baris bisa diedit, dihapus, & diurutkan naik/turun.
+        // ===================================================================
+        let bqOpnameSelectedPekerjaanId = null;
+        let bqOpEditRowId = null;
+
+        const BQ_OPNAME_METODE = {
+            plt: {
+                label: 'Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume)',
+                fields: ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'],
+                labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', lebar: 'Lebar (m)', tinggi: 'Tinggi/Tebal (m)', koefisien: 'Koefisien' }
+            },
+            pl: {
+                label: 'Jumlah × Panjang × Lebar × Koefisien (Luas)',
+                fields: ['jumlah', 'panjang', 'lebar', 'koefisien'],
+                labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', lebar: 'Lebar (m)', koefisien: 'Koefisien' }
+            },
+            p: {
+                label: 'Jumlah × Panjang × Koefisien (Panjang / Keliling)',
+                fields: ['jumlah', 'panjang', 'koefisien'],
+                labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', koefisien: 'Koefisien' }
+            },
+            jml: {
+                label: 'Jumlah × Koefisien (Satuan / Unit / Titik)',
+                fields: ['jumlah', 'koefisien'],
+                labels: { jumlah: 'Jumlah (unit/titik/buah)', koefisien: 'Koefisien' }
+            },
+            langsung: {
+                label: 'Volume / Nilai Langsung (Manual) × Koefisien',
+                fields: ['jumlah', 'koefisien'],
+                labels: { jumlah: 'Nilai / Volume Terukur', koefisien: 'Koefisien' }
+            }
+        };
+        const BQ_OPNAME_ALL_FIELDS = ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'];
+        const BQ_OPNAME_FIELD_ICON = { jumlah: 'fa-hashtag', panjang: 'fa-ruler-horizontal', lebar: 'fa-ruler-vertical', tinggi: 'fa-cube', koefisien: 'fa-percent' };
+
+        // Menampilkan input field sesuai metode yang dipilih (field yang tidak relevan disembunyikan, bukan dihapus, agar nilai tidak hilang saat ganti-ganti metode)
+        function renderBqOpnameFormFields() {
+            const metode = document.getElementById('bqOpMetode').value;
+            const cfg = BQ_OPNAME_METODE[metode];
+            const container = document.getElementById('bqOpFieldsContainer');
+            if (!container) return;
+            if (!container.dataset.built) {
+                container.innerHTML = BQ_OPNAME_ALL_FIELDS.map(f => `
+                    <div id="bqOpWrap_${f}">
+                        <label class="block text-slate-400 mb-1"><i class="fa-solid ${BQ_OPNAME_FIELD_ICON[f]} mr-1 text-amber-400"></i><span id="bqOpLabel_${f}">${f}</span></label>
+                        <input type="number" step="any" id="bqOp_${f}" value="${f === 'koefisien' ? '1' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                    </div>
+                `).join('');
+                container.dataset.built = '1';
+            }
+            BQ_OPNAME_ALL_FIELDS.forEach(f => {
+                const wrap = document.getElementById('bqOpWrap_' + f);
+                const input = document.getElementById('bqOp_' + f);
+                if (!wrap || !input) return;
+                if (cfg.fields.includes(f)) {
+                    wrap.classList.remove('hidden');
+                    document.getElementById('bqOpLabel_' + f).innerText = cfg.labels[f] || f;
+                    input.required = true;
+                } else {
+                    wrap.classList.add('hidden');
+                    input.required = false;
+                }
+            });
+            updateBqOpnameFormulaPreview();
+        }
+
+        function bqOpnameReadFormValues() {
+            const metode = document.getElementById('bqOpMetode').value;
+            const cfg = BQ_OPNAME_METODE[metode];
+            const vals = {};
+            BQ_OPNAME_ALL_FIELDS.forEach(f => {
+                const input = document.getElementById('bqOp_' + f);
+                vals[f] = input ? (parseFloat(input.value) || 0) : 0;
+            });
+            return { metode, cfg, vals };
+        }
+
+        // Hitung volume 1 baris opname dari field-field yang relevan sesuai metode (field yang tidak dipakai dianggap 1, tidak mempengaruhi hasil kali)
+        function computeBqOpnameVolume(metode, vals) {
+            const cfg = BQ_OPNAME_METODE[metode];
+            if (!cfg) return 0;
+            let result = 1;
+            cfg.fields.forEach(f => { result *= (Number(vals[f]) || 0); });
+            return result;
+        }
+
+        function bqOpnameFormulaText(row) {
+            const cfg = BQ_OPNAME_METODE[row.metode];
+            if (!cfg) return '';
+            const parts = cfg.fields.map(f => `${formatAngka(row[f])}`);
+            return `${parts.join(' × ')} = <span class="font-bold text-white">${formatAngka(row.volume)}</span>`;
+        }
+
+        function updateBqOpnameFormulaPreview() {
+            const el = document.getElementById('bqOpFormulaPreview');
+            if (!el) return;
+            const { metode, vals } = bqOpnameReadFormValues();
+            const volume = computeBqOpnameVolume(metode, vals);
+            const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
+            el.innerText = `Hasil Volume: ${formatAngka(volume)} ${rab ? rab.satuan : ''}`;
+        }
+
+        // Filter opsi dropdown Pilih Pekerjaan (RAB) berdasarkan pencarian, khusus proyek aktif
+        function filterBqOpPekerjaanOptions() {
+            const query = (document.getElementById('bqOpSearchPekerjaan').value || '').toLowerCase();
+            const select = document.getElementById('bqOpPekerjaanSelect');
+            const currentVal = select.value;
+            const projRAB = rabData.filter(r => r.projId === activeProjectId);
+            const filtered = projRAB.filter(r => r.sub.toLowerCase().includes(query) || r.div.toLowerCase().includes(query) || r.rincian.toLowerCase().includes(query));
+
+            select.innerHTML = '<option value="">-- Pilih Pekerjaan --</option>' + filtered.map(r =>
+                `<option value="${r.id}" ${String(r.id) === String(currentVal) ? 'selected' : ''}>[${r.noDiv || ''}] ${r.sub} - ${r.rincian} (${r.satuan})</option>`
+            ).join('');
+        }
+
+        function selectBqOpnamePekerjaan() {
+            const select = document.getElementById('bqOpPekerjaanSelect');
+            bqOpnameSelectedPekerjaanId = select.value || null;
+            bqOpEditRowId = null;
+            const detailArea = document.getElementById('bqOpDetailArea');
+            if (!bqOpnameSelectedPekerjaanId) { detailArea.classList.add('hidden'); return; }
+            detailArea.classList.remove('hidden');
+            document.getElementById('formBqOpname').reset();
+            document.getElementById('bqOpEditId').value = '';
+            cancelBqOpnameEdit();
+            renderBqOpnameFormFields();
+            renderBqOpname();
+        }
+
+        function renderBqOpnameJudulInfo() {
+            const infoEl = document.getElementById('bqOpJudulInfo');
+            if (!infoEl) return;
+            const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
+            if (!rab) { infoEl.innerHTML = ''; return; }
+            const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId);
+            const totalTambah = rows.filter(o => o.tipe === 'tambah').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+            const totalBersih = totalTambah - totalKurang;
+            const selisih = totalBersih - rab.volume;
+            const selisihColor = Math.abs(selisih) < 0.0001 ? 'text-emerald-400' : (selisih > 0 ? 'text-amber-300' : 'text-red-400');
+            infoEl.innerHTML = `
+                <div class="bg-[#0b132b] border border-slate-700 rounded-xl p-3 space-y-1">
+                    <div class="text-white font-bold text-xs">[${rab.noDiv || '-'}] ${rab.div || ''} &raquo; ${rab.sub} &mdash; ${rab.rincian}</div>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+                        <span>Satuan: <span class="font-bold text-white">${rab.satuan}</span></span>
+                        <span>Volume RAB: <span class="font-bold text-white">${formatAngka(rab.volume)} ${rab.satuan}</span></span>
+                        <span>Total Opname Bersih: <span class="font-bold text-sky-300">${formatAngka(totalBersih)} ${rab.satuan}</span></span>
+                        <span>Selisih thd RAB: <span class="font-bold ${selisihColor}">${selisih > 0 ? '+' : ''}${formatAngka(selisih)} ${rab.satuan}</span></span>
+                    </div>
+                </div>`;
+        }
+
+        function handleBqOpnameSubmit(e) {
+            e.preventDefault();
+            if (!bqOpnameSelectedPekerjaanId) { alert('Pilih item pekerjaan RAB terlebih dahulu.'); return; }
+            const { metode, vals } = bqOpnameReadFormValues();
+            const volume = computeBqOpnameVolume(metode, vals);
+            const segmen = document.getElementById('bqOpSegmen').value.trim();
+            const tipe = document.getElementById('bqOpTipe').value;
+            const catatan = document.getElementById('bqOpCatatan').value.trim();
+
+            const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: bqR2(volume) };
+
+            if (bqOpEditRowId) {
+                const idx = bqOpnameData.findIndex(o => o.id === bqOpEditRowId);
+                if (idx !== -1) bqOpnameData[idx] = { ...bqOpnameData[idx], ...rowValues };
+            } else {
+                const siblingOrders = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).map(o => o.order || 0);
+                const nextOrder = siblingOrders.length ? Math.max(...siblingOrders) + 1 : 1;
+                bqOpnameData.push({ id: Date.now(), pekerjaanId: bqOpnameSelectedPekerjaanId, order: nextOrder, ...rowValues });
+            }
+            localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+            cancelBqOpnameEdit();
+            renderBqOpname();
+        }
+
+        function editBqOpnameRow(id) {
+            const row = bqOpnameData.find(o => o.id === id);
+            if (!row) return;
+            bqOpEditRowId = id;
+            document.getElementById('bqOpEditId').value = id;
+            document.getElementById('bqOpSegmen').value = row.segmen;
+            document.getElementById('bqOpTipe').value = row.tipe;
+            document.getElementById('bqOpMetode').value = row.metode;
+            renderBqOpnameFormFields();
+            BQ_OPNAME_ALL_FIELDS.forEach(f => {
+                const input = document.getElementById('bqOp_' + f);
+                if (input) input.value = (row[f] !== undefined && row[f] !== null) ? row[f] : (f === 'koefisien' ? 1 : '');
+            });
+            document.getElementById('bqOpCatatan').value = row.catatan || '';
+            updateBqOpnameFormulaPreview();
+
+            document.getElementById('bqOpFormTitle').innerText = 'Edit Baris Perhitungan Opname';
+            const submitBtn = document.getElementById('bqOpSubmitBtn');
+            submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('bqOpCancelBtn').classList.remove('hidden');
+            document.getElementById('formBqOpname').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelBqOpnameEdit() {
+            bqOpEditRowId = null;
+            const form = document.getElementById('formBqOpname');
+            if (form) form.reset();
+            document.getElementById('bqOpEditId').value = '';
+            document.getElementById('bqOpTipe').value = 'tambah';
+            document.getElementById('bqOpMetode').value = 'plt';
+            renderBqOpnameFormFields();
+            const titleEl = document.getElementById('bqOpFormTitle');
+            if (titleEl) titleEl.innerText = '2. Input Perhitungan Opname';
+            const submitBtn = document.getElementById('bqOpSubmitBtn');
+            if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Tambah Baris Opname';
+            const cancelBtn = document.getElementById('bqOpCancelBtn');
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+        }
+
+        function deleteBqOpnameRow(id) {
+            if (!confirm('Hapus baris hasil opname ini?')) return;
+            bqOpnameData = bqOpnameData.filter(o => o.id !== id);
+            localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+            renderBqOpname();
+        }
+
+        // Naik/turun urutan baris opname (tukar nilai 'order' dengan baris tetangga dalam pekerjaan yang sama)
+        function moveBqOpnameRow(id, direction) {
+            const siblings = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).sort((a, b) => (a.order || 0) - (b.order || 0));
+            const idx = siblings.findIndex(o => o.id === id);
+            if (idx === -1) return;
+            const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+            if (targetIdx < 0 || targetIdx >= siblings.length) return;
+            const a = siblings[idx], b = siblings[targetIdx];
+            const tmpOrder = a.order;
+            const realIdxA = bqOpnameData.findIndex(o => o.id === a.id);
+            const realIdxB = bqOpnameData.findIndex(o => o.id === b.id);
+            bqOpnameData[realIdxA].order = b.order;
+            bqOpnameData[realIdxB].order = tmpOrder;
+            localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+            renderBqOpname();
+        }
+
+        function renderBqOpnameTable() {
+            const tbody = document.getElementById('bqOpnameTableBody');
+            if (!tbody) return;
+            const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId).sort((a, b) => (a.order || 0) - (b.order || 0));
+            const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini.</td></tr>`;
+            } else {
+                tbody.innerHTML = rows.map((row, idx) => {
+                    const tipeBadge = row.tipe === 'kurang'
+                        ? '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">KURANG</span>'
+                        : '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">TAMBAH</span>';
+                    return `
+                        <tr>
+                            <td class="p-3">${idx + 1}</td>
+                            <td class="p-3 font-medium text-white">${row.segmen}</td>
+                            <td class="p-3">${tipeBadge}</td>
+                            <td class="p-3 text-[11px] text-slate-400">${BQ_OPNAME_METODE[row.metode] ? BQ_OPNAME_METODE[row.metode].label : ''}<br>${bqOpnameFormulaText(row)}</td>
+                            <td class="p-3 font-mono font-bold ${row.tipe === 'kurang' ? 'text-red-400' : 'text-emerald-400'}">${row.tipe === 'kurang' ? '-' : ''}${formatAngka(row.volume)} ${rab ? rab.satuan : ''}</td>
+                            <td class="p-3 text-[11px] text-slate-400">${row.catatan || '-'}</td>
+                            <td class="p-3">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button onclick="moveBqOpnameRow(${row.id}, 'up')" ${idx === 0 ? 'disabled' : ''} class="text-slate-400 hover:text-amber-400 disabled:opacity-20 disabled:cursor-not-allowed transition" title="Naik"><i class="fa-solid fa-arrow-up"></i></button>
+                                    <button onclick="moveBqOpnameRow(${row.id}, 'down')" ${idx === rows.length - 1 ? 'disabled' : ''} class="text-slate-400 hover:text-amber-400 disabled:opacity-20 disabled:cursor-not-allowed transition" title="Turun"><i class="fa-solid fa-arrow-down"></i></button>
+                                    <button onclick="editBqOpnameRow(${row.id})" class="text-sky-400 hover:text-sky-300 transition" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteBqOpnameRow(${row.id})" class="text-red-400 hover:text-red-300 transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
+            }
+
+            const summaryEl = document.getElementById('bqOpnameSummary');
+            if (summaryEl) {
+                const totalTambah = rows.filter(o => o.tipe === 'tambah').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+                const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
+                const totalBersih = totalTambah - totalKurang;
+                const satuan = rab ? rab.satuan : '';
+                summaryEl.innerHTML = `
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 mb-3">Ringkasan Total Opname</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Total Tambah</div><div class="font-bold text-emerald-400 text-sm">${formatAngka(totalTambah)} ${satuan}</div></div>
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Total Kurang</div><div class="font-bold text-red-400 text-sm">${formatAngka(totalKurang)} ${satuan}</div></div>
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Volume Opname Bersih</div><div class="font-bold text-sky-300 text-sm">${formatAngka(totalBersih)} ${satuan}</div></div>
+                        <div class="bg-[#0b132b] rounded-xl p-3"><div class="text-slate-400 text-[10px] uppercase">Volume RAB</div><div class="font-bold text-white text-sm">${formatAngka(rab ? rab.volume : 0)} ${satuan}</div></div>
+                    </div>`;
+            }
+        }
+
+        function renderBqOpname() {
+            filterBqOpPekerjaanOptions();
+            // Jika pekerjaan yang sedang dipilih bukan milik proyek aktif (mis. setelah ganti proyek), reset pilihan
+            if (bqOpnameSelectedPekerjaanId) {
+                const rabCheck = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
+                if (!rabCheck || rabCheck.projId !== activeProjectId) bqOpnameSelectedPekerjaanId = null;
+            }
+            if (bqOpnameSelectedPekerjaanId) {
+                document.getElementById('bqOpPekerjaanSelect').value = bqOpnameSelectedPekerjaanId;
+                document.getElementById('bqOpDetailArea').classList.remove('hidden');
+                renderBqOpnameJudulInfo();
+                renderBqOpnameTable();
+                const metodeSel = document.getElementById('bqOpMetode');
+                if (metodeSel && !metodeSel.value) metodeSel.value = 'plt';
+                renderBqOpnameFormFields();
+                // Live preview volume saat mengetik
+                BQ_OPNAME_ALL_FIELDS.forEach(f => {
+                    const input = document.getElementById('bqOp_' + f);
+                    if (input && !input.dataset.bound) { input.addEventListener('input', updateBqOpnameFormulaPreview); input.dataset.bound = '1'; }
+                });
+            } else {
+                document.getElementById('bqOpDetailArea').classList.add('hidden');
+            }
+        }
+
+        // Susunan data untuk Export Excel halaman Opname
+        function buildBqOpnameExportRows() {
+            return bqOpnameData
+                .filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; })
+                .sort((a, b) => (a.pekerjaanId - b.pekerjaanId) || ((a.order || 0) - (b.order || 0)))
+                .map(o => {
+                    const rab = rabData.find(r => r.id == o.pekerjaanId) || {};
+                    return {
+                        'No/Div': rab.noDiv || '', 'Divisi': rab.div || '', 'Sub Pekerjaan': rab.sub || '',
+                        'Rincian': rab.rincian || '', 'Satuan': rab.satuan || '', 'Volume RAB': rab.volume || 0,
+                        'Segmen/Ruangan/Posisi': o.segmen, 'Tipe': o.tipe === 'kurang' ? 'Kurang' : 'Tambah',
+                        'Metode': BQ_OPNAME_METODE[o.metode] ? BQ_OPNAME_METODE[o.metode].label : o.metode,
+                        'Jumlah': o.jumlah || '', 'Panjang': o.panjang || '', 'Lebar': o.lebar || '', 'Tinggi/Tebal': o.tinggi || '',
+                        'Koefisien': o.koefisien || '', 'Volume Hasil': o.volume, 'Catatan': o.catatan || ''
+                    };
+                });
+        }
+
+        // ===================================================================
         // BACKUP QUANTITY - INPUT MANUAL SESUAI KATEGORI PEKERJAAN
         // Setiap kategori punya field input & metode/rumus perhitungan sendiri.
         // Hasil kalkulasi akan otomatis memunculkan seluruh material yang
@@ -8059,7 +8542,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenMasuk: absenMasukData.filter(a => a.projId === activeProjectId),
                     absenKeluar: absenKeluarData.filter(a => a.projId === activeProjectId),
                     leave: leaveData.filter(l => l.projId === activeProjectId),
-                    bqResults: bqResultsData
+                    bqResults: bqResultsData,
+                    bqOpname: bqOpnameData.filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; })
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -8109,6 +8593,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenKeluarData = mergeByProj(absenKeluarData, backup.data.absenKeluar, 'projId');
                     leaveData = mergeByProj(leaveData, backup.data.leave, 'projId');
                     if (Array.isArray(backup.data.bqResults) && backup.data.bqResults.length) bqResultsData = backup.data.bqResults;
+                    bqOpnameData = [...bqOpnameData.filter(o => !rabIdsProj.has(o.pekerjaanId)), ...(backup.data.bqOpname || [])];
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -8124,6 +8609,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));
                     localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
+                    localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
 
                     activeProjectId = pid;
                     localStorage.setItem('erp_active_project', activeProjectId);
@@ -8164,7 +8650,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenMasuk: absenMasukData,
                     absenKeluar: absenKeluarData,
                     leave: leaveData,
-                    bqResults: bqResultsData
+                    bqResults: bqResultsData,
+                    bqOpname: bqOpnameData
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -8218,6 +8705,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenKeluarData = mergeAllByProj(absenKeluarData, backup.data.absenKeluar);
                     leaveData = mergeAllByProj(leaveData, backup.data.leave);
                     if (Array.isArray(backup.data.bqResults) && backup.data.bqResults.length) bqResultsData = backup.data.bqResults;
+                    if (Array.isArray(backup.data.bqOpname)) bqOpnameData = backup.data.bqOpname;
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -8233,6 +8721,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));
                     localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
+                    localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
 
                     if (backup.projects.length > 0) {
                         activeProjectId = backup.projects[0].id;
@@ -8531,7 +9020,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 });
             }
             else if (type === 'time-schedule' || type === 'action-plan') dataArr = rabData.filter(r => r.projId === activeProjectId);
-            else if (type === 'backup-quantity') dataArr = bqResultsData;
+            else if (type === 'bq-estimasi') dataArr = bqResultsData;
+            else if (type === 'bq-opname') dataArr = buildBqOpnameExportRows();
             else if (type === 'absen-daftar-hadir') {
                 const bulanInput = document.getElementById('dhFilterBulan');
                 const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
