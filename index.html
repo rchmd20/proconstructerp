@@ -293,6 +293,16 @@
 
             <nav class="space-y-1.5 custom-scroll overflow-y-auto flex-1 min-h-0 text-xs">
 
+                <!-- 0. BERANDA -->
+                <div>
+                    <button onclick="switchTab('home')" id="menu-home" class="nav-sub-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition text-left font-semibold">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid fa-house text-emerald-400 w-4"></i>
+                            <span>Beranda</span>
+                        </div>
+                    </button>
+                </div>
+
                 <!-- 1. RAB -->
                 <div>
                     <button onclick="switchTab('rab')" id="menu-rab" class="nav-sub-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition text-left font-semibold">
@@ -302,7 +312,6 @@
                         </div>
                     </button>
                 </div>
-
                 <!-- 2. LAPORAN (Accordion) -->
                 <div class="space-y-1">
                     <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
@@ -467,9 +476,153 @@
         <main class="flex-1 p-4 md:p-6 custom-scroll overflow-y-auto" id="mainContentArea">
 
             <!-- =================================================================== -->
+            <!-- SECTION 0: BERANDA / HOMEPAGE DASHBOARD -->
+            <!-- =================================================================== -->
+            <section id="sec-home" class="content-section space-y-6">
+                <!-- Hero Welcome Banner -->
+                <div class="navy-card rounded-2xl border border-amber-500/30 p-5 md:p-6 relative overflow-hidden shadow-lg">
+                    <div class="absolute -right-10 -top-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl"></div>
+                    <div class="absolute -right-6 bottom-0 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl"></div>
+                    <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div id="homeGreetingText" class="text-lg md:text-xl font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-helmet-safety text-amber-400"></i>
+                                <span>Selamat Datang, User</span>
+                            </div>
+                            <p id="homeGreetingSub" class="text-xs text-slate-400 mt-1">Berikut ringkasan kondisi proyek Anda hari ini.</p>
+                            <p id="homeTodayDate" class="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar"></i> <span>-</span>
+                            </p>
+                        </div>
+                        <div class="bg-[#0b132b] border border-[#334155] rounded-2xl px-4 py-3 min-w-[220px]">
+                            <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide flex items-center gap-1.5">
+                                <i class="fa-solid fa-building-user text-amber-400"></i> Proyek Aktif
+                            </div>
+                            <div id="homeProjectName" class="text-sm font-bold text-white mt-1">-</div>
+                            <div id="homeProjectLoc" class="text-[11px] text-slate-400 mt-0.5">-</div>
+                            <div class="flex items-center justify-between mt-2 text-[11px]">
+                                <span class="text-slate-400">Sisa Waktu</span>
+                                <span id="homeProjectSisaHari" class="font-mono font-bold text-sky-300">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Stat Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                    <div class="navy-card p-4 rounded-2xl border border-amber-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 mb-2"><i class="fa-solid fa-calculator"></i></div>
+                        <div id="homeKpiTotalAnggaran" class="text-sm md:text-base font-extrabold text-white truncate">Rp 0</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Total Anggaran (RAB)</div>
+                    </div>
+                    <div class="navy-card p-4 rounded-2xl border border-emerald-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400 mb-2"><i class="fa-solid fa-chart-line"></i></div>
+                        <div id="homeKpiProgress" class="text-sm md:text-base font-extrabold text-white">0%</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Progress Fisik Kumulatif</div>
+                    </div>
+                    <div class="navy-card p-4 rounded-2xl border border-sky-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 mb-2"><i class="fa-solid fa-list-check"></i></div>
+                        <div id="homeKpiItemRab" class="text-sm md:text-base font-extrabold text-white">0</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Item Pekerjaan RAB</div>
+                    </div>
+                    <div class="navy-card p-4 rounded-2xl border border-indigo-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-indigo-400 mb-2"><i class="fa-solid fa-users"></i></div>
+                        <div id="homeKpiKaryawan" class="text-sm md:text-base font-extrabold text-white">0</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Karyawan Terdaftar</div>
+                    </div>
+                    <div class="navy-card p-4 rounded-2xl border border-rose-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-400 mb-2"><i class="fa-solid fa-camera-retro"></i></div>
+                        <div id="homeKpiAbsenHariIni" class="text-sm md:text-base font-extrabold text-white">0</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Absen Masuk Hari Ini</div>
+                    </div>
+                    <div class="navy-card p-4 rounded-2xl border border-purple-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 mb-2"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        <div id="homeKpiMaterial" class="text-sm md:text-base font-extrabold text-white">0</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Jenis Kebutuhan Material</div>
+                    </div>
+                </div>
+                <!-- Progress Bar Fisik -->
+                <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gauge-high text-emerald-400"></i> Progress Fisik Keseluruhan Proyek</h3>
+                        <span id="homeProgressLabel" class="text-xs font-mono font-bold text-emerald-300">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-[#0b132b] rounded-full overflow-hidden border border-slate-700">
+                        <div id="homeProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-sky-400 rounded-full transition-all duration-700" style="width:0%"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-2">Dihitung otomatis dari akumulasi volume realisasi Laporan Harian dibandingkan Volume RAB seluruh item pekerjaan pada proyek aktif.</p>
+                </div>
+
+                <!-- Chart Anggaran per Divisi & Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700 lg:col-span-2">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-chart-pie text-amber-400"></i> Komposisi Anggaran per Divisi</h3>
+                        <div id="homeChartEmptyState" class="hidden text-xs text-slate-500 italic py-10 text-center">Belum ada data RAB untuk proyek ini.</div>
+                        <div class="relative" style="height:220px;">
+                            <canvas id="homeBudgetChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700 lg:col-span-3">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Aktivitas Laporan Harian Terbaru</h3>
+                        <div id="homeRecentActivity" class="space-y-2 max-h-[220px] overflow-y-auto custom-scroll pr-1">
+                            <div class="text-xs text-slate-500 italic text-center py-8">Belum ada aktivitas.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access Grid -->
+                <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-bolt text-amber-400"></i> Akses Cepat Modul</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <button onclick="switchTab('rab')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-calculator text-amber-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">RAB Proyek</span>
+                        </button>
+                        <button onclick="switchTab('lap-harian')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-calendar-day text-sky-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Laporan Harian</span>
+                        </button>
+                        <button onclick="switchTab('time-schedule')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-chart-area text-emerald-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Time Schedule</span>
+                        </button>
+                        <button onclick="switchTab('action-plan')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-list-check text-emerald-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Action Plan</span>
+                        </button>
+                        <button onclick="switchTab('mat-kebutuhan')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-purple-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-boxes-stacked text-purple-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Material</span>
+                        </button>
+                        <button onclick="switchTab('bq-opname')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-ruler-combined text-amber-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Opname</span>
+                        </button>
+                        <button onclick="switchTab('absen-masuk')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-camera-retro text-rose-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Absensi</span>
+                        </button>
+                        <button onclick="switchTab('absen-daftar-hadir')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-clipboard-list text-rose-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Daftar Hadir</span>
+                        </button>
+                        <button onclick="switchTab('data-karyawan')" id="homeQuickKaryawan" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-indigo-500/50 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-id-card text-indigo-400 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Data Karyawan</span>
+                        </button>
+                        <button onclick="switchTab('user-profile')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-slate-500 rounded-xl py-4 transition group">
+                            <i class="fa-solid fa-user-gear text-slate-300 text-lg group-hover:scale-110 transition"></i>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">Profil Akun</span>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- =================================================================== -->
             <!-- SECTION 1: RAB PROYEK -->
             <!-- =================================================================== -->
-            <section id="sec-rab" class="content-section space-y-6">
+            <section id="sec-rab" class="content-section hidden space-y-6" style="display:none;">
                 
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155] shadow-lg">
                     <div>
@@ -516,11 +669,11 @@
                     <div class="flex items-center space-x-4 text-xs">
                         <div class="flex items-center space-x-2">
                             <label class="text-slate-300 font-medium">PPN (%):</label>
-                            <input type="number" id="rabPpnInput" onchange="updateProjectTaxes()" value="11" step="0.1" class="w-16 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 text-center font-mono font-bold text-amber-300">
+                            <input type="number" id="rabPpnInput" onchange="updateProjectTaxes()" value="11" step="any" class="w-16 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 text-center font-mono font-bold text-amber-300">
                         </div>
                         <div class="flex items-center space-x-2">
                             <label class="text-slate-300 font-medium">PPH (%):</label>
-                            <input type="number" id="rabPphInput" onchange="updateProjectTaxes()" value="2" step="0.1" class="w-16 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 text-center font-mono font-bold text-sky-300">
+                            <input type="number" id="rabPphInput" onchange="updateProjectTaxes()" value="2" step="any" class="w-16 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 text-center font-mono font-bold text-sky-300">
                         </div>
                     </div>
                 </div>
@@ -542,7 +695,7 @@
                         </div>
                         <div class="w-28">
                             <label class="block text-slate-400 mb-1">Persentase (%)</label>
-                            <input type="number" id="rabTambahanPersen" step="0.1" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-center font-mono font-bold text-indigo-300">
+                            <input type="number" id="rabTambahanPersen" step="any" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-center font-mono font-bold text-indigo-300">
                         </div>
                         <button type="button" onclick="addBiayaTambahan()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1.5">
                             <i class="fa-solid fa-plus"></i>
@@ -576,7 +729,6 @@
                         <div id="rabTotalGrandSum" class="text-xl font-black text-emerald-400 font-mono">Rp 0</div>
                     </div>
                 </div>
-
                 <div class="navy-card p-5 rounded-2xl space-y-4" id="rabFormCard">
                     <h3 id="rabFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Form Input Item RAB</h3>
                     <form id="formRAB" onsubmit="handleRABSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -603,11 +755,11 @@
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Volume</label>
-                            <input type="number" step="0.01" id="rabVolume" required placeholder="100" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                            <input type="number" step="any" id="rabVolume" required placeholder="100" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Harga Satuan (Rp)</label>
-                            <input type="number" id="rabHarga" required placeholder="25000" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                            <input type="number" step="any" id="rabHarga" required placeholder="25000" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
                         <div class="flex items-end space-x-2">
                             <button type="submit" id="rabSubmitBtn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-4 rounded-lg transition">
@@ -753,6 +905,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <!-- INFO AUTOMATIC MATERIAL INTEGRATION -->
                         <div class="p-3 bg-sky-950/30 border border-sky-500/30 rounded-xl text-xs text-sky-300 space-y-1">
                             <span class="font-bold flex items-center space-x-1">
@@ -836,6 +989,7 @@
                     </div>
                 </div>
             </section>
+
             <!-- =================================================================== -->
             <!-- SECTION 2.2: LAPORAN MINGGUAN -->
             <!-- =================================================================== -->
@@ -877,6 +1031,7 @@
                             <div id="lmPeriodeLabel" class="text-[11px] text-slate-400 mt-1.5 text-left sm:text-right"></div>
                         </div>
                     </div>
+
                     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Nilai Uang Progress Minggu Ini</span>
@@ -1102,7 +1257,7 @@
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Bobot Periode Ini (%)</label>
-                            <input type="number" step="0.01" min="0" id="tsBobot" required oninput="updateTsBobotInfo()" placeholder="mis. 25" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                            <input type="number" step="any" min="0" id="tsBobot" required oninput="updateTsBobotInfo()" placeholder="mis. 25" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
                         <div class="sm:col-span-2 flex items-end space-x-2">
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg transition">
@@ -1527,6 +1682,7 @@
                                 <label class="block text-slate-400 mb-1">Catatan (opsional)</label>
                                 <input type="text" id="bqOpCatatan" placeholder="Catatan tambahan mengenai hasil opname ini..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                             </div>
+
                             <div class="flex justify-end items-center gap-2 pt-1">
                                 <button type="button" id="bqOpCancelBtn" onclick="cancelBqOpnameEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">
                                     <i class="fa-solid fa-xmark mr-1"></i> Batal Edit
@@ -1622,7 +1778,6 @@
                         </div>
                     </form>
                 </div>
-
                 <!-- TABEL DATA MATERIAL -->
                 <div class="navy-card rounded-2xl overflow-hidden">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -1691,9 +1846,9 @@
                                 <button onclick="startWebcam()" type="button" class="bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition">Coba Lagi</button>
                             </div>
 
-                            <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur text-[10px] text-slate-200 px-2 py-1 rounded border border-slate-700">
-                                <i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>
-                                <span id="currentGpsText">Mencari Lokasi GPS...</span>
+                            <div class="absolute bottom-2 left-2 right-2 bg-slate-900/80 backdrop-blur text-[10px] text-slate-200 px-2 py-1.5 rounded border border-slate-700 space-y-1">
+                                <div><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i><span id="currentGpsText">Mencari Lokasi GPS...</span></div>
+                                <div class="truncate"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i><span id="currentAddressText">Mencari alamat...</span></div>
                             </div>
                         </div>
 
@@ -1704,7 +1859,7 @@
                                     <!-- JS Populated from Data Karyawan -->
                                 </select>
                             </div>
-                            <button onclick="takeAttendanceSnapshot()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                            <button onclick="takeAttendanceSnapshot()" id="btnTakeSnapshot" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-camera"></i>
                                 <span>Ambil Foto & Simpan Absen</span>
                             </button>
@@ -2210,7 +2365,6 @@
             </div>
         </div>
     </div>
-
     <!-- =================================================================== -->
     <!-- MODAL ADMIN USER APPROVAL -->
     <!-- =================================================================== -->
@@ -2350,7 +2504,7 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-slate-300 mb-1">Nilai RAB (Rp)</label>
-                        <input type="number" id="pmNilai" placeholder="2500000000" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white font-mono">
+                        <input type="number" step="any" id="pmNilai" placeholder="2500000000" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white font-mono">
                     </div>
                     <div>
                         <label class="block text-slate-300 mb-1">Tanggal Mulai</label>
@@ -2441,7 +2595,6 @@
         ];
 
         let activeProjectId = localStorage.getItem('erp_active_project') || 'PRJ-01';
-
         let users = JSON.parse(localStorage.getItem('erp_users')) || [
             {
                 id: 'USR-01',
@@ -2546,7 +2699,6 @@
         } catch (err) {
             showCloudSyncError('Inisialisasi Firebase', err);
         }
-
         // Kunci localStorage yang bersifat GLOBAL (dipakai lintas semua workspace: daftar akun & daftar proyek)
         const CLOUD_GLOBAL_FIELD = { erp_users: 'users', erp_projects: 'projects' };
         // Kunci localStorage yang bersifat PER-WORKSPACE (data operasional 1 admin/perusahaan)
@@ -2728,13 +2880,18 @@
             if (CLOUD_WORKSPACE_FIELD[key]) pushWorkspaceKeyToCloud(key);
         };
 
-        let currentTab = 'rab';
+        let currentTab = 'home';
+        let homeBudgetChartInstance = null;
         let activeMaterialSub = 'mat-kebutuhan';
         let materialEditContext = null; // { type: 'kebutuhan'|'order'|'masuk'|'keluar', id } - null jika sedang mode tambah baru
         let activeAbsenType = 'absen-masuk';
         let webcamStream = null;
         let currentFacingMode = 'user'; // 'user' = kamera depan, 'environment' = kamera belakang (untuk absen masuk & keluar Android)
         let gpsCoordinates = '-5.1476, 119.4327 (Makassar)';
+        let currentGpsLat = -5.1476;
+        let currentGpsLng = 119.4327;
+        let currentGpsAccuracy = null;
+        let currentAddressText = 'Mencari alamat...';
 
         // Excel Import Temp State
         let tempExcelWorkbook = null;
@@ -2974,7 +3131,8 @@
             updateSidebarProjectInfo();
             startWorkspaceCloudSync(currentUser);
             initDropdowns();
-            renderActiveTabContent();
+            currentTab = 'home';
+            switchTab('home');
             if (currentUser.role === 'User' && !currentUser.projectId) {
                 openUserJoinProjectModal(true);
             }
@@ -3023,7 +3181,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-paper-plane mr-1"></i> Kirim Ulang Email Verifikasi');
             }
         }
-
         function showLoginError(message) {
             const box = document.getElementById('loginErrorBox');
             document.getElementById('loginErrorText').innerText = message;
@@ -3059,6 +3216,7 @@
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
             if (!email || !pass) return;
+
             const btn = document.getElementById('btnLoginSubmit');
             setBtnLoading(btn, true, '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa akun...');
             try {
@@ -3142,6 +3300,7 @@
                         ? `Registrasi Admin berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya sebelum login.`
                         : `Registrasi berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya, lalu tunggu persetujuan Admin.`);
                 }
+
                 // Kembalikan sesi ke anonim (bukan akun baru ini) supaya user diarahkan ke layar login seperti biasa.
                 try { await firebase.auth().signOut(); } catch (e) {}
                 try { await firebase.auth().signInAnonymously(); } catch (e) {}
@@ -3529,6 +3688,7 @@
                 if (btn) btn.classList.add('active');
                 renderAbsenSection();
                 startWebcam(); // Baru dinyalakan di sini, khusus halaman Absen Masuk/Keluar
+                refreshGpsAndAddress(); // Refresh lokasi & alamat terkini setiap kali halaman absen dibuka
             } else {
                 showSection('sec-' + tabId);
                 const btn = document.getElementById('menu-' + tabId);
@@ -3538,7 +3698,8 @@
         }
 
         function renderActiveTabContent() {
-            if (currentTab === 'rab') renderRAB();
+            if (currentTab === 'home') renderHomeDashboard();
+            else if (currentTab === 'rab') renderRAB();
             else if (currentTab === 'lap-harian') renderLapHarian();
             else if (currentTab === 'lap-mingguan') renderLapMingguan();
             else if (currentTab === 'lap-bulanan') renderLapBulanan();
@@ -3548,6 +3709,164 @@
             else if (currentTab === 'bq-opname') renderBqOpname();
             else if (currentTab === 'data-karyawan') renderEmployeeTable();
             else if (currentTab === 'user-profile') updateUserHeaderUI();
+        }
+
+        // ===================================================================
+        // HOMEPAGE / BERANDA DASHBOARD
+        // ===================================================================
+        function renderHomeDashboard() {
+            if (!currentUser) return;
+            const proj = projects.find(p => p.id === activeProjectId) || null;
+            const nowDate = new Date();
+            const hariList = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const tglEl = document.getElementById('homeTodayDate');
+            if (tglEl) {
+                const spanEl = tglEl.querySelector('span');
+                if (spanEl) spanEl.innerText = `${hariList[nowDate.getDay()]}, ${nowDate.getDate()} ${bulanList[nowDate.getMonth()]} ${nowDate.getFullYear()}`;
+            }
+
+            const namaUser = currentUser.name || 'User';
+            const jamSekarang = nowDate.getHours();
+            let sapaan = 'Selamat Datang';
+            if (jamSekarang < 11) sapaan = 'Selamat Pagi';
+            else if (jamSekarang < 15) sapaan = 'Selamat Siang';
+            else if (jamSekarang < 18) sapaan = 'Selamat Sore';
+            else sapaan = 'Selamat Malam';
+            document.getElementById('homeGreetingText').innerHTML = `<i class="fa-solid fa-helmet-safety text-amber-400"></i> <span>${sapaan}, ${namaUser}</span>`;
+            document.getElementById('homeGreetingSub').innerText = `${currentUser.position || currentUser.role || ''} — berikut ringkasan kondisi proyek Anda hari ini.`;
+
+            // Info Proyek Aktif
+            document.getElementById('homeProjectName').innerText = proj ? proj.nama : 'Belum ada proyek aktif';
+            document.getElementById('homeProjectLoc').innerText = proj ? (proj.lokasi || '-') : '-';
+            let sisaHariText = '-';
+            if (proj && proj.tglSelesai) {
+                const end = new Date(proj.tglSelesai);
+                const diffMs = end.setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                sisaHariText = diffDays > 0 ? `${diffDays} hari lagi` : (diffDays === 0 ? 'Selesai hari ini' : `Lewat ${Math.abs(diffDays)} hari`);
+            }
+            document.getElementById('homeProjectSisaHari').innerText = sisaHariText;
+            const btnQuickKaryawan = document.getElementById('homeQuickKaryawan');
+            if (btnQuickKaryawan) btnQuickKaryawan.classList.toggle('hidden', !isAdminUser());
+
+            if (!proj) {
+                document.getElementById('homeKpiTotalAnggaran').innerText = 'Rp 0';
+                document.getElementById('homeKpiProgress').innerText = '0%';
+                document.getElementById('homeKpiItemRab').innerText = '0';
+                document.getElementById('homeKpiKaryawan').innerText = '0';
+                document.getElementById('homeKpiAbsenHariIni').innerText = '0';
+                document.getElementById('homeKpiMaterial').innerText = '0';
+                document.getElementById('homeProgressBar').style.width = '0%';
+                document.getElementById('homeProgressLabel').innerText = '0%';
+                document.getElementById('homeRecentActivity').innerHTML = `<div class="text-xs text-slate-500 italic text-center py-8">Belum ada proyek aktif.</div>`;
+                if (homeBudgetChartInstance) { homeBudgetChartInstance.destroy(); homeBudgetChartInstance = null; }
+                const emptyEl = document.getElementById('homeChartEmptyState');
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            const projRAB = rabData.filter(r => r.projId === activeProjectId);
+            const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
+            const biayaTambahan = Array.isArray(proj.biayaTambahan) ? proj.biayaTambahan : [];
+            const totalPersenTambahan = biayaTambahan.reduce((acc, cur) => acc + (Number(cur.persen) || 0), 0);
+            const tambahanVal = subtotal * (totalPersenTambahan / 100);
+            const dasarPpn = subtotal + tambahanVal;
+            const ppnVal = dasarPpn * ((proj.ppn || 0) / 100);
+            const pphVal = subtotal * ((proj.pph || 0) / 100);
+            const grandTotal = subtotal + tambahanVal + ppnVal + pphVal;
+            document.getElementById('homeKpiTotalAnggaran').innerText = formatRupiah(grandTotal);
+            document.getElementById('homeKpiItemRab').innerText = projRAB.length;
+
+            // Progress fisik kumulatif: akumulasi volume Laporan Harian dibanding Volume RAB, ditimbang nilai pekerjaan
+            let bobotKumTotal = 0;
+            if (subtotal > 0) {
+                projRAB.forEach(item => {
+                    const volKum = lapHarianData.filter(l => l.pekerjaanId == item.id).reduce((a, c) => a + (parseFloat(c.volume) || 0), 0);
+                    const volKumClamped = Math.min(volKum, item.volume);
+                    bobotKumTotal += (volKumClamped * item.harga / subtotal) * 100;
+                });
+            }
+            bobotKumTotal = Math.max(0, Math.min(100, bobotKumTotal));
+            document.getElementById('homeKpiProgress').innerText = bobotKumTotal.toFixed(1) + '%';
+            document.getElementById('homeProgressBar').style.width = bobotKumTotal.toFixed(1) + '%';
+            document.getElementById('homeProgressLabel').innerText = bobotKumTotal.toFixed(1) + '%';
+
+            // Karyawan
+            const projKaryawan = karyawanData.filter(k => k.projId === activeProjectId);
+            document.getElementById('homeKpiKaryawan').innerText = projKaryawan.length;
+
+            // Absen masuk hari ini
+            const todayStr = new Date().toISOString().split('T')[0];
+            const absenHariIni = absenMasukData.filter(a => a.projId === activeProjectId && a.tanggal === todayStr).length;
+            document.getElementById('homeKpiAbsenHariIni').innerText = absenHariIni;
+
+            // Material
+            const projMaterial = kebutuhanMatData.filter(m => m.projId === activeProjectId);
+            document.getElementById('homeKpiMaterial').innerText = projMaterial.length;
+
+            // Aktivitas Laporan Harian Terbaru
+            const rabIdsProj = new Set(projRAB.map(r => r.id));
+            const recentLap = lapHarianData.filter(l => rabIdsProj.has(l.pekerjaanId))
+                .slice()
+                .sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || ((b.id || 0) - (a.id || 0)))
+                .slice(0, 6);
+            const activityEl = document.getElementById('homeRecentActivity');
+            if (recentLap.length === 0) {
+                activityEl.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-8">Belum ada aktivitas Laporan Harian.</div>`;
+            } else {
+                activityEl.innerHTML = recentLap.map(l => {
+                    const rabItem = rabData.find(r => r.id == l.pekerjaanId);
+                    const namaPekerjaan = rabItem ? rabItem.rincian : 'Item tidak ditemukan';
+                    return `<div class="flex items-center justify-between bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2.5">
+                        <div class="min-w-0">
+                            <div class="text-xs font-semibold text-slate-200 truncate">${namaPekerjaan}</div>
+                            <div class="text-[10px] text-slate-500 mt-0.5">${l.tanggal || '-'} ${l.tenaga ? '• ' + l.tenaga : ''}</div>
+                        </div>
+                        <div class="text-xs font-mono font-bold text-emerald-300 shrink-0 ml-2">+${formatAngka(l.volume || 0)} ${rabItem ? rabItem.satuan : ''}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Chart Komposisi Anggaran per Divisi
+            const chartCanvas = document.getElementById('homeBudgetChart');
+            const emptyStateEl = document.getElementById('homeChartEmptyState');
+            if (homeBudgetChartInstance) { homeBudgetChartInstance.destroy(); homeBudgetChartInstance = null; }
+            if (projRAB.length === 0 || subtotal <= 0) {
+                if (emptyStateEl) emptyStateEl.classList.remove('hidden');
+                if (chartCanvas) chartCanvas.classList.add('hidden');
+            } else {
+                if (emptyStateEl) emptyStateEl.classList.add('hidden');
+                if (chartCanvas) chartCanvas.classList.remove('hidden');
+                const divTotals = {};
+                projRAB.forEach(item => {
+                    const key = item.div || 'Lainnya';
+                    divTotals[key] = (divTotals[key] || 0) + (item.volume * item.harga);
+                });
+                const palette = ['#f59e0b', '#0ea5e9', '#10b981', '#6366f1', '#f43f5e', '#a855f7', '#eab308', '#14b8a6'];
+                const labels = Object.keys(divTotals);
+                const values = Object.values(divTotals);
+                homeBudgetChartInstance = new Chart(chartCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+                            borderColor: '#1e293b',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: window.innerWidth < 768 ? 'bottom' : 'right', labels: { color: '#cbd5e1', boxWidth: 10, font: { size: 10 } } },
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatRupiah(ctx.parsed)}` } }
+                        }
+                    }
+                });
+            }
         }
 
         function initDropdowns() {
@@ -3813,6 +4132,7 @@
             }
             const item = rabData.find(r => r.id === id);
             if (!item) return;
+
             document.getElementById('rabEditId').value = item.id;
             document.getElementById('rabNoDiv').value = item.noDiv;
             document.getElementById('rabDiv').value = item.div;
@@ -3930,7 +4250,6 @@
             persenEl.value = '';
             renderRAB();
         }
-
         function removeBiayaTambahan(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus biaya tambahan.');
@@ -4014,7 +4333,6 @@
                 const satuan = row['Satuan'] || row['satuan'] || 'ls';
                 const volume = parseFloat(row['Volume'] || row['volume'] || 1);
                 const harga = parseFloat(row['HargaSatuan'] || row['hargasatuan'] || row['Harga'] || 0);
-
                 if (sub) {
                     rabData.push({
                         id: Date.now() + Math.random(),
@@ -4043,6 +4361,7 @@
         // --- Manajemen baris Item Pekerjaan pada form Laporan Harian ---
         // Bisa lebih dari 1 baris pekerjaan per tanggal, karena 1 tukang/tim tidak selalu hanya mengerjakan 1 pekerjaan per hari.
         let lhRowCounter = 0;
+
         function generateLhRowHtml(rowId) {
             return `
                 <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700 space-y-3 lh-pekerjaan-row" data-row-id="${rowId}">
@@ -4064,7 +4383,7 @@
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Volume Progress Hari Ini <span class="text-red-400">*</span></label>
-                            <input type="number" step="0.01" required placeholder="12.5" oninput="updateLhPekerjaanInfo(${rowId})" class="lh-volume w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                            <input type="number" step="any" required placeholder="12.5" oninput="updateLhPekerjaanInfo(${rowId})" class="lh-volume w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
                     </div>
                     <div class="lh-pekerjaan-info text-[11px] text-slate-400 -mt-1"></div>
@@ -4075,15 +4394,16 @@
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Jam Aktif</label>
-                            <input type="number" value="8" class="lh-jam-aktif w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <input type="number" step="any" value="8" class="lh-jam-aktif w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                         </div>
                         <div>
                             <label class="block text-slate-400 mb-1">Jam Lembur</label>
-                            <input type="number" value="0" class="lh-jam-lembur w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <input type="number" step="any" value="0" class="lh-jam-lembur w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                         </div>
                     </div>
                 </div>`;
         }
+
         function addLhPekerjaanRow(scrollIntoView) {
             lhRowCounter++;
             const rowId = lhRowCounter;
@@ -4117,7 +4437,6 @@
                 if (numEl) numEl.innerText = idx + 1;
             });
         }
-
         function updateLhRemoveButtonsState() {
             const rows = document.querySelectorAll('#lhPekerjaanRowsContainer .lh-pekerjaan-row');
             rows.forEach(row => {
@@ -4125,6 +4444,7 @@
                 if (btn) btn.classList.toggle('hidden', rows.length <= 1);
             });
         }
+
         // Reset form ke mode "tambah baru": 1 baris pekerjaan kosong, tombol tambah pekerjaan aktif kembali
         function resetLhPekerjaanRows() {
             const container = document.getElementById('lhPekerjaanRowsContainer');
@@ -4263,7 +4583,6 @@
                 let workHtml = '<ul class="space-y-1.5">';
                 let tenagaHtml = '<ul class="space-y-1.5">';
                 let actionHtml = '<div class="flex flex-col space-y-1 items-center">';
-
                 group.items.forEach(item => {
                     const rab = rabData.find(r => r.id == item.pekerjaanId);
                     const rabName = rab ? `${rab.sub} (${rab.satuan})` : 'Pekerjaan';
@@ -4313,6 +4632,7 @@
                 tbody.appendChild(tr);
             });
         }
+
         function handleLapHarianSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -4417,6 +4737,7 @@
             document.getElementById('lhFilterDate').value = '';
             renderLapHarian();
         }
+
         // ===================================================================
         // 2.1.b KENDALA & NOTULEN HARIAN (TERPISAH, 1X INPUT PER TANGGAL, BISA DIEDIT)
         // ===================================================================
@@ -4513,7 +4834,6 @@
                 renderLapHarian();
             }
         }
-
         function cancelLhKendalaEdit() {
             document.getElementById('lhkEditId').value = '';
             document.getElementById('formLhKendala').reset();
@@ -4521,6 +4841,7 @@
             document.getElementById('btnCancelLhkEdit').classList.add('hidden');
             lhKendalaDirty = false;
         }
+
         // ------------------------------------------------------------------
         // Auto-lanjut penomoran/simbol list pada textarea (dipakai di Kendala & Notulen
         // Laporan Harian). Saat user menekan Enter di baris yang diawali "1. ", "1) ",
@@ -4646,6 +4967,7 @@
                 let sumBobotMingguIni = 0;
                 let grandJumlahHargaRab = 0, grandBobotRab = 0;
                 let grandBobotLalu = 0, grandBobotIni = 0, grandBobotKum = 0, grandUang = 0;
+
                 divGroups.forEach(group => {
                     let divJumlahHargaRab = 0, divBobotRab = 0;
                     let divBobotLalu = 0, divBobotIni = 0, divBobotKum = 0, divUang = 0;
@@ -4666,6 +4988,7 @@
                         const entry = lapMingguanData.find(l => l.rabId == item.id && l.mingguKe === selectedMinggu);
                         const keterangan = entry ? (entry.keterangan || '') : '';
                         const sudahDiopname = bqOpnameData.some(o => o.pekerjaanId == item.id && o.mingguKe === selectedMinggu);
+
                         const bobotLalu = subtotal > 0 ? (volLalu * item.harga / subtotal) * 100 : 0;
                         const bobotIni = subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
                         const bobotKum = subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0;
@@ -5140,7 +5463,6 @@
             const bobotTotal = getSubBobotTotal(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledBobot(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, bobotTotal - sudahDijadwalkan);
-
             let warning = '';
             const bobotInputVal = parseFloat(bobotInput.value) || 0;
             if (bobotInputVal > sisaBisaDijadwalkan + 0.01) {
@@ -5182,7 +5504,6 @@
                 return { type: 'text', val: t.toLowerCase() };
             });
         }
-
         function compareDivisionKey(a, b) {
             const ka = divisionSortKey(a);
             const kb = divisionSortKey(b);
@@ -5245,7 +5566,6 @@
             updateTsBobotInfo();
             window.scrollTo({ top: 150, behavior: 'smooth' });
         }
-
         function deleteTsSchedule(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (!confirm('Hapus rencana jadwal ini?')) return;
@@ -5274,6 +5594,7 @@
             body.innerHTML = '';
 
             const totalWeeks = getProjectScheduleWeeks();
+
             let headTr = '<tr><th class="p-3">No. & Kepala Sub Pekerjaan</th><th class="p-3">Metrik</th>';
             for (let w = 1; w <= totalWeeks; w++) {
                 headTr += `<th class="p-2 text-center font-mono">M${w}</th>`;
@@ -5349,7 +5670,6 @@
                     { label: 'Komulatif Realisasi', data: kumRealisasi, cls: 'text-emerald-400 font-bold' },
                     { label: 'Deviasi (Kumulatif)', data: deviasi, cls: '' }
                 ];
-
                 rowsMeta.forEach((m, idx) => {
                     let row = '<tr class="hover:bg-slate-800/50 transition">';
                     if (idx === 0) {
@@ -5399,6 +5719,7 @@
 
             renderSCurveChart();
         }
+
         function handleDivScheduleSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -5432,7 +5753,6 @@
             cancelTsScheduleEdit();
             renderTimeSchedule();
         }
-
         let scurveChartInstance = null;
         function renderSCurveChart() {
             const totalWeeks = getProjectScheduleWeeks();
@@ -5453,7 +5773,6 @@
             if (scurveChartInstance) scurveChartInstance.destroy();
 
             const labels = Array.from({length: totalWeeks}, (_, i) => `M${i+1}`);
-
             // Total kumulatif rencana & realisasi seluruh pekerjaan (mengikuti data tabel Time Schedule di atas)
             const proj = projects.find(p => p.id === activeProjectId) || {};
             const projRab = rabData.filter(r => r.projId === activeProjectId);
@@ -5600,7 +5919,6 @@
             const noDiv = item.noDiv || '-';
             const entries = divScheduleData.filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === item.sub);
             const sched = entries.length > 0;
-
             // Porsi item ini thd bobot total pekerjaan (sub)-nya, dipakai utk membagi rencana mingguan sub secara proporsional ke tiap item RAB di dalamnya
             const subBobotTotal = getSubBobotTotal(noDiv, item.sub);
             const itemShare = subBobotTotal > 0 ? (bobotItem / subBobotTotal) : 0;
@@ -5671,6 +5989,7 @@
             if (rangeBox) rangeBox.innerHTML = range ? `<i class="fa-regular fa-calendar mr-1"></i> ${range.label}` : 'Tanggal mulai proyek belum diatur.';
             const captionBox = document.getElementById('actionPlanTableCaption');
             if (captionBox) captionBox.innerText = `Target Action Plan Pekerjaan Lapangan - Minggu ke-${actionPlanSelectedWeek}${range ? ' (' + range.label + ')' : ''}`;
+
             const tbody = document.getElementById('actionPlanTableBody');
             tbody.innerHTML = '';
             // Urutkan sesuai nomor divisi (mendukung angka Romawi bertingkat V.01, V.02, VI.01, dst) supaya
@@ -5873,8 +6192,8 @@
                     <div><label class="block text-slate-400 mb-1">Dimensi</label><input type="text" id="matDimensi" placeholder="12 mm / 40x40 cm" value="${editItem ? editItem.dimensi || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                     <div><label class="block text-slate-400 mb-1">Spesifikasi</label><input type="text" id="matSpesifikasi" placeholder="SNI / K-225" value="${editItem ? editItem.spesifikasi || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                     <div><label class="block text-slate-400 mb-1">Satuan <span class="text-red-400">*</span></label><input type="text" id="matSatuan" required placeholder="Sak / Batang" value="${editItem ? editItem.satuan : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
-                    <div><label class="block text-slate-400 mb-1">Volume Kebutuhan <span class="text-red-400">*</span></label><input type="number" step="0.01" id="matVolume" required placeholder="100" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
-                    <div><label class="block text-slate-400 mb-1">Harga Satuan (Rp) <span class="text-red-400">*</span></label><input type="number" id="matHarga" required placeholder="65000" value="${editItem ? editItem.harga : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                    <div><label class="block text-slate-400 mb-1">Volume Kebutuhan <span class="text-red-400">*</span></label><input type="number" step="any" id="matVolume" required placeholder="100" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                    <div><label class="block text-slate-400 mb-1">Harga Satuan (Rp) <span class="text-red-400">*</span></label><input type="number" step="any" id="matHarga" required placeholder="65000" value="${editItem ? editItem.harga : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
                     <div><label class="block text-slate-400 mb-1">Nama Toko</label><input type="text" id="matSupplier" placeholder="TB Sinar Jaya" value="${editItem ? editItem.supplier || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                     <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Kontak Toko</label><input type="text" id="matKontak" placeholder="0812xxxxxxx" value="${editItem ? editItem.kontak || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                 `;
@@ -5904,7 +6223,7 @@
                     <div id="poPreviewBox" class="md:col-span-4 text-[11px] bg-[#0b132b] border border-slate-700 rounded-lg p-3 text-slate-300">Pilih material untuk melihat detail (dimensi, spesifikasi, toko, kontak, satuan, harga).</div>
                     <div>
                         <label class="block text-slate-400 mb-1">Volume Order <span class="text-red-400">*</span></label>
-                        <input type="number" step="0.01" id="poVolume" required oninput="validatePoVolume()" placeholder="0" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                        <input type="number" step="any" id="poVolume" required oninput="validatePoVolume()" placeholder="0" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                     </div>
                     <div class="md:col-span-3 flex items-end">
                         <div id="poVolumeInfo" class="text-[11px] text-slate-400 leading-relaxed"></div>
@@ -5955,7 +6274,7 @@
                     <div id="mmPreviewBox" class="md:col-span-4 text-[11px] bg-[#0b132b] border border-slate-700 rounded-lg p-3 text-slate-300">Pilih material untuk melihat detail (dimensi, spesifikasi, supplier, sisa belum masuk).</div>
                     <div>
                         <label class="block text-slate-400 mb-1">Volume Masuk <span class="text-red-400">*</span></label>
-                        <input type="number" step="0.01" id="mmVolume" required oninput="validateMmVolume()" placeholder="0" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                        <input type="number" step="any" id="mmVolume" required oninput="validateMmVolume()" placeholder="0" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                     </div>
                     <div class="md:col-span-3 flex items-end">
                         <div id="mmVolumeInfo" class="text-[11px] text-slate-400 leading-relaxed"></div>
@@ -5993,7 +6312,7 @@
                     </div>
                     <div><label class="block text-slate-400 mb-1">Satuan</label><input type="text" id="mkSatuan" readonly value="${editItem ? editItem.satuan : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-slate-400"></div>
                     <div><label class="block text-slate-400 mb-1">Sisa Stok Saat Ini</label><input type="text" id="mkSisaInfo" readonly class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-amber-400 font-mono"></div>
-                    <div><label class="block text-slate-400 mb-1">Volume yang Akan Keluar <span class="text-red-400">*</span></label><input type="number" step="0.01" id="mkVolume" required placeholder="25" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                    <div><label class="block text-slate-400 mb-1">Volume yang Akan Keluar <span class="text-red-400">*</span></label><input type="number" step="any" id="mkVolume" required placeholder="25" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
                     <div class="md:col-span-2"><label class="block text-slate-400 mb-1">Penerima / Mandor <span class="text-slate-500">(opsional)</span></label><input type="text" id="mkPenerima" placeholder="Mandor Budi" value="${editItem ? editItem.penerima || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                     <div class="md:col-span-4">
                         <label class="block text-slate-400 mb-1">Untuk Pekerjaan (Terdaftar di RAB) <span class="text-red-400">*</span></label>
@@ -6166,7 +6485,6 @@
 
             const o = materialOrderData.find(x => x.id == orderId);
             if (!o) return true;
-
             const excludeId = (materialEditContext && materialEditContext.type === 'masuk') ? materialEditContext.id : null;
             const st = getOrderMasukStatus(o, excludeId);
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
@@ -6531,6 +6849,7 @@
 
                 // Urutkan berdasarkan tanggal PO agar bisa dikelompokkan per hari
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+
                 let totalNilaiOrder = 0;
                 let dailyVolumeMap = {};
                 let dailyNilai = 0;
@@ -6795,7 +7114,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
-
         function processBqImageAnalysis() {
             const kategori = document.getElementById('bqKategori').value;
             // Simulated AI calculation
@@ -6963,7 +7281,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqOpnameDetail();
             detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
         // Tutup area detail & kembali ke daftar rincian per item pekerjaan.
         function closeBqOpnameDetail() {
             bqOpnameSelectedPekerjaanId = null;
@@ -6992,6 +7309,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
             return totalTambah - totalKurang;
         }
+
         // Sinkronkan hasil opname bersih 1 item pekerjaan pada 1 minggu ke Laporan Mingguan (upsert
         // berdasarkan rabId + mingguKe), supaya "Volume Minggu Ini" pada Laporan Mingguan otomatis
         // mengikuti hasil opname lapangan tanpa perlu input ulang manual.
@@ -7096,6 +7414,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const cancelBtn = document.getElementById('bqOpCancelBtn');
             if (cancelBtn) cancelBtn.classList.add('hidden');
         }
+
         function deleteBqOpnameRow(id) {
             if (!confirm('Hapus baris hasil opname ini?')) return;
             const row = bqOpnameData.find(o => o.id === id);
@@ -7213,7 +7532,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 renderBqOpnameDetail();
             }
         }
-
         // Render daftar (master list) SELURUH item pekerjaan RAB proyek aktif, dikelompokkan per Divisi
         // (sama seperti RAB/Laporan Mingguan), menampilkan status opname minggu lalu/ini/komulatif serta
         // status sudah/belum diopname, supaya cepat diketahui item mana yang belum dicek di lapangan.
@@ -7255,7 +7573,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const displayRAB = query
                 ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
                 : projRAB;
-
             tbody.innerHTML = '';
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">${projRAB.length === 0 ? 'Belum ada data RAB / Pekerjaan.' : 'Tidak ada item yang cocok dengan pencarian.'}</td></tr>`;
@@ -7929,7 +8246,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return `<div class="${colClass}">
                     <label class="block text-slate-500 text-[10px] mb-0.5">${f.label}</label>
-                    <input type="number" id="bqf_${f.id}" step="0.01" value="${f.default !== undefined ? f.default : ''}" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[11px]">
+                    <input type="number" id="bqf_${f.id}" step="any" value="${f.default !== undefined ? f.default : ''}" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[11px]">
                 </div>`;
             }).join('');
         }
@@ -8011,19 +8328,24 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return;
             }
 
-            data.forEach(item => {
-                tbody.innerHTML = `
+            tbody.innerHTML = data.slice().reverse().map(item => {
+                const mapsLink = (item.lat != null && item.lng != null) ? `https://www.google.com/maps?q=${item.lat},${item.lng}` : null;
+                const alamatText = item.alamat || item.lokasi || '-';
+                return `
                     <tr class="hover:bg-slate-800/50 transition align-middle">
-                        <td class="p-3"><div class="w-10 h-10 rounded-lg overflow-hidden bg-slate-800"><img src="${item.photo}" class="w-full h-full object-cover"></div></td>
-                        <td class="p-3 font-bold text-white">${item.nama}</td>
+                        <td class="p-3"><div class="w-14 h-14 rounded-lg overflow-hidden bg-slate-800 cursor-pointer" onclick="window.open('${item.photo}', '_blank')"><img src="${item.photo}" class="w-full h-full object-cover"></div></td>
+                        <td class="p-3 font-bold text-white">${item.nama}${item.jamKerja ? `<div class="text-[10px] font-normal text-emerald-400 mt-0.5"><i class="fa-solid fa-business-time mr-1"></i>${item.jamKerja}</div>` : ''}</td>
                         <td class="p-3 font-mono text-amber-400">${item.waktu}</td>
-                        <td class="p-3 text-[11px] text-slate-300"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${item.lokasi}</td>
+                        <td class="p-3 text-[11px] text-slate-300 max-w-[220px]">
+                            <div class="truncate" title="${alamatText}"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${alamatText}</div>
+                            ${mapsLink ? `<a href="${mapsLink}" target="_blank" rel="noopener" class="text-sky-400 hover:underline text-[10px] inline-flex items-center mt-0.5"><i class="fa-solid fa-map-location-dot mr-1"></i>Buka di Google Maps</a>` : ''}
+                        </td>
                         <td class="p-3 text-center">
-                            <button onclick="shareAbsenWa('${item.nama}', '${item.waktu}', '${item.lokasi}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> Share WA</button>
+                            <button onclick="shareAbsenWaById(${item.id}, ${isMasuk})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> Share WA</button>
                         </td>
                     </tr>
                 `;
-            });
+            }).join('');
         }
 
         // ===================================================================
@@ -8111,46 +8433,384 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         window.addEventListener('pagehide', stopWebcamStream);
 
         function initGpsLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    gpsCoordinates = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)} (Akurat)`;
-                    document.getElementById('currentGpsText').innerText = gpsCoordinates;
-                }, () => {
-                    document.getElementById('currentGpsText').innerText = gpsCoordinates;
-                });
-            }
+            refreshGpsAndAddress();
         }
 
-        function takeAttendanceSnapshot() {
+        // Ambil ulang koordinat GPS (akurasi tinggi) + alamat terkini. Dipanggil saat membuka halaman
+        // Absen Masuk/Keluar & sesaat sebelum foto diambil, supaya data pada watermark foto akurat.
+        function refreshGpsAndAddress(callback) {
+            if (!navigator.geolocation) {
+                if (typeof callback === 'function') callback();
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(pos => {
+                currentGpsLat = pos.coords.latitude;
+                currentGpsLng = pos.coords.longitude;
+                currentGpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+                gpsCoordinates = `${currentGpsLat.toFixed(6)}, ${currentGpsLng.toFixed(6)}` + (currentGpsAccuracy ? ` (±${currentGpsAccuracy}m)` : ' (Akurat)');
+                const gpsTextEl = document.getElementById('currentGpsText');
+                if (gpsTextEl) gpsTextEl.innerText = gpsCoordinates;
+                fetchAddressFromCoords(currentGpsLat, currentGpsLng, callback);
+            }, () => {
+                const gpsTextEl = document.getElementById('currentGpsText');
+                if (gpsTextEl) gpsTextEl.innerText = gpsCoordinates + ' (perkiraan)';
+                if (typeof callback === 'function') callback();
+            }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 });
+        }
+
+        // Reverse-geocoding koordinat -> alamat lengkap, memakai OpenStreetMap Nominatim (gratis, tanpa API key).
+        function fetchAddressFromCoords(lat, lng, callback) {
+            currentAddressText = 'Mencari alamat...';
+            const addrEl = document.getElementById('currentAddressText');
+            if (addrEl) addrEl.innerText = currentAddressText;
+            if (!window.fetch) {
+                currentAddressText = 'Alamat tidak tersedia';
+                if (addrEl) addrEl.innerText = currentAddressText;
+                if (typeof callback === 'function') callback();
+                return;
+            }
+            const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, controller ? { signal: controller.signal } : {})
+                .then(res => res.json())
+                .then(data => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    currentAddressText = (data && data.display_name) ? data.display_name : 'Alamat tidak ditemukan';
+                    if (addrEl) addrEl.innerText = currentAddressText;
+                    if (typeof callback === 'function') callback();
+                })
+                .catch(() => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    currentAddressText = 'Alamat tidak tersedia (periksa koneksi internet)';
+                    if (addrEl) addrEl.innerText = currentAddressText;
+                    if (typeof callback === 'function') callback();
+                });
+        }
+
+        async function takeAttendanceSnapshot() {
             // Absen Masuk/Keluar SENGAJA tidak dikunci oleh izin edit (canUserEdit) - akun User harus tetap
             // bisa melakukan absensi kapan pun, meskipun Admin menonaktifkan izin edit data proyek lainnya.
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('snapshotCanvas');
-            canvas.width = video.videoWidth || 320;
-            canvas.height = video.videoHeight || 240;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const photoUrl = canvas.toDataURL('image/png');
-
             const nama = document.getElementById('absenNamaSelect').value;
-            const now = new Date();
-            const waktu = now.toLocaleString('id-ID');
-            // 'ts' & 'tanggal' ditambahkan agar rekap Daftar Hadir bulanan bisa dihitung akurat
-            const newRecord = { id: Date.now(), projId: activeProjectId, nama, waktu, ts: now.getTime(), tanggal: now.toISOString().split('T')[0], lokasi: gpsCoordinates, photo: photoUrl };
+            if (!nama) { alert('Pilih nama karyawan terlebih dahulu.'); return; }
 
-            if (activeAbsenType === 'absen-masuk') {
-                absenMasukData.push(newRecord);
-                localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
-            } else {
-                absenKeluarData.push(newRecord);
-                localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
+            const snapBtn = document.getElementById('btnTakeSnapshot');
+            if (snapBtn) { snapBtn.disabled = true; snapBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memproses Foto...</span>'; }
+
+            try {
+                canvas.width = video.videoWidth || 320;
+                canvas.height = video.videoHeight || 240;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const now = new Date();
+                const waktu = now.toLocaleString('id-ID');
+                const isMasuk = activeAbsenType === 'absen-masuk';
+
+                // Refresh GPS & alamat sesaat sebelum foto diambil, supaya data pada watermark akurat & terkini
+                await new Promise(resolve => refreshGpsAndAddress(resolve));
+
+                // Hitung Jam Kerja (khusus Absen Keluar/Pulang): dicari dari record Absen Masuk hari ini milik karyawan yang sama
+                let jamKerjaText = null;
+                if (!isMasuk) {
+                    const todayStr = now.toISOString().split('T')[0];
+                    const masukRecords = absenMasukData
+                        .filter(a => a.projId === activeProjectId && a.nama === nama && a.tanggal === todayStr)
+                        .sort((a, b) => a.ts - b.ts);
+                    const masukRecord = masukRecords[0];
+                    if (masukRecord) {
+                        const diffMs = now.getTime() - masukRecord.ts;
+                        const totalMenit = Math.max(0, Math.floor(diffMs / 60000));
+                        const jam = Math.floor(totalMenit / 60);
+                        const menit = totalMenit % 60;
+                        const jamMasukText = new Date(masukRecord.ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        const jamPulangText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        jamKerjaText = `Masuk ${jamMasukText} - Pulang ${jamPulangText} (Total: ${jam} jam ${menit} menit)`;
+                    } else {
+                        jamKerjaText = 'Data Absen Masuk hari ini tidak ditemukan';
+                    }
+                }
+
+                const proj = projects.find(p => p.id === activeProjectId) || {};
+                let logoImg = null;
+                if (proj.logo) {
+                    try { logoImg = await loadImage(proj.logo); } catch (e) { logoImg = null; }
+                }
+
+                await drawAbsenWatermark(ctx, canvas.width, canvas.height, {
+                    isMasuk,
+                    namaKaryawan: nama,
+                    waktuFoto: now,
+                    alamat: currentAddressText,
+                    lat: currentGpsLat,
+                    lng: currentGpsLng,
+                    accuracy: currentGpsAccuracy,
+                    namaProyek: proj.nama || 'ProConstruct ERP',
+                    logoImg,
+                    jamKerjaText
+                });
+
+                const photoUrl = canvas.toDataURL('image/png');
+                // 'ts' & 'tanggal' ditambahkan agar rekap Daftar Hadir bulanan bisa dihitung akurat
+                const newRecord = {
+                    id: Date.now(), projId: activeProjectId, nama, waktu, ts: now.getTime(),
+                    tanggal: now.toISOString().split('T')[0], lokasi: gpsCoordinates,
+                    lat: currentGpsLat, lng: currentGpsLng, accuracy: currentGpsAccuracy,
+                    alamat: currentAddressText, jamKerja: jamKerjaText, photo: photoUrl
+                };
+                if (isMasuk) {
+                    absenMasukData.push(newRecord);
+                    localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
+                } else {
+                    absenKeluarData.push(newRecord);
+                    localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
+                }
+
+                renderAbsenSection();
+                alert('Absensi berhasil direkam dengan foto, alamat, & koordinat GPS akurat!');
+            } finally {
+                if (snapBtn) { snapBtn.disabled = false; snapBtn.innerHTML = '<i class="fa-solid fa-camera"></i><span>Ambil Foto & Simpan Absen</span>'; }
             }
-            renderAbsenSection();
-            alert('Absensi berhasil direkam dengan foto & GPS!');
         }
 
-        function shareAbsenWa(nama, waktu, lokasi) {
-            const text = `LAPORAN KEHADIRAN KARYAWAN\nNama: ${nama}\nWaktu: ${waktu}\nLokasi GPS: ${lokasi}\nStatus: Hadir di Proyek\n\n_Dibuat otomatis oleh ProConstruct ERP v3.0_\n_by rchmd20_`;
+        // Muat gambar (dipakai untuk logo perusahaan/proyek pada watermark foto absensi) sebagai Promise
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        // Bungkus teks panjang (mis. alamat) menjadi beberapa baris agar muat dalam lebar tertentu pada canvas
+        function wrapCanvasText(ctx, text, maxWidth, maxLines) {
+            maxLines = maxLines || 2;
+            const words = String(text).split(' ');
+            const lines = [];
+            let current = '';
+            for (let i = 0; i < words.length; i++) {
+                const test = current ? current + ' ' + words[i] : words[i];
+                if (ctx.measureText(test).width <= maxWidth) {
+                    current = test;
+                } else {
+                    if (current) lines.push(current);
+                    current = words[i];
+                    if (lines.length >= maxLines) break;
+                }
+            }
+            if (current && lines.length < maxLines) lines.push(current);
+            const totalWordsUsed = lines.join(' ').split(' ').length;
+            if (lines.length === maxLines && totalWordsUsed < words.length) {
+                let lastLine = lines[maxLines - 1];
+                while (ctx.measureText(lastLine + '...').width > maxWidth && lastLine.length > 1) {
+                    lastLine = lastLine.slice(0, -1);
+                }
+                lines[maxLines - 1] = lastLine.trimEnd() + '...';
+            }
+            return lines;
+        }
+
+        // Path rounded-rectangle generik dipakai oleh badge label & mini peta skematik
+        function roundRectPath(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+
+        // Mini peta skematik (grid + pin lokasi) digambar langsung di canvas - tidak memuat tile peta dari
+        // server eksternal, supaya foto absensi tetap bisa disimpan (toDataURL) tanpa risiko error CORS/tainted canvas.
+        function drawSchematicMap(ctx, x, y, w, h, pinColor) {
+            ctx.save();
+            roundRectPath(ctx, x, y, w, h, 6);
+            ctx.clip();
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeStyle = 'rgba(148,163,184,0.35)';
+            ctx.lineWidth = 1;
+            const gridStep = w / 4;
+            for (let i = 1; i < 4; i++) {
+                ctx.beginPath(); ctx.moveTo(x + i * gridStep, y); ctx.lineTo(x + i * gridStep, y + h); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, y + i * gridStep); ctx.lineTo(x + w, y + i * gridStep); ctx.stroke();
+            }
+            ctx.strokeStyle = 'rgba(56,189,248,0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y + h * 0.65);
+            ctx.bezierCurveTo(x + w * 0.3, y + h * 0.5, x + w * 0.6, y + h * 0.85, x + w, y + h * 0.55);
+            ctx.stroke();
+            ctx.restore();
+
+            const cx = x + w / 2, cy = y + h / 2 - h * 0.06;
+            ctx.fillStyle = pinColor;
+            ctx.beginPath();
+            ctx.arc(cx, cy, w * 0.11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx - w * 0.09, cy + w * 0.06);
+            ctx.lineTo(cx + w * 0.09, cy + w * 0.06);
+            ctx.lineTo(cx, cy + w * 0.28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, w * 0.045, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 1;
+            roundRectPath(ctx, x, y, w, h, 6);
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(15,23,42,0.85)';
+            ctx.fillRect(x, y + h - 12, w, 12);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = `bold ${Math.max(7, w * 0.13)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('PETA', x + w / 2, y + h - 3);
+            ctx.textAlign = 'left';
+        }
+
+        // Menempelkan watermark lengkap ke foto absensi: logo perusahaan/proyek, label Foto Absen Masuk/Pulang,
+        // nama karyawan, tanggal & waktu foto, alamat lengkap, koordinat GPS akurat, mini peta, dan (khusus
+        // Absen Pulang) total jam kerja sejak Absen Masuk.
+        function drawAbsenWatermark(ctx, w, h, opts) {
+            return new Promise(resolve => {
+                const scale = Math.max(0.55, Math.min(2.2, w / 640));
+                const pad = 10 * scale;
+                const fontSizeSmall = 11 * scale;
+                const fontSizeBase = 12.5 * scale;
+                const fontSizeTitle = 15 * scale;
+                const lineHeight = fontSizeBase * 1.5;
+
+                const hariList = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const bulanList = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                const d = opts.waktuFoto;
+                const tglText = `${hariList[d.getDay()]}, ${d.getDate()} ${bulanList[d.getMonth()]} ${d.getFullYear()} - ${d.toLocaleTimeString('id-ID')}`;
+                const koordText = (opts.lat != null && opts.lng != null)
+                    ? `${opts.lat.toFixed(6)}, ${opts.lng.toFixed(6)}` + (opts.accuracy ? ` (Akurasi ±${opts.accuracy}m)` : '')
+                    : 'Koordinat tidak tersedia';
+
+                const logoSize = 40 * scale;
+                const mapBoxSize = 66 * scale;
+                const textX = pad + logoSize + pad;
+                const maxTextWidth = w - textX - pad - mapBoxSize - pad;
+
+                ctx.font = `${fontSizeSmall}px Arial`;
+                const addressLines = wrapCanvasText(ctx, 'Alamat: ' + (opts.alamat || '-'), Math.max(40, maxTextWidth), 2);
+
+                const lines = [
+                    { text: opts.namaKaryawan, bold: true, size: fontSizeTitle, color: '#ffffff' },
+                    { text: tglText, size: fontSizeBase, color: '#facc15' },
+                    ...addressLines.map(t => ({ text: t, size: fontSizeSmall, color: '#e2e8f0' })),
+                    { text: koordText, size: fontSizeSmall, color: '#38bdf8' }
+                ];
+                if (opts.jamKerjaText) {
+                    lines.push({ text: 'Jam Kerja: ' + opts.jamKerjaText, size: fontSizeSmall, bold: true, color: '#34d399' });
+                }
+
+                const panelHeight = Math.max(pad * 2 + logoSize + 6 * scale, pad * 2 + fontSizeSmall + (10 * scale) + (lines.length * lineHeight));
+                const panelY = h - panelHeight;
+
+                // Latar gradien gelap transparan
+                const grad = ctx.createLinearGradient(0, panelY, 0, h);
+                grad.addColorStop(0, 'rgba(3,7,18,0.10)');
+                grad.addColorStop(0.25, 'rgba(3,7,18,0.80)');
+                grad.addColorStop(1, 'rgba(3,7,18,0.94)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, panelY, w, panelHeight);
+
+                // Garis aksen atas: hijau (Absen Masuk) / merah muda (Absen Pulang)
+                ctx.fillStyle = opts.isMasuk ? '#10b981' : '#f43f5e';
+                ctx.fillRect(0, panelY, w, 3 * scale);
+
+                // Logo perusahaan/proyek (bulat) - fallback ke inisial jika belum ada logo
+                const logoY = panelY + pad;
+                if (opts.logoImg) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(pad + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(opts.logoImg, pad, logoY, logoSize, logoSize);
+                    ctx.restore();
+                } else {
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(pad + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = `bold ${16 * scale}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const initials = String(opts.namaProyek || 'PC').trim().split(/\s+/).map(word => word[0]).slice(0, 2).join('').toUpperCase();
+                    ctx.fillText(initials, pad + logoSize / 2, logoY + logoSize / 2 + 1);
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'alphabetic';
+                }
+                ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(pad + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Badge label "FOTO ABSEN MASUK/PULANG" di pojok kanan atas
+                const badgeText = opts.isMasuk ? 'FOTO ABSEN MASUK' : 'FOTO ABSEN PULANG';
+                ctx.font = `bold ${fontSizeSmall}px Arial`;
+                const badgePaddingX = 8 * scale;
+                const badgeTextWidth = ctx.measureText(badgeText).width;
+                const badgeW = badgeTextWidth + badgePaddingX * 2;
+                const badgeH = fontSizeSmall + 8 * scale;
+                const badgeX = w - pad - badgeW;
+                const badgeY = panelY + pad * 0.6;
+                ctx.fillStyle = opts.isMasuk ? 'rgba(16,185,129,0.92)' : 'rgba(244,63,94,0.92)';
+                roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, 4 * scale);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(badgeText, badgeX + badgePaddingX, badgeY + badgeH / 2 + 0.5);
+                ctx.textBaseline = 'alphabetic';
+
+                // Nama proyek (kecil, di samping logo)
+                ctx.font = `${fontSizeSmall}px Arial`;
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText(opts.namaProyek || '', textX, panelY + pad + fontSizeSmall * 0.9);
+
+                // Baris-baris info utama
+                let ly = panelY + pad + fontSizeSmall + (10 * scale);
+                lines.forEach(line => {
+                    ctx.font = `${line.bold ? 'bold ' : ''}${line.size}px Arial`;
+                    ctx.fillStyle = line.color || '#e2e8f0';
+                    ctx.fillText(line.text, textX, ly + line.size);
+                    ly += lineHeight;
+                });
+                // Mini peta skematik di kanan bawah panel
+                const mapX = w - pad - mapBoxSize;
+                const mapY = panelY + panelHeight - pad - mapBoxSize;
+                drawSchematicMap(ctx, mapX, mapY, mapBoxSize, mapBoxSize, opts.isMasuk ? '#10b981' : '#f43f5e');
+
+                resolve();
+            });
+        }
+
+        function shareAbsenWaById(id, isMasuk) {
+            const data = isMasuk ? absenMasukData : absenKeluarData;
+            const item = data.find(d => d.id == id);
+            if (!item) return;
+            const jenis = isMasuk ? 'Absen Masuk' : 'Absen Pulang';
+            let text = `LAPORAN KEHADIRAN KARYAWAN\nJenis: ${jenis}\nNama: ${item.nama}\nWaktu: ${item.waktu}\nAlamat: ${item.alamat || item.lokasi}\nKoordinat GPS: ${item.lokasi}`;
+            if (item.lat != null && item.lng != null) {
+                text += `\nPeta: https://www.google.com/maps?q=${item.lat},${item.lng}`;
+            }
+            if (item.jamKerja) {
+                text += `\nJam Kerja: ${item.jamKerja}`;
+            }
+            text += `\nStatus: Hadir di Proyek\n\n_Dibuat otomatis oleh ProConstruct ERP v3.0_\n_by rchmd20_`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
 
@@ -8317,7 +8977,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     </tr>
                 `;
             }
-
             const tbody = document.getElementById('dhRekapTableBody');
             tbody.innerHTML = '';
 
@@ -8354,6 +9013,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const jumlahHari = new Date(y, m, 0).getDate();
             const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             const rekap = buildDaftarHadirRekap(bulanStr);
+
             const dayCellText = (d) => {
                 if (d.jenis === 'Hadir') return d.setengahHari ? `H½ ${d.jamKerja.toFixed(1)}j` : `H ${d.jamKerja.toFixed(1)}j${d.jamLembur > 0 ? ' +' + d.jamLembur.toFixed(1) + 'j' : ''}`;
                 if (d.jenis) return d.jenis.charAt(0);
@@ -8379,7 +9039,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 wsData.push(row);
             });
             if (rekap.length === 0) wsData.push(['Belum ada data karyawan pada proyek ini.']);
-
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const lastCol = headerRow1.length - 1;
             ws['!merges'] = [
@@ -8631,7 +9290,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
-
         function handleUserProfileSubmit(e) {
             e.preventDefault();
             if (!currentUser) return;
@@ -8820,7 +9478,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 try {
                     const backup = JSON.parse(evt.target.result);
                     if (!backup || !backup.project || !backup.data) { alert('File backup tidak valid.'); return; }
-
                     // Buat / timpa proyek tujuan berdasarkan id proyek dari file backup
                     // Kepemilikan (ownerId) proyek yang diimpor SELALU dipindah ke akun Admin yang sedang
                     // mengimpor — agar proyek ini pasti muncul di akun tujuan, bukan "hilang" karena ownerId
@@ -8920,6 +9577,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.download = `backup_semua_proyek_${acc}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
+
         function importAllProjectsDataBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -9113,7 +9771,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             rows.push({ kind: 'total', cells: [`TOTAL KESELURUHAN ORDER MATERIAL (${rentangProyek})`, '', '', '', '', '', formatRupiah(totalNilaiOrder), '', '', '', '', '', ''] });
             return { title: 'Pemesanan Material (Material Order)', headers, rows };
         }
-
         function buildMasukExportRows() {
             const headers = ['Tanggal', 'No. Nota / SJ', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Volume Masuk', 'Total Nilai', 'Supplier'];
             const data = materialMasukData.filter(d => d.projId === activeProjectId);
@@ -9192,6 +9849,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return { wch: Math.min(Math.max(maxLen + 2, 10), 42) };
             });
         }
+
         // Escape teks agar aman ditampilkan di dalam tabel HTML (untuk PDF)
         function escapeExportHtml(str) {
             return (str ?? '').toString()
@@ -9238,7 +9896,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             let dataArr = [];
             let filename = `${type}_${proj.nama}.xlsx`;
-
             if (type === 'rab') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             else if (type === 'lap-harian') dataArr = buildLapHarianExportRows();
             else if (type === 'lap-mingguan') dataArr = lapMingguanData
@@ -9301,7 +9958,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             let extraTableHtml = '';
             let reportTitle = type.toUpperCase();
-
             if (materialTypes.includes(type)) {
                 const built = getMaterialExportBuilder(type);
                 reportTitle = built.title;
@@ -9359,6 +10015,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             const container = document.getElementById('waSelectControlContainer');
             container.innerHTML = '';
+
             if (type === 'lap-harian') {
                 container.innerHTML = `<input type="date" id="waInputDate" onchange="generateWaTextContent()" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg p-2 text-white">`;
                 document.getElementById('waInputDate').value = new Date().toISOString().split('T')[0];
@@ -9426,7 +10083,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }
-
             text += `\n_Dibuat otomatis oleh ProConstruct ERP v3.0_\n_by rchmd20_`;
             document.getElementById('waPreviewText').value = text;
         }
@@ -9442,11 +10098,11 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
+
         // Helper Format Rupiah (dibatasi maksimal 2 angka di belakang koma)
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
         }
-
         // Helper Format Angka umum (volume, sisa, dsb): angka bulat tetap tampil bulat,
         // angka desimal dibulatkan & dibatasi MAKSIMAL 2 angka di belakang koma di semua halaman.
         // Memakai locale id-ID sehingga koma dipakai sbg pemisah desimal & titik sbg pemisah ribuan.
