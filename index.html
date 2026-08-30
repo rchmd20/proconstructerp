@@ -1552,6 +1552,10 @@
                                 <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
                                     <tr>
                                         <th class="p-3">No</th>
+                                        <th class="p-3">No/Div</th>
+                                        <th class="p-3">Nama Divisi</th>
+                                        <th class="p-3">Sub Pekerjaan</th>
+                                        <th class="p-3">Rincian Sub</th>
                                         <th class="p-3">Segmen / Ruangan / Posisi</th>
                                         <th class="p-3">Tipe</th>
                                         <th class="p-3">Rumus / Detail Hitung</th>
@@ -7129,7 +7133,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu).sort((a, b) => (a.order || 0) - (b.order || 0));
             const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
             if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini pada ${bqOpnameSelectedMinggu}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini pada ${bqOpnameSelectedMinggu}.</td></tr>`;
             } else {
                 tbody.innerHTML = rows.map((row, idx) => {
                     const tipeBadge = row.tipe === 'kurang'
@@ -7138,6 +7142,10 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     return `
                         <tr>
                             <td class="p-3">${idx + 1}</td>
+                            <td class="p-3 font-mono font-bold text-amber-400">${rab ? (rab.noDiv || '-') : '-'}</td>
+                            <td class="p-3 font-semibold text-white">${rab ? (rab.div || '-') : '-'}</td>
+                            <td class="p-3">${rab ? rab.sub : '-'}</td>
+                            <td class="p-3 text-slate-400">${rab ? (rab.rincian || '') : '-'}</td>
                             <td class="p-3 font-medium text-white">${row.segmen}</td>
                             <td class="p-3">${tipeBadge}</td>
                             <td class="p-3 text-[11px] text-slate-400">${BQ_OPNAME_METODE[row.metode] ? BQ_OPNAME_METODE[row.metode].label : ''}<br>${bqOpnameFormulaText(row)}</td>
