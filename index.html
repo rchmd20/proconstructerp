@@ -848,7 +848,7 @@
                             <i class="fa-solid fa-calendar-week text-emerald-400"></i>
                             <span>Laporan Mingguan Proyek</span>
                         </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Input volume progress per item pekerjaan langsung pada list (mengikuti data RAB). Bobot, nilai uang & kumulatif dihitung otomatis.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Volume progress per item pekerjaan (mengikuti data RAB) diambil otomatis dari hasil input di halaman Opname &mdash; tidak perlu input ulang manual di sini. Bobot, nilai uang & kumulatif dihitung otomatis.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="triggerExcelExport('lap-mingguan')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
@@ -906,7 +906,7 @@
 
                 <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <span class="font-bold text-xs text-slate-200">Progress Item Pekerjaan (mengikuti data RAB) &mdash; Input Volume Minggu Ini Langsung Pada List</span>
+                        <span class="font-bold text-xs text-slate-200">Progress Item Pekerjaan (mengikuti data RAB) &mdash; Volume Minggu Ini Otomatis Dari Data Opname</span>
                         <div class="relative w-full sm:w-72">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
                             <input type="text" id="lmSearchInput" oninput="renderLapMingguan()" placeholder="Cari No/Divisi, Sub Pekerjaan, Rincian, Satuan..." class="w-full bg-[#1c2541] border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-white text-xs">
@@ -929,7 +929,7 @@
                                     <th class="p-3">Jumlah Harga</th>
                                     <th class="p-3">Bobot (%)</th>
                                     <th class="p-3">Vol. Minggu Lalu</th>
-                                    <th class="p-3">Vol. Minggu Ini</th>
+                                    <th class="p-3">Vol. Minggu Ini <span class="normal-case text-sky-400 font-normal">(dari Opname)</span></th>
                                     <th class="p-3">Vol. Komulatif</th>
                                     <th class="p-3">Bobot Minggu Lalu (%)</th>
                                     <th class="p-3">Bobot Minggu Ini (%)</th>
@@ -4661,14 +4661,16 @@
                         const itemTotalHarga = item.volume * item.harga;
                         const bobotItemRab = subtotal > 0 ? (itemTotalHarga / subtotal) * 100 : 0;
 
-                        const volLalu = lapMingguanData
-                            .filter(l => l.rabId == item.id && (parseInt((l.mingguKe || '').replace(/\D/g, ''), 10) || 0) < selectedWeekNum)
-                            .reduce((acc, cur) => acc + (Number(cur.volume) || 0), 0);
-                        const entry = lapMingguanData.find(l => l.rabId == item.id && l.mingguKe === selectedMinggu);
-                        const volIni = entry ? (Number(entry.volume) || 0) : 0;
+                        // Volume Minggu Lalu & Minggu Ini TIDAK diinput manual di sini - diambil otomatis dari
+                        // hasil opname bersih (Tambah - Kurang) pada halaman Opname untuk item & minggu terkait,
+                        // supaya Laporan Mingguan selalu mengikuti data lapangan terbaru dari Opname.
+                        const volLalu = bqOpnameNetVolumeCumulative(item.id, selectedWeekNum);
+                        const volIni = bqOpnameNetVolumeForWeek(item.id, selectedMinggu);
                         const volKum = volLalu + volIni;
                         const sisaVolume = Math.max(item.volume - volKum, 0);
+                        const entry = lapMingguanData.find(l => l.rabId == item.id && l.mingguKe === selectedMinggu);
                         const keterangan = entry ? (entry.keterangan || '') : '';
+                        const sudahDiopname = bqOpnameData.some(o => o.pekerjaanId == item.id && o.mingguKe === selectedMinggu);
 
                         const bobotLalu = subtotal > 0 ? (volLalu * item.harga / subtotal) * 100 : 0;
                         const bobotIni = subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
@@ -4702,10 +4704,11 @@
                             <td class="p-3 font-mono font-bold text-sky-400">${bobotItemRab.toFixed(2)}%</td>
                             <td class="p-3 font-mono text-slate-400">${formatAngka(volLalu)}</td>
                             <td class="p-3">
-                                <input type="number" step="0.01" value="${volIni || ''}" placeholder="0.00" ${inputsDisabled}
-                                    onchange="updateLmVolume(${item.id}, this.value)"
-                                    class="w-24 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 text-white font-mono text-xs ${!canEditLm ? 'opacity-50 cursor-not-allowed' : ''}">
+                                <span class="font-mono font-bold text-amber-300">${formatAngka(volIni)}</span>
                                 <div class="text-[9px] text-slate-500 mt-0.5">Sisa: ${formatAngka(sisaVolume)} ${item.satuan}</div>
+                                <div class="text-[9px] mt-0.5 ${sudahDiopname ? 'text-sky-400' : 'text-slate-600'}">
+                                    <i class="fa-solid fa-link"></i> ${sudahDiopname ? 'Dari data Opname' : 'Belum ada data Opname'}
+                                </div>
                             </td>
                             <td class="p-3 font-mono font-bold text-sky-300">${formatAngka(volKum)}</td>
                             <td class="p-3 font-mono text-slate-400">${bobotLalu.toFixed(2)}%</td>
