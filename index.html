@@ -753,7 +753,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- INFO AUTOMATIC MATERIAL INTEGRATION -->
                         <div class="p-3 bg-sky-950/30 border border-sky-500/30 rounded-xl text-xs text-sky-300 space-y-1">
                             <span class="font-bold flex items-center space-x-1">
@@ -837,7 +836,6 @@
                     </div>
                 </div>
             </section>
-
             <!-- =================================================================== -->
             <!-- SECTION 2.2: LAPORAN MINGGUAN -->
             <!-- =================================================================== -->
@@ -879,7 +877,6 @@
                             <div id="lmPeriodeLabel" class="text-[11px] text-slate-400 mt-1.5 text-left sm:text-right"></div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Nilai Uang Progress Minggu Ini</span>
@@ -1530,7 +1527,6 @@
                                 <label class="block text-slate-400 mb-1">Catatan (opsional)</label>
                                 <input type="text" id="bqOpCatatan" placeholder="Catatan tambahan mengenai hasil opname ini..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                             </div>
-
                             <div class="flex justify-end items-center gap-2 pt-1">
                                 <button type="button" id="bqOpCancelBtn" onclick="cancelBqOpnameEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">
                                     <i class="fa-solid fa-xmark mr-1"></i> Batal Edit
@@ -3063,7 +3059,6 @@
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
             if (!email || !pass) return;
-
             const btn = document.getElementById('btnLoginSubmit');
             setBtnLoading(btn, true, '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa akun...');
             try {
@@ -3147,7 +3142,6 @@
                         ? `Registrasi Admin berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya sebelum login.`
                         : `Registrasi berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya, lalu tunggu persetujuan Admin.`);
                 }
-
                 // Kembalikan sesi ke anonim (bukan akun baru ini) supaya user diarahkan ke layar login seperti biasa.
                 try { await firebase.auth().signOut(); } catch (e) {}
                 try { await firebase.auth().signInAnonymously(); } catch (e) {}
@@ -3687,6 +3681,11 @@
                 divGroupMap.get(key).items.push(item);
             });
 
+            // Urutkan kelompok Divisi sesuai nilai nomor divisinya (mendukung angka Romawi bertingkat
+            // seperti V.01, V.02, VI.01, VI.02), supaya urutan tampil di list selalu rapi berurutan
+            // dan tidak loncat-loncat, terlepas dari urutan input/drag data aslinya.
+            divGroups.sort((ga, gb) => compareDivisionKey(ga.noDiv, gb.noDiv));
+
             let grandDisplayedHarga = 0;
             let grandDisplayedBobot = 0;
 
@@ -3814,7 +3813,6 @@
             }
             const item = rabData.find(r => r.id === id);
             if (!item) return;
-
             document.getElementById('rabEditId').value = item.id;
             document.getElementById('rabNoDiv').value = item.noDiv;
             document.getElementById('rabDiv').value = item.div;
@@ -4045,7 +4043,6 @@
         // --- Manajemen baris Item Pekerjaan pada form Laporan Harian ---
         // Bisa lebih dari 1 baris pekerjaan per tanggal, karena 1 tukang/tim tidak selalu hanya mengerjakan 1 pekerjaan per hari.
         let lhRowCounter = 0;
-
         function generateLhRowHtml(rowId) {
             return `
                 <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700 space-y-3 lh-pekerjaan-row" data-row-id="${rowId}">
@@ -4087,7 +4084,6 @@
                     </div>
                 </div>`;
         }
-
         function addLhPekerjaanRow(scrollIntoView) {
             lhRowCounter++;
             const rowId = lhRowCounter;
@@ -4129,7 +4125,6 @@
                 if (btn) btn.classList.toggle('hidden', rows.length <= 1);
             });
         }
-
         // Reset form ke mode "tambah baru": 1 baris pekerjaan kosong, tombol tambah pekerjaan aktif kembali
         function resetLhPekerjaanRows() {
             const container = document.getElementById('lhPekerjaanRowsContainer');
@@ -4318,7 +4313,6 @@
                 tbody.appendChild(tr);
             });
         }
-
         function handleLapHarianSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -4423,7 +4417,6 @@
             document.getElementById('lhFilterDate').value = '';
             renderLapHarian();
         }
-
         // ===================================================================
         // 2.1.b KENDALA & NOTULEN HARIAN (TERPISAH, 1X INPUT PER TANGGAL, BISA DIEDIT)
         // ===================================================================
@@ -4528,7 +4521,6 @@
             document.getElementById('btnCancelLhkEdit').classList.add('hidden');
             lhKendalaDirty = false;
         }
-
         // ------------------------------------------------------------------
         // Auto-lanjut penomoran/simbol list pada textarea (dipakai di Kendala & Notulen
         // Laporan Harian). Saat user menekan Enter di baris yang diawali "1. ", "1) ",
@@ -4654,7 +4646,6 @@
                 let sumBobotMingguIni = 0;
                 let grandJumlahHargaRab = 0, grandBobotRab = 0;
                 let grandBobotLalu = 0, grandBobotIni = 0, grandBobotKum = 0, grandUang = 0;
-
                 divGroups.forEach(group => {
                     let divJumlahHargaRab = 0, divBobotRab = 0;
                     let divBobotLalu = 0, divBobotIni = 0, divBobotKum = 0, divUang = 0;
@@ -4675,7 +4666,6 @@
                         const entry = lapMingguanData.find(l => l.rabId == item.id && l.mingguKe === selectedMinggu);
                         const keterangan = entry ? (entry.keterangan || '') : '';
                         const sudahDiopname = bqOpnameData.some(o => o.pekerjaanId == item.id && o.mingguKe === selectedMinggu);
-
                         const bobotLalu = subtotal > 0 ? (volLalu * item.harga / subtotal) * 100 : 0;
                         const bobotIni = subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
                         const bobotKum = subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0;
@@ -5177,31 +5167,40 @@
             return total > 0 ? total : null;
         }
 
+        // Memecah No. Divisi menjadi rangkaian token yang bisa dibandingkan secara berjenjang, supaya format
+        // "V.01", "V.02", "VI.01", "VI.02" (angka Romawi + nomor urut sub) terurut benar sesuai nilai
+        // angkanya (bukan sekadar urutan input), dan tidak "loncat-loncat".
+        // Tiap token dikonversi: angka Romawi murni -> nilainya, angka Arab murni -> nilainya, selain itu -> teks.
         function divisionSortKey(str) {
             const s = (str || '-').toString().trim();
-            // 1) Seluruh string adalah angka Romawi murni (mis. "I", "IV", "XII")
-            let val = romanToInt(s);
-            if (val !== null) return { type: 'num', val };
-            // 2) Salah satu kata/token di dalam string adalah angka Romawi (mis. "DIV-IV", "Divisi IV - Struktur")
-            const tokens = s.split(/[\s\-.]+/).filter(Boolean);
-            for (const t of tokens) {
-                val = romanToInt(t);
-                if (val !== null) return { type: 'num', val };
-            }
-            // 3) Ada angka biasa (Arab) di dalam string (mis. "DIV-01" -> 1)
-            const numMatch = s.match(/\d+/);
-            if (numMatch) return { type: 'num', val: parseInt(numMatch[0], 10) };
-            // 4) Fallback: bandingkan sebagai teks biasa
-            return { type: 'text', val: s.toLowerCase() };
+            const tokens = s.split(/[\s\-.\/]+/).filter(Boolean);
+            if (tokens.length === 0) return [{ type: 'text', val: '' }];
+            return tokens.map(t => {
+                const romanVal = romanToInt(t);
+                if (romanVal !== null) return { type: 'num', val: romanVal };
+                if (/^\d+$/.test(t)) return { type: 'num', val: parseInt(t, 10) };
+                return { type: 'text', val: t.toLowerCase() };
+            });
         }
 
         function compareDivisionKey(a, b) {
             const ka = divisionSortKey(a);
             const kb = divisionSortKey(b);
-            if (ka.type === 'num' && kb.type === 'num') return ka.val - kb.val;
-            if (ka.type === 'num') return -1;
-            if (kb.type === 'num') return 1;
-            return ka.val.localeCompare(kb.val, undefined, { numeric: true });
+            const len = Math.max(ka.length, kb.length);
+            for (let i = 0; i < len; i++) {
+                const ta = ka[i], tb = kb[i];
+                if (!ta) return -1; // token yang lebih pendek (mis. "V") tampil sebelum "V.01"
+                if (!tb) return 1;
+                if (ta.type === 'num' && tb.type === 'num') {
+                    if (ta.val !== tb.val) return ta.val - tb.val;
+                    continue;
+                }
+                if (ta.type === 'num') return -1; // angka diprioritaskan dibanding teks
+                if (tb.type === 'num') return 1;
+                const cmp = ta.val.localeCompare(tb.val, undefined, { numeric: true });
+                if (cmp !== 0) return cmp;
+            }
+            return 0;
         }
 
         function renderJadwalList() {
@@ -5275,7 +5274,6 @@
             body.innerHTML = '';
 
             const totalWeeks = getProjectScheduleWeeks();
-
             let headTr = '<tr><th class="p-3">No. & Kepala Sub Pekerjaan</th><th class="p-3">Metrik</th>';
             for (let w = 1; w <= totalWeeks; w++) {
                 headTr += `<th class="p-2 text-center font-mono">M${w}</th>`;
@@ -5401,7 +5399,6 @@
 
             renderSCurveChart();
         }
-
         function handleDivScheduleSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -5674,10 +5671,11 @@
             if (rangeBox) rangeBox.innerHTML = range ? `<i class="fa-regular fa-calendar mr-1"></i> ${range.label}` : 'Tanggal mulai proyek belum diatur.';
             const captionBox = document.getElementById('actionPlanTableCaption');
             if (captionBox) captionBox.innerText = `Target Action Plan Pekerjaan Lapangan - Minggu ke-${actionPlanSelectedWeek}${range ? ' (' + range.label + ')' : ''}`;
-
             const tbody = document.getElementById('actionPlanTableBody');
             tbody.innerHTML = '';
-            const projRAB = rabData.filter(r => r.projId === activeProjectId);
+            // Urutkan sesuai nomor divisi (mendukung angka Romawi bertingkat V.01, V.02, VI.01, dst) supaya
+            // urutan tampil sama persis dengan halaman RAB dan tidak loncat-loncat.
+            const projRAB = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
 
             if (projRAB.length === 0) {
@@ -5708,7 +5706,7 @@
 
         // Bangun baris data Action Plan untuk minggu terpilih (dipakai bersama oleh Excel & PDF export agar isinya sama persis dengan halaman)
         function buildActionPlanExportRows(week) {
-            const projRAB = rabData.filter(r => r.projId === activeProjectId);
+            const projRAB = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
             return projRAB.map(item => {
                 const totalHarga = item.volume * item.harga;
@@ -6533,7 +6531,6 @@
 
                 // Urutkan berdasarkan tanggal PO agar bisa dikelompokkan per hari
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
-
                 let totalNilaiOrder = 0;
                 let dailyVolumeMap = {};
                 let dailyNilai = 0;
@@ -6995,7 +6992,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const totalKurang = rows.filter(o => o.tipe === 'kurang').reduce((a, c) => a + (Number(c.volume) || 0), 0);
             return totalTambah - totalKurang;
         }
-
         // Sinkronkan hasil opname bersih 1 item pekerjaan pada 1 minggu ke Laporan Mingguan (upsert
         // berdasarkan rabId + mingguKe), supaya "Volume Minggu Ini" pada Laporan Mingguan otomatis
         // mengikuti hasil opname lapangan tanpa perlu input ulang manual.
@@ -7100,7 +7096,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const cancelBtn = document.getElementById('bqOpCancelBtn');
             if (cancelBtn) cancelBtn.classList.add('hidden');
         }
-
         function deleteBqOpnameRow(id) {
             if (!confirm('Hapus baris hasil opname ini?')) return;
             const row = bqOpnameData.find(o => o.id === id);
@@ -8150,7 +8145,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 absenKeluarData.push(newRecord);
                 localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
             }
-
             renderAbsenSection();
             alert('Absensi berhasil direkam dengan foto & GPS!');
         }
@@ -8360,7 +8354,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const jumlahHari = new Date(y, m, 0).getDate();
             const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             const rekap = buildDaftarHadirRekap(bulanStr);
-
             const dayCellText = (d) => {
                 if (d.jenis === 'Hadir') return d.setengahHari ? `H½ ${d.jamKerja.toFixed(1)}j` : `H ${d.jamKerja.toFixed(1)}j${d.jamLembur > 0 ? ' +' + d.jamLembur.toFixed(1) + 'j' : ''}`;
                 if (d.jenis) return d.jenis.charAt(0);
@@ -8927,7 +8920,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.download = `backup_semua_proyek_${acc}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
-
         function importAllProjectsDataBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -9200,7 +9192,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return { wch: Math.min(Math.max(maxLen + 2, 10), 42) };
             });
         }
-
         // Escape teks agar aman ditampilkan di dalam tabel HTML (untuk PDF)
         function escapeExportHtml(str) {
             return (str ?? '').toString()
@@ -9248,7 +9239,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             let dataArr = [];
             let filename = `${type}_${proj.nama}.xlsx`;
 
-            if (type === 'rab') dataArr = rabData.filter(r => r.projId === activeProjectId);
+            if (type === 'rab') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             else if (type === 'lap-harian') dataArr = buildLapHarianExportRows();
             else if (type === 'lap-mingguan') dataArr = lapMingguanData
                 .filter(l => l.projId === activeProjectId)
@@ -9265,7 +9256,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const selectedBulan = bulanSel ? bulanSel.value : 'Bulan 1';
                 const monthNum = parseInt((selectedBulan || '').replace(/\D/g, ''), 10) || 1;
                 const monthWeekRange = getMonthWeekRange(monthNum);
-                dataArr = rabData.filter(r => r.projId === activeProjectId).map(item => {
+                dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv)).map(item => {
                     const itemLmEntries = lapMingguanData.filter(l => l.rabId == item.id);
                     const volLalu = itemLmEntries
                         .filter(l => (parseInt((l.mingguKe || '').replace(/\D/g, ''), 10) || 0) < monthWeekRange.start)
@@ -9285,7 +9276,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     };
                 });
             }
-            else if (type === 'time-schedule' || type === 'action-plan') dataArr = rabData.filter(r => r.projId === activeProjectId);
+            else if (type === 'time-schedule' || type === 'action-plan') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             else if (type === 'bq-estimasi') dataArr = bqResultsData;
             else if (type === 'bq-opname') dataArr = buildBqOpnameExportRows();
             else if (type === 'absen-daftar-hadir') {
@@ -9368,7 +9359,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             const container = document.getElementById('waSelectControlContainer');
             container.innerHTML = '';
-
             if (type === 'lap-harian') {
                 container.innerHTML = `<input type="date" id="waInputDate" onchange="generateWaTextContent()" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg p-2 text-white">`;
                 document.getElementById('waInputDate').value = new Date().toISOString().split('T')[0];
@@ -9452,7 +9442,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
-
         // Helper Format Rupiah (dibatasi maksimal 2 angka di belakang koma)
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
