@@ -1853,6 +1853,10 @@
                         </div>
 
                         <div class="space-y-3 text-xs">
+                            <div id="absenEditNotice" class="hidden bg-amber-500/10 border border-amber-500/40 text-amber-300 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Mode edit: ambil ulang foto untuk record ini</span>
+                                <button onclick="cancelEditAbsenPhoto()" type="button" class="text-slate-300 hover:text-white underline">Batal</button>
+                            </div>
                             <div>
                                 <label class="block text-slate-400 mb-1">Nama Karyawan / Worker</label>
                                 <select id="absenNamaSelect" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
@@ -2326,6 +2330,42 @@
     </div>
 
     <!-- =================================================================== -->
+    <!-- MODAL LIHAT FOTO ABSENSI (Full-size, tombol Hapus/Edit/Share WA/Simpan) -->
+    <!-- =================================================================== -->
+    <div id="absenPhotoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md hidden p-3">
+        <div class="bg-[#1c2541] border border-[#334155] w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="bg-[#0b132b] px-4 py-3 border-b border-[#334155] flex justify-between items-center shrink-0">
+                <h3 id="absenPhotoModalTitle" class="font-bold text-white text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-image text-amber-400"></i>
+                    <span>Foto Absensi</span>
+                </h3>
+                <button onclick="closeAbsenPhotoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll bg-black flex items-center justify-center p-2">
+                <img id="absenPhotoModalImg" src="" class="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg">
+            </div>
+
+            <div id="absenPhotoModalInfo" class="px-4 py-2 text-[11px] text-slate-300 border-t border-[#334155] space-y-0.5 shrink-0"></div>
+
+            <div class="p-3 bg-[#0b132b] border-t border-[#334155] grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
+                <button onclick="downloadAbsenPhoto()" class="px-3 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-download"></i><span>Simpan</span>
+                </button>
+                <button onclick="shareAbsenPhotoToWhatsapp()" class="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp"></i><span>Share WA</span>
+                </button>
+                <button id="absenPhotoModalEditBtn" onclick="editAbsenRecordPhoto(absenPhotoModalContext.id, absenPhotoModalContext.isMasuk)" class="px-3 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-pen"></i><span>Edit Foto</span>
+                </button>
+                <button id="absenPhotoModalDeleteBtn" onclick="deleteAbsenRecord(absenPhotoModalContext.id, absenPhotoModalContext.isMasuk)" class="px-3 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-trash"></i><span>Hapus</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
     <!-- MODAL WHATSAPP TEXT GENERATOR (WITH SELECTOR) -->
     <!-- =================================================================== -->
     <div id="waModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden p-4">
@@ -2346,7 +2386,6 @@
                         <!-- JS Inserted Controls -->
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-slate-400 mb-1">Preview Teks Laporan WhatsApp:</label>
                     <textarea id="waPreviewText" rows="10" readonly class="w-full bg-[#0b132b] border border-slate-700 rounded-xl p-3 text-slate-200 font-mono text-[11px] custom-scroll"></textarea>
@@ -2365,6 +2404,7 @@
             </div>
         </div>
     </div>
+
     <!-- =================================================================== -->
     <!-- MODAL ADMIN USER APPROVAL -->
     <!-- =================================================================== -->
@@ -2408,7 +2448,6 @@
             </div>
         </div>
     </div>
-
     <!-- =================================================================== -->
     <!-- MODAL EDIT / ADD KARYAWAN -->
     <!-- =================================================================== -->
@@ -2595,6 +2634,7 @@
         ];
 
         let activeProjectId = localStorage.getItem('erp_active_project') || 'PRJ-01';
+
         let users = JSON.parse(localStorage.getItem('erp_users')) || [
             {
                 id: 'USR-01',
@@ -2699,6 +2739,7 @@
         } catch (err) {
             showCloudSyncError('Inisialisasi Firebase', err);
         }
+
         // Kunci localStorage yang bersifat GLOBAL (dipakai lintas semua workspace: daftar akun & daftar proyek)
         const CLOUD_GLOBAL_FIELD = { erp_users: 'users', erp_projects: 'projects' };
         // Kunci localStorage yang bersifat PER-WORKSPACE (data operasional 1 admin/perusahaan)
@@ -2706,8 +2747,20 @@
             erp_rab: 'rab', erp_lap_harian: 'lapHarian', erp_lap_harian_kendala: 'lapHarianKendala',
             erp_lap_mingguan: 'lapMingguan', erp_div_schedule: 'divSchedule', erp_kebutuhan_mat: 'kebutuhanMat',
             erp_mat_order: 'materialOrder', erp_mat_masuk: 'materialMasuk', erp_mat_keluar: 'materialKeluar',
-            erp_karyawan: 'karyawan', erp_absen_masuk: 'absenMasuk', erp_absen_keluar: 'absenKeluar',
+            erp_karyawan: 'karyawan',
             erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname'
+        };
+        // erp_absen_masuk & erp_absen_keluar SENGAJA TIDAK dimasukkan ke CLOUD_WORKSPACE_FIELD di atas.
+        // Kedua data ini memuat FOTO (base64) yang bisa besar, sehingga kalau digabung jadi 1 field string
+        // raksasa di dalam 1 dokumen workspace (bersama RAB, laporan, dst), total ukuran dokumen sangat mudah
+        // melewati batas keras Firestore: 1 dokumen maksimal 1.048.576 byte (1 MiB) - persis penyebab error
+        // "Document ... cannot be written because its size ... exceeds the maximum allowed size of 1,048,576 bytes".
+        // Sebagai gantinya, tiap record absen disimpan sebagai 1 DOKUMEN TERPISAH di dalam SUB-COLLECTION
+        // workspaces/{wsId}/absenMasuk/{id} & workspaces/{wsId}/absenKeluar/{id) - lihat
+        // CLOUD_WORKSPACE_SUBCOLLECTION, pushAbsenRecordToCloud(), dan startAbsenSubcollectionSync() di bawah.
+        const CLOUD_WORKSPACE_SUBCOLLECTION = {
+            erp_absen_masuk: { sub: 'absenMasuk', getArray: () => absenMasukData },
+            erp_absen_keluar: { sub: 'absenKeluar', getArray: () => absenKeluarData }
         };
         let cloudWorkspaceId = null;
         let cloudWorkspaceUnsub = null;
@@ -2799,6 +2852,84 @@
             }, 400);
         }
 
+        // Dorong 1 RECORD absensi (Absen Masuk/Keluar, termasuk foto) sebagai 1 dokumen terpisah di sub-collection,
+        // BUKAN digabung ke field raksasa di dokumen workspace utama. Ini yang mencegah error "document size exceeds
+        // 1 MiB" pada Firestore ketika jumlah foto absensi terus bertambah banyak.
+        function pushAbsenRecordToCloud(localKey, record) {
+            if (!cloudDb || !cloudReady || !cloudWorkspaceId || !record || record.id == null) return;
+            const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
+            if (!conf) return;
+            cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection(conf.sub).doc(String(record.id)).set(record)
+                .catch(err => showCloudSyncError('Kirim data absensi ke cloud', err));
+        }
+
+        let cloudAbsenUnsubs = [];
+        const _migratedAbsenWorkspaces = new Set();
+
+        // Dengarkan perubahan sub-collection Absen Masuk/Keluar secara realtime, & lakukan migrasi 1x untuk
+        // membersihkan field lama (absenMasuk/absenKeluar) yang mungkin masih tersimpan sebagai field raksasa
+        // di dokumen workspace utama dari versi aplikasi sebelumnya, serta memastikan data lokal saat ini juga
+        // sudah tersalin ke sub-collection cloud (aman dijalankan berkali-kali/idempotent).
+        function startAbsenSubcollectionSync(wsId) {
+            stopAbsenSubcollectionSync();
+            if (!cloudDb || !wsId) return;
+            const mainDocRef = cloudDb.collection('workspaces').doc(wsId);
+
+            if (!_migratedAbsenWorkspaces.has(wsId)) {
+                _migratedAbsenWorkspaces.add(wsId);
+                mainDocRef.get().then(snap => {
+                    if (!snap.exists) return;
+                    const data = snap.data();
+                    const cleanup = {};
+                    if (typeof data.absenMasuk === 'string') cleanup.absenMasuk = firebase.firestore.FieldValue.delete();
+                    if (typeof data.absenKeluar === 'string') cleanup.absenKeluar = firebase.firestore.FieldValue.delete();
+                    if (Object.keys(cleanup).length) {
+                        mainDocRef.update(cleanup).catch(err => console.warn('Gagal membersihkan field absensi lama di dokumen workspace:', err));
+                    }
+                }).catch(err => console.warn('Gagal memeriksa dokumen workspace untuk migrasi absensi:', err));
+
+                Object.keys(CLOUD_WORKSPACE_SUBCOLLECTION).forEach(localKey => {
+                    const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
+                    conf.getArray().forEach(rec => {
+                        if (rec && rec.id != null) {
+                            mainDocRef.collection(conf.sub).doc(String(rec.id)).set(rec, { merge: true })
+                                .catch(err => console.warn('Gagal migrasi record absensi ke sub-collection:', err));
+                        }
+                    });
+                });
+            }
+
+            Object.keys(CLOUD_WORKSPACE_SUBCOLLECTION).forEach(localKey => {
+                const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
+                const unsub = mainDocRef.collection(conf.sub).onSnapshot(snap => {
+                    let changed = false;
+                    snap.docChanges().forEach(change => {
+                        const rec = change.doc.data();
+                        const arr = conf.getArray();
+                        const idx = arr.findIndex(x => x.id == rec.id);
+                        if (change.type === 'removed') {
+                            if (idx > -1) { arr.splice(idx, 1); changed = true; }
+                        } else {
+                            if (idx > -1) { arr[idx] = rec; } else { arr.push(rec); }
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        cloudApplyingRemote = true;
+                        localStorage.setItem(localKey, JSON.stringify(conf.getArray()));
+                        cloudApplyingRemote = false;
+                        reloadAppDataFromLocalStorage([localKey]);
+                    }
+                }, err => showCloudSyncError('Menerima data absensi dari cloud', err));
+                cloudAbsenUnsubs.push(unsub);
+            });
+        }
+
+        function stopAbsenSubcollectionSync() {
+            cloudAbsenUnsubs.forEach(unsub => { if (unsub) unsub(); });
+            cloudAbsenUnsubs = [];
+        }
+
         // Dengarkan perubahan GLOBAL (users & projects) secara realtime — dimulai sejak app dibuka (sebelum login),
         // supaya login/registrasi selalu memakai data terbaru dari semua perangkat.
         function startGlobalCloudSync() {
@@ -2839,6 +2970,7 @@
             const wsId = workspaceIdForUser(user);
             cloudWorkspaceId = wsId;
             if (!wsId || !cloudDb) return;
+            startAbsenSubcollectionSync(wsId);
             cloudWorkspaceUnsub = cloudDb.collection('workspaces').doc(wsId).onSnapshot(snap => {
                 if (!snap.exists) {
                     // Workspace baru (mis. Admin baru daftar) → unggah data lokal saat ini sebagai data awal
@@ -2868,6 +3000,7 @@
 
         function stopWorkspaceCloudSync() {
             if (cloudWorkspaceUnsub) { cloudWorkspaceUnsub(); cloudWorkspaceUnsub = null; }
+            stopAbsenSubcollectionSync();
             cloudWorkspaceId = null;
         }
 
@@ -2944,7 +3077,6 @@
                 ownerId: user.id
             };
         }
-
         // Menentukan activeProjectId yang benar untuk akun yang sedang login, agar setiap akun
         // hanya melihat proyek & datanya sendiri (bukan proyek/data akun lain, termasuk akun demo).
         function resolveActiveProjectForCurrentUser() {
@@ -3181,6 +3313,7 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-paper-plane mr-1"></i> Kirim Ulang Email Verifikasi');
             }
         }
+
         function showLoginError(message) {
             const box = document.getElementById('loginErrorBox');
             document.getElementById('loginErrorText').innerText = message;
@@ -3216,7 +3349,6 @@
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
             if (!email || !pass) return;
-
             const btn = document.getElementById('btnLoginSubmit');
             setBtnLoading(btn, true, '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa akun...');
             try {
@@ -3300,7 +3432,6 @@
                         ? `Registrasi Admin berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya sebelum login.`
                         : `Registrasi berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya, lalu tunggu persetujuan Admin.`);
                 }
-
                 // Kembalikan sesi ke anonim (bukan akun baru ini) supaya user diarahkan ke layar login seperti biasa.
                 try { await firebase.auth().signOut(); } catch (e) {}
                 try { await firebase.auth().signInAnonymously(); } catch (e) {}
@@ -3682,6 +3813,10 @@
                 if (btn) btn.classList.add('active');
                 renderDaftarHadir();
             } else if (tabId.startsWith('absen-')) {
+                // Jika sedang mode edit foto tapi user berpindah ke jenis absen yang berbeda (Masuk <-> Keluar), batalkan mode edit
+                if (typeof editingAbsenContext !== 'undefined' && editingAbsenContext && editingAbsenContext.isMasuk !== (tabId === 'absen-masuk')) {
+                    cancelEditAbsenPhoto();
+                }
                 activeAbsenType = tabId;
                 showSection('sec-absen');
                 const btn = document.getElementById('menu-' + tabId);
@@ -3747,6 +3882,7 @@
                 sisaHariText = diffDays > 0 ? `${diffDays} hari lagi` : (diffDays === 0 ? 'Selesai hari ini' : `Lewat ${Math.abs(diffDays)} hari`);
             }
             document.getElementById('homeProjectSisaHari').innerText = sisaHariText;
+
             const btnQuickKaryawan = document.getElementById('homeQuickKaryawan');
             if (btnQuickKaryawan) btnQuickKaryawan.classList.toggle('hidden', !isAdminUser());
 
@@ -3967,7 +4103,6 @@
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada data RAB untuk proyek ini. Silakan input atau import Excel.</td></tr>`;
                 return;
             }
-
             // Fitur pencarian pada list RAB: filter hanya baris yang ditampilkan, subtotal/bobot tetap dihitung dari seluruh data RAB proyek
             const rabSearchEl = document.getElementById('rabSearchInput');
             const rabSearchQuery = rabSearchEl ? rabSearchEl.value.trim().toLowerCase() : '';
@@ -4030,7 +4165,6 @@
                                 </button>
                             </div>`
                         : '';
-
                     const actionCell = admin
                         ? `<div class="flex items-center justify-center space-x-1">
                                 ${reorderCell}
@@ -4156,7 +4290,6 @@
             document.getElementById('rabSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Tambah Item RAB';
             document.getElementById('rabCancelEditBtn').classList.add('hidden');
         }
-
         function deleteRABItem(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus data RAB.');
@@ -4250,6 +4383,7 @@
             persenEl.value = '';
             renderRAB();
         }
+
         function removeBiayaTambahan(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus biaya tambahan.');
@@ -4333,6 +4467,7 @@
                 const satuan = row['Satuan'] || row['satuan'] || 'ls';
                 const volume = parseFloat(row['Volume'] || row['volume'] || 1);
                 const harga = parseFloat(row['HargaSatuan'] || row['hargasatuan'] || row['Harga'] || 0);
+
                 if (sub) {
                     rabData.push({
                         id: Date.now() + Math.random(),
@@ -4437,6 +4572,7 @@
                 if (numEl) numEl.innerText = idx + 1;
             });
         }
+
         function updateLhRemoveButtonsState() {
             const rows = document.querySelectorAll('#lhPekerjaanRowsContainer .lh-pekerjaan-row');
             rows.forEach(row => {
@@ -4583,6 +4719,7 @@
                 let workHtml = '<ul class="space-y-1.5">';
                 let tenagaHtml = '<ul class="space-y-1.5">';
                 let actionHtml = '<div class="flex flex-col space-y-1 items-center">';
+
                 group.items.forEach(item => {
                     const rab = rabData.find(r => r.id == item.pekerjaanId);
                     const rabName = rab ? `${rab.sub} (${rab.satuan})` : 'Pekerjaan';
@@ -4824,7 +4961,6 @@
             const formCard = document.getElementById('formLhKendala');
             if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-
         function deleteLhKendala(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus catatan kendala & notulen tanggal ini?')) {
@@ -4834,6 +4970,7 @@
                 renderLapHarian();
             }
         }
+
         function cancelLhKendalaEdit() {
             document.getElementById('lhkEditId').value = '';
             document.getElementById('formLhKendala').reset();
@@ -4907,7 +5044,6 @@
             if (!tbody) return;
 
             const proj = projects.find(p => p.id === activeProjectId) || {};
-
             // Isi ulang opsi Minggu setiap render (bukan hanya sekali) supaya rentang tanggalnya selalu
             // ikut menyesuaikan jika Tanggal Mulai Proyek berubah atau saat pindah proyek.
             if (mingguSel) {
@@ -5369,7 +5505,6 @@
                 document.getElementById('lbSumStatus').className = dev >= 0 ? 'text-xs font-bold text-emerald-400 mt-1' : 'text-xs font-bold text-red-400 mt-1';
             }
         }
-
         // ===================================================================
         // 3.1 TIME SCHEDULE & KURVA S
         // ===================================================================
@@ -5463,6 +5598,7 @@
             const bobotTotal = getSubBobotTotal(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledBobot(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, bobotTotal - sudahDijadwalkan);
+
             let warning = '';
             const bobotInputVal = parseFloat(bobotInput.value) || 0;
             if (bobotInputVal > sisaBisaDijadwalkan + 0.01) {
@@ -5504,6 +5640,7 @@
                 return { type: 'text', val: t.toLowerCase() };
             });
         }
+
         function compareDivisionKey(a, b) {
             const ka = divisionSortKey(a);
             const kb = divisionSortKey(b);
@@ -5566,6 +5703,7 @@
             updateTsBobotInfo();
             window.scrollTo({ top: 150, behavior: 'smooth' });
         }
+
         function deleteTsSchedule(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (!confirm('Hapus rencana jadwal ini?')) return;
@@ -5670,6 +5808,7 @@
                     { label: 'Komulatif Realisasi', data: kumRealisasi, cls: 'text-emerald-400 font-bold' },
                     { label: 'Deviasi (Kumulatif)', data: deviasi, cls: '' }
                 ];
+
                 rowsMeta.forEach((m, idx) => {
                     let row = '<tr class="hover:bg-slate-800/50 transition">';
                     if (idx === 0) {
@@ -5753,6 +5892,7 @@
             cancelTsScheduleEdit();
             renderTimeSchedule();
         }
+
         let scurveChartInstance = null;
         function renderSCurveChart() {
             const totalWeeks = getProjectScheduleWeeks();
@@ -5773,6 +5913,7 @@
             if (scurveChartInstance) scurveChartInstance.destroy();
 
             const labels = Array.from({length: totalWeeks}, (_, i) => `M${i+1}`);
+
             // Total kumulatif rencana & realisasi seluruh pekerjaan (mengikuti data tabel Time Schedule di atas)
             const proj = projects.find(p => p.id === activeProjectId) || {};
             const projRab = rabData.filter(r => r.projId === activeProjectId);
@@ -5867,7 +6008,6 @@
             const fmt = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             return { start: wStart, end: wEnd, label: `${fmt(wStart)} s/d ${fmt(wEnd)}` };
         }
-
         // Versi lengkap/detail dari rentang tanggal 1 minggu (nama hari + nama bulan penuh), dipakai
         // khusus pada halaman Laporan Mingguan supaya periode tanggalnya terbaca jelas & lengkap.
         function getWeekDateRangeDetailed(week, projStartStr, projEndStr) {
@@ -5919,6 +6059,7 @@
             const noDiv = item.noDiv || '-';
             const entries = divScheduleData.filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === item.sub);
             const sched = entries.length > 0;
+
             // Porsi item ini thd bobot total pekerjaan (sub)-nya, dipakai utk membagi rencana mingguan sub secara proporsional ke tiap item RAB di dalamnya
             const subBobotTotal = getSubBobotTotal(noDiv, item.sub);
             const itemShare = subBobotTotal > 0 ? (bobotItem / subBobotTotal) : 0;
@@ -6485,6 +6626,7 @@
 
             const o = materialOrderData.find(x => x.id == orderId);
             if (!o) return true;
+
             const excludeId = (materialEditContext && materialEditContext.type === 'masuk') ? materialEditContext.id : null;
             const st = getOrderMasukStatus(o, excludeId);
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
@@ -6516,7 +6658,6 @@
                 opt.style.display = hay.includes(query) ? '' : 'none';
             });
         }
-
         // Isi otomatis form Material Keluar dari Stok Sisa yang dipilih
         function fillMkFromSisa() {
             const key = document.getElementById('mkNamaSelect').value;
@@ -6642,7 +6783,6 @@
             const isEditOrder = materialEditContext && materialEditContext.type === 'order';
             const isEditMasuk = materialEditContext && materialEditContext.type === 'masuk';
             const isEditKeluar = materialEditContext && materialEditContext.type === 'keluar';
-
             if (activeMaterialSub === 'mat-kebutuhan') {
                 const payload = {
                     kode: document.getElementById('matKode').value.trim(),
@@ -7114,6 +7254,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
+
         function processBqImageAnalysis() {
             const kategori = document.getElementById('bqKategori').value;
             // Simulated AI calculation
@@ -7281,6 +7422,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqOpnameDetail();
             detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
         // Tutup area detail & kembali ke daftar rincian per item pekerjaan.
         function closeBqOpnameDetail() {
             bqOpnameSelectedPekerjaanId = null;
@@ -7375,7 +7517,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             cancelBqOpnameEdit();
             renderBqOpnameDetail();
         }
-
         function editBqOpnameRow(id) {
             const row = bqOpnameData.find(o => o.id === id);
             if (!row) return;
@@ -7532,6 +7673,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 renderBqOpnameDetail();
             }
         }
+
         // Render daftar (master list) SELURUH item pekerjaan RAB proyek aktif, dikelompokkan per Divisi
         // (sama seperti RAB/Laporan Mingguan), menampilkan status opname minggu lalu/ini/komulatif serta
         // status sudah/belum diopname, supaya cepat diketahui item mana yang belum dicek di lapangan.
@@ -7573,6 +7715,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const displayRAB = query
                 ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
                 : projRAB;
+
             tbody.innerHTML = '';
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-500">${projRAB.length === 0 ? 'Belum ada data RAB / Pekerjaan.' : 'Tidak ada item yang cocok dengan pencarian.'}</td></tr>`;
@@ -8318,7 +8461,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const isMasuk = activeAbsenType === 'absen-masuk';
             document.getElementById('absenTitle').innerHTML = isMasuk ? `<i class="fa-solid fa-right-to-bracket text-emerald-400"></i><span>Absen Masuk (Kamera & GPS)</span>` : `<i class="fa-solid fa-right-from-bracket text-rose-400"></i><span>Absen Keluar (Kamera & GPS)</span>`;
             document.getElementById('absenListTitle').innerText = isMasuk ? 'Riwayat Presensi Masuk' : 'Riwayat Presensi Keluar';
-
             const tbody = document.getElementById('absenTableBody');
             tbody.innerHTML = '';
             const data = (isMasuk ? absenMasukData : absenKeluarData).filter(d => d.projId === activeProjectId);
@@ -8333,15 +8475,16 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const alamatText = item.alamat || item.lokasi || '-';
                 return `
                     <tr class="hover:bg-slate-800/50 transition align-middle">
-                        <td class="p-3"><div class="w-14 h-14 rounded-lg overflow-hidden bg-slate-800 cursor-pointer" onclick="window.open('${item.photo}', '_blank')"><img src="${item.photo}" class="w-full h-full object-cover"></div></td>
+                        <td class="p-3"><div class="w-14 h-14 rounded-lg overflow-hidden bg-slate-800 cursor-pointer" onclick="openAbsenPhotoModal(${item.id}, ${isMasuk})"><img src="${item.photo}" class="w-full h-full object-cover"></div></td>
                         <td class="p-3 font-bold text-white">${item.nama}${item.jamKerja ? `<div class="text-[10px] font-normal text-emerald-400 mt-0.5"><i class="fa-solid fa-business-time mr-1"></i>${item.jamKerja}</div>` : ''}</td>
                         <td class="p-3 font-mono text-amber-400">${item.waktu}</td>
                         <td class="p-3 text-[11px] text-slate-300 max-w-[220px]">
                             <div class="truncate" title="${alamatText}"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${alamatText}</div>
                             ${mapsLink ? `<a href="${mapsLink}" target="_blank" rel="noopener" class="text-sky-400 hover:underline text-[10px] inline-flex items-center mt-0.5"><i class="fa-solid fa-map-location-dot mr-1"></i>Buka di Google Maps</a>` : ''}
                         </td>
-                        <td class="p-3 text-center">
-                            <button onclick="shareAbsenWaById(${item.id}, ${isMasuk})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> Share WA</button>
+                        <td class="p-3 text-center space-y-1">
+                            <button onclick="openAbsenPhotoModal(${item.id}, ${isMasuk})" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg text-xs font-bold w-full"><i class="fa-solid fa-eye mr-1"></i> Lihat/Edit/Hapus</button>
+                            <button onclick="shareAbsenWaById(${item.id}, ${isMasuk})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold w-full"><i class="fa-brands fa-whatsapp mr-1"></i> Share WA</button>
                         </td>
                     </tr>
                 `;
@@ -8487,22 +8630,125 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 });
         }
 
+        // Menggambar frame video ke canvas TANPA efek cermin (mirror), meski beberapa perangkat Android
+        // mengirimkan stream kamera depan yang sudah ter-mirror secara bawaan dari getUserMedia. Ini
+        // memastikan foto absensi yang tersimpan selalu sesuai orientasi asli (teks/tulisan di latar
+        // belakang foto tidak terbalik), khususnya penting untuk keperluan verifikasi kehadiran.
+        function drawVideoFrameToCanvas(ctx, video, canvasW, canvasH) {
+            ctx.save();
+            if (currentFacingMode === 'user') {
+                ctx.translate(canvasW, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(video, 0, 0, canvasW, canvasH);
+            ctx.restore();
+        }
+
+        // Konteks mode EDIT foto absensi (retake foto pada record yang sudah ada, tanpa mengubah data
+        // nama/waktu/lokasi aslinya). null jika sedang tidak dalam mode edit.
+        let editingAbsenContext = null;
+
+        function editAbsenRecordPhoto(id, isMasuk) {
+            closeAbsenPhotoModal();
+            editingAbsenContext = { id, isMasuk };
+            switchTab(isMasuk ? 'absen-masuk' : 'absen-keluar');
+            const snapBtn = document.getElementById('btnTakeSnapshot');
+            if (snapBtn) snapBtn.innerHTML = '<i class="fa-solid fa-camera-rotate"></i><span>Ambil Ulang Foto (Edit)</span>';
+            const noticeEl = document.getElementById('absenEditNotice');
+            if (noticeEl) noticeEl.classList.remove('hidden');
+        }
+
+        function cancelEditAbsenPhoto() {
+            editingAbsenContext = null;
+            const snapBtn = document.getElementById('btnTakeSnapshot');
+            if (snapBtn) snapBtn.innerHTML = '<i class="fa-solid fa-camera"></i><span>Ambil Foto & Simpan Absen</span>';
+            const noticeEl = document.getElementById('absenEditNotice');
+            if (noticeEl) noticeEl.classList.add('hidden');
+        }
+
+        // Hapus 1 record absensi (foto + metadata) - lokal & cloud
+        function deleteAbsenRecord(id, isMasuk) {
+            if (!confirm('Hapus foto & data absensi ini secara permanen?')) return;
+            const localKey = isMasuk ? 'erp_absen_masuk' : 'erp_absen_keluar';
+            const arr = isMasuk ? absenMasukData : absenKeluarData;
+            const idx = arr.findIndex(r => r.id == id);
+            if (idx > -1) arr.splice(idx, 1);
+            localStorage.setItem(localKey, JSON.stringify(arr));
+            if (cloudDb && cloudReady && cloudWorkspaceId) {
+                const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
+                if (conf) {
+                    cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection(conf.sub).doc(String(id)).delete()
+                        .catch(err => showCloudSyncError('Hapus data absensi di cloud', err));
+                }
+            }
+            closeAbsenPhotoModal();
+            renderAbsenSection();
+        }
+
         async function takeAttendanceSnapshot() {
             // Absen Masuk/Keluar SENGAJA tidak dikunci oleh izin edit (canUserEdit) - akun User harus tetap
             // bisa melakukan absensi kapan pun, meskipun Admin menonaktifkan izin edit data proyek lainnya.
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('snapshotCanvas');
+
+            const snapBtn = document.getElementById('btnTakeSnapshot');
+
+            // ================= MODE EDIT: ganti foto pada record absensi yang sudah ada =================
+            if (editingAbsenContext) {
+                const { id, isMasuk } = editingAbsenContext;
+                const localKey = isMasuk ? 'erp_absen_masuk' : 'erp_absen_keluar';
+                const arr = isMasuk ? absenMasukData : absenKeluarData;
+                const existing = arr.find(r => r.id == id);
+                if (!existing) { alert('Data absen tidak ditemukan (mungkin sudah dihapus).'); cancelEditAbsenPhoto(); return; }
+
+                if (snapBtn) { snapBtn.disabled = true; snapBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memproses Foto...</span>'; }
+                try {
+                    canvas.width = video.videoWidth || 320;
+                    canvas.height = video.videoHeight || 240;
+                    const ctx = canvas.getContext('2d');
+                    drawVideoFrameToCanvas(ctx, video, canvas.width, canvas.height);
+
+                    const proj = projects.find(p => p.id === activeProjectId) || {};
+                    let logoImg = null;
+                    if (proj.logo) {
+                        try { logoImg = await loadImage(proj.logo); } catch (e) { logoImg = null; }
+                    }
+
+                    await drawAbsenWatermark(ctx, canvas.width, canvas.height, {
+                        isMasuk,
+                        namaKaryawan: existing.nama,
+                        waktuFoto: new Date(existing.ts || Date.now()),
+                        alamat: existing.alamat || existing.lokasi,
+                        lat: existing.lat, lng: existing.lng, accuracy: existing.accuracy,
+                        namaProyek: proj.nama || 'ProConstruct ERP',
+                        logoImg,
+                        jamKerjaText: existing.jamKerja
+                    });
+
+                    existing.photo = compressCanvasToDataUrl(canvas, 900, 0.72);
+                    localStorage.setItem(localKey, JSON.stringify(arr));
+                    pushAbsenRecordToCloud(localKey, existing);
+
+                    cancelEditAbsenPhoto();
+                    renderAbsenSection();
+                    alert('Foto absensi berhasil diperbarui!');
+                } finally {
+                    if (snapBtn) { snapBtn.disabled = false; snapBtn.innerHTML = editingAbsenContext ? '<i class="fa-solid fa-camera-rotate"></i><span>Ambil Ulang Foto (Edit)</span>' : '<i class="fa-solid fa-camera"></i><span>Ambil Foto & Simpan Absen</span>'; }
+                }
+                return;
+            }
+
+            // ================= MODE NORMAL: rekam absensi baru =================
             const nama = document.getElementById('absenNamaSelect').value;
             if (!nama) { alert('Pilih nama karyawan terlebih dahulu.'); return; }
 
-            const snapBtn = document.getElementById('btnTakeSnapshot');
             if (snapBtn) { snapBtn.disabled = true; snapBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Memproses Foto...</span>'; }
 
             try {
                 canvas.width = video.videoWidth || 320;
                 canvas.height = video.videoHeight || 240;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                drawVideoFrameToCanvas(ctx, video, canvas.width, canvas.height);
 
                 const now = new Date();
                 const waktu = now.toLocaleString('id-ID');
@@ -8550,8 +8796,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     logoImg,
                     jamKerjaText
                 });
-
-                const photoUrl = canvas.toDataURL('image/png');
+                const photoUrl = compressCanvasToDataUrl(canvas, 900, 0.72);
                 // 'ts' & 'tanggal' ditambahkan agar rekap Daftar Hadir bulanan bisa dihitung akurat
                 const newRecord = {
                     id: Date.now(), projId: activeProjectId, nama, waktu, ts: now.getTime(),
@@ -8559,12 +8804,15 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     lat: currentGpsLat, lng: currentGpsLng, accuracy: currentGpsAccuracy,
                     alamat: currentAddressText, jamKerja: jamKerjaText, photo: photoUrl
                 };
+
                 if (isMasuk) {
                     absenMasukData.push(newRecord);
                     localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
+                    pushAbsenRecordToCloud('erp_absen_masuk', newRecord);
                 } else {
                     absenKeluarData.push(newRecord);
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
+                    pushAbsenRecordToCloud('erp_absen_keluar', newRecord);
                 }
 
                 renderAbsenSection();
@@ -8582,6 +8830,28 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 img.onerror = reject;
                 img.src = src;
             });
+        }
+
+        // Perkecil ukuran foto (resize dimensi + kompres JPEG) sebelum disimpan/dikirim ke cloud.
+        // Foto kamera asli (apalagi ber-watermark PNG) bisa 1-3 MB per foto - jauh melebihi batas dokumen
+        // Firestore (1 MiB), dan juga memberatkan localStorage & kuota data HP. Dengan resize ke maksimal
+        // `maxDim` piksel pada sisi terpanjang + kompres JPEG, ukuran foto turun drastis (umumnya jadi
+        // puluhan-ratusan KB saja) tanpa terlihat jelas bedanya secara visual.
+        function compressCanvasToDataUrl(sourceCanvas, maxDim, quality) {
+            let targetW = sourceCanvas.width;
+            let targetH = sourceCanvas.height;
+            const longestSide = Math.max(targetW, targetH);
+            if (longestSide > maxDim) {
+                const ratio = maxDim / longestSide;
+                targetW = Math.round(targetW * ratio);
+                targetH = Math.round(targetH * ratio);
+            }
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = targetW;
+            outCanvas.height = targetH;
+            const outCtx = outCanvas.getContext('2d');
+            outCtx.drawImage(sourceCanvas, 0, 0, targetW, targetH);
+            return outCanvas.toDataURL('image/jpeg', quality || 0.72);
         }
 
         // Bungkus teks panjang (mis. alamat) menjadi beberapa baris agar muat dalam lebar tertentu pada canvas
@@ -8789,6 +9059,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     ctx.fillText(line.text, textX, ly + line.size);
                     ly += lineHeight;
                 });
+
                 // Mini peta skematik di kanan bawah panel
                 const mapX = w - pad - mapBoxSize;
                 const mapY = panelY + panelHeight - pad - mapBoxSize;
@@ -8796,6 +9067,84 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
                 resolve();
             });
+        }
+        // Konteks foto yang sedang dibuka di modal viewer: { id, isMasuk }
+        let absenPhotoModalContext = null;
+
+        function openAbsenPhotoModal(id, isMasuk) {
+            const data = isMasuk ? absenMasukData : absenKeluarData;
+            const item = data.find(d => d.id == id);
+            if (!item) return;
+            absenPhotoModalContext = { id, isMasuk };
+
+            document.getElementById('absenPhotoModalTitle').innerHTML = `<i class="fa-solid fa-image text-amber-400"></i><span>${isMasuk ? 'Foto Absen Masuk' : 'Foto Absen Pulang'} - ${item.nama}</span>`;
+            document.getElementById('absenPhotoModalImg').src = item.photo;
+
+            let infoHtml = `
+                <div><i class="fa-regular fa-clock text-amber-400 mr-1.5 w-3.5 text-center"></i>${item.waktu}</div>
+                <div class="truncate"><i class="fa-solid fa-location-dot text-rose-400 mr-1.5 w-3.5 text-center"></i>${item.alamat || item.lokasi}</div>
+            `;
+            if (item.jamKerja) {
+                infoHtml += `<div><i class="fa-solid fa-business-time text-emerald-400 mr-1.5 w-3.5 text-center"></i>${item.jamKerja}</div>`;
+            }
+            document.getElementById('absenPhotoModalInfo').innerHTML = infoHtml;
+            document.getElementById('absenPhotoModal').classList.remove('hidden');
+        }
+
+        function closeAbsenPhotoModal() {
+            document.getElementById('absenPhotoModal').classList.add('hidden');
+            absenPhotoModalContext = null;
+        }
+
+        // Simpan foto absensi yang sedang dibuka ke penyimpanan HP (folder Download bawaan browser)
+        function downloadAbsenPhoto() {
+            if (!absenPhotoModalContext) return;
+            const data = absenPhotoModalContext.isMasuk ? absenMasukData : absenKeluarData;
+            const item = data.find(d => d.id == absenPhotoModalContext.id);
+            if (!item) return;
+            const a = document.createElement('a');
+            a.href = item.photo;
+            const jenis = absenPhotoModalContext.isMasuk ? 'Absen-Masuk' : 'Absen-Pulang';
+            const namaFile = `${jenis}-${(item.nama || 'Karyawan').replace(/\s+/g, '-')}-${item.tanggal || ''}.jpg`;
+            a.download = namaFile;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Share foto absensi yang sedang dibuka langsung ke WhatsApp (atau share sheet lain di HP) menggunakan
+        // Web Share API (bisa mengirim FILE gambar, bukan cuma teks/link). Jika perangkat/browser tidak
+        // mendukung share file, otomatis fallback: unduh dulu fotonya lalu kirim teks info via WhatsApp Web.
+        async function shareAbsenPhotoToWhatsapp() {
+            if (!absenPhotoModalContext) return;
+            const isMasuk = absenPhotoModalContext.isMasuk;
+            const data = isMasuk ? absenMasukData : absenKeluarData;
+            const item = data.find(d => d.id == absenPhotoModalContext.id);
+            if (!item) return;
+
+            const jenis = isMasuk ? 'Absen Masuk' : 'Absen Pulang';
+            let caption = `LAPORAN KEHADIRAN KARYAWAN\nJenis: ${jenis}\nNama: ${item.nama}\nWaktu: ${item.waktu}\nAlamat: ${item.alamat || item.lokasi}`;
+            if (item.jamKerja) caption += `\nJam Kerja: ${item.jamKerja}`;
+            caption += `\n\n_Dibuat otomatis oleh ProConstruct ERP v3.0_`;
+
+            try {
+                const res = await fetch(item.photo);
+                const blob = await res.blob();
+                const namaFile = `${isMasuk ? 'Absen-Masuk' : 'Absen-Pulang'}-${(item.nama || 'Karyawan').replace(/\s+/g, '-')}.jpg`;
+                const file = new File([blob], namaFile, { type: 'image/jpeg' });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], text: caption, title: jenis });
+                    return;
+                }
+            } catch (err) {
+                console.warn('Web Share API (file) gagal/tidak didukung, memakai fallback:', err);
+            }
+
+            // Fallback untuk browser yang tidak mendukung share file: unduh dulu fotonya, lalu buka WA dengan teks info
+            downloadAbsenPhoto();
+            alert('Perangkat/browser ini belum mendukung kirim foto langsung ke WhatsApp. Foto sudah otomatis diunduh ke HP - silakan lampirkan manual di WhatsApp. Jendela WhatsApp dengan teks info akan dibuka sekarang.');
+            window.open(`https://wa.me/?text=${encodeURIComponent(caption)}`, '_blank');
         }
 
         function shareAbsenWaById(id, isMasuk) {
@@ -8977,6 +9326,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     </tr>
                 `;
             }
+
             const tbody = document.getElementById('dhRekapTableBody');
             tbody.innerHTML = '';
 
@@ -9039,6 +9389,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 wsData.push(row);
             });
             if (rekap.length === 0) wsData.push(['Belum ada data karyawan pada proyek ini.']);
+
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const lastCol = headerRow1.length - 1;
             ws['!merges'] = [
@@ -9051,7 +9402,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             for (let d = 1; d <= jumlahHari; d++) cols.push({ wch: 6 });
             cols.push({ wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 6 }, { wch: 6 }, { wch: 6 });
             ws['!cols'] = cols;
-
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, `Daftar Hadir ${bulanStr}`);
             XLSX.writeFile(wb, `DaftarHadir_${bulanStr}_${proj.nama}.xlsx`);
@@ -9135,7 +9485,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             html2pdf().set(opt).from(container).save();
         }
-
         // Karyawan Management
         function renderEmployeeTable() {
             const tbody = document.getElementById('employeeTableBody');
@@ -9219,7 +9568,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
-
         function removeEmployeePhoto() {
             tempEmpPhoto = '';
             document.getElementById('empPhotoPreview').innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`;
@@ -9290,6 +9638,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
+
         function handleUserProfileSubmit(e) {
             e.preventDefault();
             if (!currentUser) return;
@@ -9323,7 +9672,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     (u.projectId && myProjectIds.includes(u.projectId))
                 )
             );
-
             if (relevantUsers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500">Belum ada permintaan/akun User untuk proyek Anda.</td></tr>`;
                 return;
@@ -9478,6 +9826,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 try {
                     const backup = JSON.parse(evt.target.result);
                     if (!backup || !backup.project || !backup.data) { alert('File backup tidak valid.'); return; }
+
                     // Buat / timpa proyek tujuan berdasarkan id proyek dari file backup
                     // Kepemilikan (ownerId) proyek yang diimpor SELALU dipindah ke akun Admin yang sedang
                     // mengimpor — agar proyek ini pasti muncul di akun tujuan, bukan "hilang" karena ownerId
@@ -9721,7 +10070,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             rows.push({ kind: 'total', cells: ['TOTAL NILAI KEBUTUHAN MATERIAL', '', '', '', '', '', '', formatRupiah(total), '', '', '', ''] });
             return { title: 'Rencana Kebutuhan Material', headers, rows };
         }
-
         function buildOrderExportRows() {
             const headers = ['Tanggal PO', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Keterangan PO (Tahap)', 'Volume Order', 'Total Nilai', 'Estimasi Tiba', 'Supplier', 'Sudah Masuk', 'Sisa Belum Masuk', '% Sudah Masuk', 'Status'];
             const data = materialOrderData.filter(d => d.projId === activeProjectId);
@@ -9763,7 +10111,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 });
             });
             flushDaily(currentTanggal);
-
             const activeProj = projects.find(p => p.id === activeProjectId);
             const rentangProyek = (sortedData.length && activeProj && activeProj.tglMulai && activeProj.tglSelesai)
                 ? `${activeProj.tglMulai} s/d ${activeProj.tglSelesai}`
@@ -9771,6 +10118,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             rows.push({ kind: 'total', cells: [`TOTAL KESELURUHAN ORDER MATERIAL (${rentangProyek})`, '', '', '', '', '', formatRupiah(totalNilaiOrder), '', '', '', '', '', ''] });
             return { title: 'Pemesanan Material (Material Order)', headers, rows };
         }
+
         function buildMasukExportRows() {
             const headers = ['Tanggal', 'No. Nota / SJ', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Volume Masuk', 'Total Nilai', 'Supplier'];
             const data = materialMasukData.filter(d => d.projId === activeProjectId);
@@ -9896,6 +10244,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             let dataArr = [];
             let filename = `${type}_${proj.nama}.xlsx`;
+
             if (type === 'rab') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
             else if (type === 'lap-harian') dataArr = buildLapHarianExportRows();
             else if (type === 'lap-mingguan') dataArr = lapMingguanData
@@ -9950,7 +10299,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             XLSX.utils.book_append_sheet(wb, ws, "DataExport");
             XLSX.writeFile(wb, filename);
         }
-
         function triggerPdfExport(type) {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const container = document.getElementById('printContainer');
@@ -9958,6 +10306,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             let extraTableHtml = '';
             let reportTitle = type.toUpperCase();
+
             if (materialTypes.includes(type)) {
                 const built = getMaterialExportBuilder(type);
                 reportTitle = built.title;
@@ -10012,7 +10361,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             currentWaType = type;
             document.getElementById('waModal').classList.remove('hidden');
             document.getElementById('waModalTitle').innerText = `Export Format WhatsApp Text (${type.toUpperCase()})`;
-
             const container = document.getElementById('waSelectControlContainer');
             container.innerHTML = '';
 
@@ -10033,7 +10381,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function closeWaModal() {
             document.getElementById('waModal').classList.add('hidden');
         }
-
         function generateWaTextContent() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             let text = `🏗️ *PROCONSTRUCT ERP v3.0 - LAPORAN* 🏗️\n*Proyek:* ${proj.nama}\n*Lokasi:* ${proj.lokasi}\n\n`;
@@ -10083,6 +10430,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }
+
             text += `\n_Dibuat otomatis oleh ProConstruct ERP v3.0_\n_by rchmd20_`;
             document.getElementById('waPreviewText').value = text;
         }
@@ -10103,6 +10451,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
         }
+
         // Helper Format Angka umum (volume, sisa, dsb): angka bulat tetap tampil bulat,
         // angka desimal dibulatkan & dibatasi MAKSIMAL 2 angka di belakang koma di semua halaman.
         // Memakai locale id-ID sehingga koma dipakai sbg pemisah desimal & titik sbg pemisah ribuan.
