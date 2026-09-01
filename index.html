@@ -1236,42 +1236,51 @@
                     </div>
                 </div>
 
-                <!-- FORM INPUT PERIODE MULAI, SELESAI & BOBOT PER PEKERJAAN (SUB RAB) -->
+                <!-- FORM INPUT VOLUME RENCANA & MINGGU PELAKSANAAN PER PEKERJAAN (SUB RAB) -->
                 <div class="navy-card p-4 rounded-2xl space-y-3">
-                    <h3 id="tsFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Atur Rencana Tanggal Mulai, Selesai & Bobot Per Pekerjaan</h3>
-                    <form id="formDivSchedule" onsubmit="handleDivScheduleSubmit(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                    <h3 id="tsFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Atur Rencana Volume & Minggu Pelaksanaan Per Pekerjaan</h3>
+                    <form id="formDivSchedule" onsubmit="handleDivScheduleSubmit(event)" class="space-y-3 text-xs">
                         <input type="hidden" id="tsEditId" value="">
-                        <div class="sm:col-span-2">
+
+                        <div>
                             <label class="block text-slate-400 mb-1">Pekerjaan (Kepala Sub Pekerjaan RAB)</label>
-                            <select id="tsDivSelect" required onchange="updateTsBobotInfo()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <select id="tsDivSelect" required onchange="handleTsSubChange()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                                 <!-- JS Populated -->
                             </select>
                         </div>
+
+                        <div id="tsBobotInfo" class="text-[11px] text-slate-400 leading-relaxed"></div>
+
                         <div>
-                            <label class="block text-slate-400 mb-1">Rencana Mulai</label>
-                            <input type="date" id="tsTglMulai" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <label class="block text-slate-400 mb-1">Volume Rencana (diterapkan sama ke tiap minggu yang dipilih)</label>
+                            <input type="number" step="any" min="0" id="tsVolume" oninput="updateTsBobotInfo()" placeholder="mis. 50" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
+
                         <div>
-                            <label class="block text-slate-400 mb-1">Rencana Selesai</label>
-                            <input type="date" id="tsTglSelesai" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                            <label class="block text-slate-400 mb-1">Pilih Minggu Ke- (bisa tambah/hapus lebih dari 1 minggu)</label>
+                            <div class="flex items-center gap-2">
+                                <select id="tsWeekPicker" class="flex-1 bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                    <!-- JS Populated -->
+                                </select>
+                                <button type="button" onclick="addTsWeek()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg font-bold whitespace-nowrap">
+                                    <i class="fa-solid fa-plus"></i> Tambah
+                                </button>
+                            </div>
+                            <div id="tsWeeksChipContainer" class="flex flex-wrap gap-1.5 mt-2"></div>
                         </div>
-                        <div>
-                            <label class="block text-slate-400 mb-1">Bobot Periode Ini (%)</label>
-                            <input type="number" step="any" min="0" id="tsBobot" required oninput="updateTsBobotInfo()" placeholder="mis. 25" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
-                        </div>
-                        <div class="sm:col-span-2 flex items-end space-x-2">
+
+                        <div class="flex items-end space-x-2 pt-1">
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg transition">
-                                Simpan Rencana Pekerjaan
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Rencana Pekerjaan
                             </button>
                             <button type="button" id="btnCancelTsEdit" onclick="cancelTsScheduleEdit()" class="hidden w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 rounded-lg transition">
                                 Batal Edit
                             </button>
                         </div>
-                        <div class="sm:col-span-4 text-[11px] text-slate-400" id="tsBobotInfo"></div>
                     </form>
                 </div>
 
-                <!-- DAFTAR RENCANA JADWAL YANG SUDAH DIINPUT (BISA LEBIH DARI 1 PERIODE PER PEKERJAAN) -->
+                <!-- DAFTAR RENCANA JADWAL YANG SUDAH DIINPUT (BISA LEBIH DARI 1 GRUP VOLUME PER PEKERJAAN) -->
                 <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">
                         Daftar Rencana Jadwal Per Pekerjaan
@@ -1279,7 +1288,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
-                                <tr><th class="p-3">No.</th><th class="p-3">Pekerjaan</th><th class="p-3">Mulai</th><th class="p-3">Selesai</th><th class="p-3">Bobot</th><th class="p-3 text-center col-aksi">Aksi</th></tr>
+                                <tr><th class="p-3">No.</th><th class="p-3">Pekerjaan</th><th class="p-3">Volume Rencana</th><th class="p-3">Minggu Ke-</th><th class="p-3">Bobot Ekuivalen</th><th class="p-3 text-center col-aksi">Aksi</th></tr>
                             </thead>
                             <tbody id="tsJadwalListBody"></tbody>
                         </table>
@@ -1778,6 +1787,7 @@
                         </div>
                     </form>
                 </div>
+
                 <!-- TABEL DATA MATERIAL -->
                 <div class="navy-card rounded-2xl overflow-hidden">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -1831,7 +1841,6 @@
                             <span class="font-bold text-white">Live Kamera WebCam</span>
                             <span class="text-emerald-400 text-[10px] font-mono"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i>ONLINE</span>
                         </div>
-
                         <div class="relative bg-slate-950 rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-slate-700">
                             <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
                             <canvas id="snapshotCanvas" class="hidden"></canvas>
@@ -2386,6 +2395,7 @@
                         <!-- JS Inserted Controls -->
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-slate-400 mb-1">Preview Teks Laporan WhatsApp:</label>
                     <textarea id="waPreviewText" rows="10" readonly class="w-full bg-[#0b132b] border border-slate-700 rounded-xl p-3 text-slate-200 font-mono text-[11px] custom-scroll"></textarea>
@@ -2448,6 +2458,7 @@
             </div>
         </div>
     </div>
+
     <!-- =================================================================== -->
     <!-- MODAL EDIT / ADD KARYAWAN -->
     <!-- =================================================================== -->
@@ -2606,7 +2617,6 @@
             </form>
         </div>
     </div>
-
     <!-- HIDDEN CONTAINER FOR PRINTING / PDF GENERATION -->
     <div id="printContainer" class="hidden"></div>
 
@@ -2648,7 +2658,6 @@
                 photo: ''
             }
         ];
-
         // Sesi login memakai sessionStorage (bukan localStorage) agar setiap aplikasi benar-benar
         // ditutup (tab/app ditutup) lalu dibuka kembali, pengguna WAJIB login ulang dari halaman Login.
         let currentUser = JSON.parse(sessionStorage.getItem('erp_current_user')) || null;
@@ -2664,6 +2673,8 @@
         let lapHarianKendalaData = JSON.parse(localStorage.getItem('erp_lap_harian_kendala')) || [];
         let lapMingguanData = JSON.parse(localStorage.getItem('erp_lap_mingguan')) || [];
         let divScheduleData = JSON.parse(localStorage.getItem('erp_div_schedule')) || [];
+        // Minggu-minggu yang sedang dipilih pada form Time Schedule (sebelum disimpan) - state sementara di memori
+        let tsSelectedWeeks = [];
         let kebutuhanMatData = JSON.parse(localStorage.getItem('erp_kebutuhan_mat')) || [
             { id: 1, projId: 'PRJ-01', nama: 'Semen Gresik 50kg', satuan: 'Sak', volume: 200, harga: 68000, supplier: 'TB Sinar Jaya' },
             { id: 2, projId: 'PRJ-01', nama: 'Besi Beton Ø12mm', satuan: 'Batang', volume: 150, harga: 95000, supplier: 'TB Baja Utama' }
@@ -2730,7 +2741,6 @@
                 banner.classList.remove('hidden');
             }
         }
-
         try {
             firebase.initializeApp(firebaseConfig);
             cloudDb = firebase.firestore();
@@ -2898,7 +2908,6 @@
                     });
                 });
             }
-
             Object.keys(CLOUD_WORKSPACE_SUBCOLLECTION).forEach(localKey => {
                 const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
                 const unsub = mainDocRef.collection(conf.sub).onSnapshot(snap => {
@@ -3003,7 +3012,6 @@
             stopAbsenSubcollectionSync();
             cloudWorkspaceId = null;
         }
-
         // Setiap ada localStorage.setItem, otomatis dorong ke Firestore bila key terkait termasuk yang disinkron.
         // Tidak ada satupun kode lain di aplikasi ini yang perlu diubah — cukup "sadap" di titik ini.
         const _origLocalStorageSetItem = localStorage.setItem.bind(localStorage);
@@ -3045,7 +3053,6 @@
             if (currentUser.role === 'Admin') return true;
             return currentUser.canEdit !== false;
         }
-
         // Proyek yang boleh dilihat oleh akun yang sedang login:
         // - Admin hanya melihat proyek miliknya sendiri (ownerId === id Admin tsb).
         // - User hanya melihat 1 proyek yang telah ia gabung (sesuai kode dari Admin).
@@ -3077,6 +3084,7 @@
                 ownerId: user.id
             };
         }
+
         // Menentukan activeProjectId yang benar untuk akun yang sedang login, agar setiap akun
         // hanya melihat proyek & datanya sendiri (bukan proyek/data akun lain, termasuk akun demo).
         function resolveActiveProjectForCurrentUser() {
@@ -3349,6 +3357,7 @@
             const email = document.getElementById('loginEmail').value.trim();
             const pass = document.getElementById('loginPassword').value.trim();
             if (!email || !pass) return;
+
             const btn = document.getElementById('btnLoginSubmit');
             setBtnLoading(btn, true, '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa akun...');
             try {
@@ -3432,6 +3441,7 @@
                         ? `Registrasi Admin berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya sebelum login.`
                         : `Registrasi berhasil! Kami sudah mengirim email verifikasi ke ${email} — buka dan klik link-nya, lalu tunggu persetujuan Admin.`);
                 }
+
                 // Kembalikan sesi ke anonim (bukan akun baru ini) supaya user diarahkan ke layar login seperti biasa.
                 try { await firebase.auth().signOut(); } catch (e) {}
                 try { await firebase.auth().signInAnonymously(); } catch (e) {}
@@ -3630,7 +3640,6 @@
                 document.getElementById('projectForm').reset();
             }
         }
-
         function closeProjectModal() {
             document.getElementById('projectModal').classList.add('hidden');
         }
@@ -3882,7 +3891,6 @@
                 sisaHariText = diffDays > 0 ? `${diffDays} hari lagi` : (diffDays === 0 ? 'Selesai hari ini' : `Lewat ${Math.abs(diffDays)} hari`);
             }
             document.getElementById('homeProjectSisaHari').innerText = sisaHariText;
-
             const btnQuickKaryawan = document.getElementById('homeQuickKaryawan');
             if (btnQuickKaryawan) btnQuickKaryawan.classList.toggle('hidden', !isAdminUser());
 
@@ -4103,6 +4111,7 @@
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada data RAB untuk proyek ini. Silakan input atau import Excel.</td></tr>`;
                 return;
             }
+
             // Fitur pencarian pada list RAB: filter hanya baris yang ditampilkan, subtotal/bobot tetap dihitung dari seluruh data RAB proyek
             const rabSearchEl = document.getElementById('rabSearchInput');
             const rabSearchQuery = rabSearchEl ? rabSearchEl.value.trim().toLowerCase() : '';
@@ -4165,6 +4174,7 @@
                                 </button>
                             </div>`
                         : '';
+
                     const actionCell = admin
                         ? `<div class="flex items-center justify-center space-x-1">
                                 ${reorderCell}
@@ -4290,6 +4300,7 @@
             document.getElementById('rabSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Tambah Item RAB';
             document.getElementById('rabCancelEditBtn').classList.add('hidden');
         }
+
         function deleteRABItem(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus data RAB.');
@@ -4383,7 +4394,6 @@
             persenEl.value = '';
             renderRAB();
         }
-
         function removeBiayaTambahan(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus biaya tambahan.');
@@ -4467,7 +4477,6 @@
                 const satuan = row['Satuan'] || row['satuan'] || 'ls';
                 const volume = parseFloat(row['Volume'] || row['volume'] || 1);
                 const harga = parseFloat(row['HargaSatuan'] || row['hargasatuan'] || row['Harga'] || 0);
-
                 if (sub) {
                     rabData.push({
                         id: Date.now() + Math.random(),
@@ -4572,7 +4581,6 @@
                 if (numEl) numEl.innerText = idx + 1;
             });
         }
-
         function updateLhRemoveButtonsState() {
             const rows = document.querySelectorAll('#lhPekerjaanRowsContainer .lh-pekerjaan-row');
             rows.forEach(row => {
@@ -4719,7 +4727,6 @@
                 let workHtml = '<ul class="space-y-1.5">';
                 let tenagaHtml = '<ul class="space-y-1.5">';
                 let actionHtml = '<div class="flex flex-col space-y-1 items-center">';
-
                 group.items.forEach(item => {
                     const rab = rabData.find(r => r.id == item.pekerjaanId);
                     const rabName = rab ? `${rab.sub} (${rab.satuan})` : 'Pekerjaan';
@@ -4961,6 +4968,7 @@
             const formCard = document.getElementById('formLhKendala');
             if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
         function deleteLhKendala(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus catatan kendala & notulen tanggal ini?')) {
@@ -4970,7 +4978,6 @@
                 renderLapHarian();
             }
         }
-
         function cancelLhKendalaEdit() {
             document.getElementById('lhkEditId').value = '';
             document.getElementById('formLhKendala').reset();
@@ -5044,6 +5051,7 @@
             if (!tbody) return;
 
             const proj = projects.find(p => p.id === activeProjectId) || {};
+
             // Isi ulang opsi Minggu setiap render (bukan hanya sekali) supaya rentang tanggalnya selalu
             // ikut menyesuaikan jika Tanggal Mulai Proyek berubah atau saat pindah proyek.
             if (mingguSel) {
@@ -5505,6 +5513,7 @@
                 document.getElementById('lbSumStatus').className = dev >= 0 ? 'text-xs font-bold text-emerald-400 mt-1' : 'text-xs font-bold text-red-400 mt-1';
             }
         }
+
         // ===================================================================
         // 3.1 TIME SCHEDULE & KURVA S
         // ===================================================================
@@ -5534,17 +5543,11 @@
                 const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
                 if (diffDays > 0) weeks = Math.max(weeks, Math.ceil((diffDays + 1) / 7));
             }
-            if (proj.tglMulai) {
-                divScheduleData.filter(d => d.projId === activeProjectId).forEach(d => {
-                    if (!d.tglSelesai) return;
-                    const start = new Date(proj.tglMulai);
-                    const end = new Date(d.tglSelesai);
-                    const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                    if (diffDays < 0) return;
-                    const wk = Math.floor(diffDays / 7) + 1;
-                    if (wk > weeks) weeks = wk;
-                });
-            }
+            // Perluas jumlah minggu tampilan kalau ada rencana jadwal yang menjangkau minggu lebih jauh
+            // dari perkiraan durasi proyek (mis. proyek belum diatur tanggal selesainya).
+            divScheduleData.filter(d => d.projId === activeProjectId).forEach(d => {
+                (d.weeks || []).forEach(w => { if (w > weeks) weeks = w; });
+            });
             return Math.min(weeks, 104);
         }
 
@@ -5559,53 +5562,177 @@
             return subtotal > 0 ? (cost / subtotal) * 100 : 0;
         }
 
-        // Total bobot yang sudah dimasukkan (dijadwalkan) utk 1 pekerjaan, dari seluruh periode jadwal yang sudah ada
-        // excludeId: opsional, dipakai saat mode edit agar periode yang sedang diedit tidak ikut dihitung dobel
-        function getTsScheduledBobot(noDiv, sub, excludeId) {
-            return divScheduleData
-                .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub && d.id != excludeId)
-                .reduce((a, c) => a + (parseFloat(c.bobot) || 0), 0);
+        // Subtotal nilai RAB (volume x harga) seluruh proyek aktif - dasar perhitungan konversi Volume -> Bobot%
+        function getSubtotalRabProyek() {
+            return rabData.filter(r => r.projId === activeProjectId).reduce((a, c) => a + (c.volume * c.harga), 0);
         }
 
-        // Rencana mingguan (bobot %) 1 pekerjaan, dijumlahkan dari SEMUA periode jadwal pekerjaan tsb
-        // (tiap periode menyebarkan bobotnya sendiri secara merata sepanjang rentang tanggalnya sendiri)
-        function getSubScheduleWeekly(noDiv, sub, totalWeeks, projTglMulai) {
+        // Info Volume Total RAB, satuan, & harga rata-rata per satuan untuk 1 pekerjaan (kepala sub).
+        // Harga rata-rata dipakai untuk mengonversi input "Volume Rencana" (fisik) pada Time Schedule
+        // menjadi Bobot% (dasar perhitungan Kurva S), karena 1 kepala sub bisa terdiri dari beberapa
+        // rincian item RAB dengan satuan berbeda-beda.
+        function getSubVolumeInfo(noDiv, sub) {
+            const items = rabData.filter(r => r.projId === activeProjectId && (r.noDiv || '-') === noDiv && r.sub === sub);
+            const totalVolume = items.reduce((a, c) => a + (parseFloat(c.volume) || 0), 0);
+            const totalCost = items.reduce((a, c) => a + (c.volume * c.harga), 0);
+            const satuanSet = [...new Set(items.map(i => i.satuan).filter(Boolean))];
+            const satuan = satuanSet.length === 1 ? satuanSet[0] : (satuanSet.length > 1 ? 'Campuran' : '-');
+            const hargaRataRata = totalVolume > 0 ? (totalCost / totalVolume) : 0;
+            return { totalVolume, satuan, hargaRataRata, totalCost };
+        }
+
+        // Total VOLUME yang sudah dijadwalkan utk 1 pekerjaan, dari SEMUA grup volume+minggu yang sudah ada.
+        // 1 grup dgn volume V pada N minggu terpilih dianggap berkomitmen V x N (karena volume yang sama
+        // diterapkan ke tiap minggu yang dipilih, bukan dibagi rata).
+        // excludeId: opsional, dipakai saat mode edit agar grup yang sedang diedit tidak ikut dihitung dobel
+        function getTsScheduledVolume(noDiv, sub, excludeId) {
+            return divScheduleData
+                .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub && d.id != excludeId)
+                .reduce((a, c) => a + ((parseFloat(c.volume) || 0) * ((c.weeks || []).length)), 0);
+        }
+
+        // Total bobot yang sudah dimasukkan (dijadwalkan) utk 1 pekerjaan, dikonversi dari total volume terjadwal
+        function getTsScheduledBobot(noDiv, sub, excludeId) {
+            const volInfo = getSubVolumeInfo(noDiv, sub);
+            const subtotalProyek = getSubtotalRabProyek();
+            if (volInfo.hargaRataRata <= 0 || subtotalProyek <= 0) return 0;
+            const totalVolTerjadwal = getTsScheduledVolume(noDiv, sub, excludeId);
+            return (totalVolTerjadwal * volInfo.hargaRataRata / subtotalProyek) * 100;
+        }
+
+        // Rencana mingguan (bobot %) 1 pekerjaan, dijumlahkan dari SEMUA grup volume+minggu pekerjaan tsb.
+        // Tiap grup menerapkan volume yang SAMA persis ke setiap minggu yang dipilih (bukan dibagi rata),
+        // lalu dikonversi ke bobot% memakai harga rata-rata per satuan pekerjaan tsb.
+        function getSubScheduleWeekly(noDiv, sub, totalWeeks) {
             const weekly = Array(totalWeeks).fill(0);
-            if (!projTglMulai) return weekly;
+            const volInfo = getSubVolumeInfo(noDiv, sub);
+            const subtotalProyek = getSubtotalRabProyek();
+            if (volInfo.hargaRataRata <= 0 || subtotalProyek <= 0) return weekly;
             divScheduleData
                 .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub)
-                .forEach(e => {
-                    if (!e.tglMulai || !e.tglSelesai) return;
-                    const wStart = getWeekIndexFromProjectStart(e.tglMulai, projTglMulai, totalWeeks) || 1;
-                    const wEnd = getWeekIndexFromProjectStart(e.tglSelesai, projTglMulai, totalWeeks) || wStart;
-                    const span = Math.max(1, (wEnd - wStart) + 1);
-                    const perWeek = (parseFloat(e.bobot) || 0) / span;
-                    for (let w = wStart; w <= wEnd && w <= totalWeeks; w++) weekly[w - 1] += perWeek;
+                .forEach(entry => {
+                    const volPerWeek = parseFloat(entry.volume) || 0;
+                    const bobotPerWeek = (volPerWeek * volInfo.hargaRataRata / subtotalProyek) * 100;
+                    (entry.weeks || []).forEach(w => {
+                        if (w >= 1 && w <= totalWeeks) weekly[w - 1] += bobotPerWeek;
+                    });
                 });
             return weekly;
         }
 
-        // Tampilkan info Bobot Total Pekerjaan (RAB) · Sudah Dijadwalkan · Sisa Bisa Dijadwalkan
-        // begitu pekerjaan dipilih pada form Time Schedule, sekaligus validasi input Bobot yang sedang diketik
+        // Populate dropdown pemilih minggu (#tsWeekPicker) dengan minggu 1..totalWeeks beserta rentang
+        // tanggalnya, mengecualikan minggu yang sudah dipilih di tsSelectedWeeks supaya tidak dobel.
+        function populateTsWeekPicker() {
+            const picker = document.getElementById('tsWeekPicker');
+            if (!picker) return;
+            const totalWeeks = getProjectScheduleWeeks();
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+            const fmtShort = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+            picker.innerHTML = '';
+            for (let w = 1; w <= totalWeeks; w++) {
+                if (tsSelectedWeeks.includes(w)) continue;
+                const range = getWeekDateRangeDetailed(w, proj.tglMulai, proj.tglSelesai);
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = range ? `Minggu ke-${w} (${fmtShort(range.start)}-${fmtShort(range.end)})` : `Minggu ke-${w}`;
+                picker.appendChild(opt);
+            }
+            if (picker.options.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Semua minggu sudah dipilih';
+                picker.appendChild(opt);
+            }
+        }
+
+        // Tambah 1 minggu (dari dropdown tsWeekPicker) ke daftar minggu yang sedang disusun pada form
+        function addTsWeek() {
+            const picker = document.getElementById('tsWeekPicker');
+            const w = parseInt(picker.value);
+            if (!w) return;
+            if (!tsSelectedWeeks.includes(w)) {
+                tsSelectedWeeks.push(w);
+                tsSelectedWeeks.sort((a, b) => a - b);
+            }
+            renderTsWeeksChips();
+            populateTsWeekPicker();
+            updateTsBobotInfo();
+        }
+
+        // Hapus 1 minggu dari daftar minggu yang sedang disusun pada form
+        function removeTsWeek(w) {
+            tsSelectedWeeks = tsSelectedWeeks.filter(x => x !== w);
+            renderTsWeeksChips();
+            populateTsWeekPicker();
+            updateTsBobotInfo();
+        }
+
+        // Render chip/badge utk tiap minggu yang sudah dipilih pada form (lengkap dgn rentang tanggalnya), masing2 dengan tombol hapus (x)
+        function renderTsWeeksChips() {
+            const container = document.getElementById('tsWeeksChipContainer');
+            if (!container) return;
+            if (tsSelectedWeeks.length === 0) {
+                container.innerHTML = `<span class="text-slate-500 italic text-[11px]">Belum ada minggu dipilih.</span>`;
+                return;
+            }
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+            const fmtShort = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+            container.innerHTML = tsSelectedWeeks.map(w => {
+                const range = getWeekDateRangeDetailed(w, proj.tglMulai, proj.tglSelesai);
+                const dateLabel = range ? ` <span class="text-sky-400/70">(${fmtShort(range.start)}-${fmtShort(range.end)})</span>` : '';
+                return `
+                <span class="inline-flex items-center gap-1.5 bg-sky-600/20 border border-sky-500/40 text-sky-300 pl-2.5 pr-1.5 py-1 rounded-lg font-mono text-[11px]">
+                    Minggu ${w}${dateLabel}
+                    <button type="button" onclick="removeTsWeek(${w})" class="text-sky-300 hover:text-white hover:bg-rose-500/30 rounded-full w-4 h-4 flex items-center justify-center"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                </span>
+            `;
+            }).join('');
+        }
+
+        // Ganti pekerjaan yang dipilih pada form - reset volume & minggu kalau sedang membuat grup BARU
+        // (bukan mode edit), supaya form selalu bersih tiap ganti pekerjaan.
+        function handleTsSubChange() {
+            const editId = document.getElementById('tsEditId').value;
+            if (!editId) {
+                tsSelectedWeeks = [];
+                const volInput = document.getElementById('tsVolume');
+                if (volInput) volInput.value = '';
+                renderTsWeeksChips();
+            }
+            populateTsWeekPicker();
+            updateTsBobotInfo();
+        }
+
+        // Tampilkan info Volume Total Pekerjaan (RAB) · Sudah Dijadwalkan · Sisa Bisa Dijadwalkan
+        // begitu pekerjaan dipilih pada form Time Schedule, sekaligus preview & validasi input Volume+Minggu yang sedang diketik
         function updateTsBobotInfo() {
             const sel = document.getElementById('tsDivSelect');
             const infoEl = document.getElementById('tsBobotInfo');
-            const bobotInput = document.getElementById('tsBobot');
+            const volInput = document.getElementById('tsVolume');
             if (!sel || !infoEl || !sel.value) { if (infoEl) infoEl.innerHTML = ''; return; }
             const [noDiv, sub] = sel.value.split('|||');
             const editId = document.getElementById('tsEditId').value;
+            const volInfo = getSubVolumeInfo(noDiv, sub);
+            const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
+            const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
 
-            const bobotTotal = getSubBobotTotal(noDiv, sub);
-            const sudahDijadwalkan = getTsScheduledBobot(noDiv, sub, editId || null);
-            const sisaBisaDijadwalkan = Math.max(0, bobotTotal - sudahDijadwalkan);
+            const volInputVal = parseFloat(volInput.value) || 0;
+            const jumlahMinggu = tsSelectedWeeks.length;
+            const totalKomitmenBaru = volInputVal * jumlahMinggu;
 
             let warning = '';
-            const bobotInputVal = parseFloat(bobotInput.value) || 0;
-            if (bobotInputVal > sisaBisaDijadwalkan + 0.01) {
-                warning = ` <span class="text-red-400 font-bold">(Bobot melebihi sisa yang bisa dijadwalkan!)</span>`;
+            if (totalKomitmenBaru > sisaBisaDijadwalkan + 0.01) {
+                warning = ` <span class="text-red-400 font-bold">(Total volume baru melebihi sisa yang bisa dijadwalkan!)</span>`;
             }
 
-            infoEl.innerHTML = `Bobot Total Pekerjaan (dari RAB): <span class="font-bold text-white">${formatAngka(bobotTotal)}%</span> &middot; Sudah Dijadwalkan: <span class="font-bold text-amber-300">${formatAngka(sudahDijadwalkan)}%</span> &middot; Sisa Bisa Dijadwalkan: <span class="font-bold text-emerald-400">${formatAngka(sisaBisaDijadwalkan)}%</span>${warning}`;
+            let preview = '';
+            if (jumlahMinggu > 0 && volInputVal > 0) {
+                const subtotalProyek = getSubtotalRabProyek();
+                const bobotKomitmenBaru = (subtotalProyek > 0 && volInfo.hargaRataRata > 0)
+                    ? (totalKomitmenBaru * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
+                preview = `<br>Preview: ${formatAngka(volInputVal)} ${volInfo.satuan} &times; ${jumlahMinggu} minggu = <span class="font-bold text-sky-300">${formatAngka(totalKomitmenBaru)} ${volInfo.satuan}</span> (&asymp; <span class="font-bold text-amber-300">${formatAngka(bobotKomitmenBaru)}%</span> bobot)`;
+            }
+            infoEl.innerHTML = `Volume Total Pekerjaan (RAB): <span class="font-bold text-white">${formatAngka(volInfo.totalVolume)} ${volInfo.satuan}</span> &middot; Sudah Dijadwalkan: <span class="font-bold text-amber-300">${formatAngka(sudahDijadwalkan)} ${volInfo.satuan}</span> &middot; Sisa Bisa Dijadwalkan: <span class="font-bold text-emerald-400">${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}</span>${warning}${preview}`;
         }
 
         // Daftar seluruh periode jadwal yang sudah diinput, diurutkan berdasarkan nomor Divisi lalu tanggal mulai
@@ -5669,25 +5796,41 @@
                 .sort((a, b) => {
                     const na = (a.noDiv || '-'), nb = (b.noDiv || '-');
                     if (na !== nb) return compareDivisionKey(na, nb);
-                    return (a.tglMulai || '').localeCompare(b.tglMulai || '');
+                    const aw = (a.weeks && a.weeks.length) ? Math.min(...a.weeks) : 999;
+                    const bw = (b.weeks && b.weeks.length) ? Math.min(...b.weeks) : 999;
+                    return aw - bw;
                 });
             if (list.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Belum ada rencana jadwal yang diinput.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = list.map((d, i) => `
+            const subtotalProyek = getSubtotalRabProyek();
+            const projForDates = projects.find(p => p.id === activeProjectId) || {};
+            const fmtShortDate = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+            tbody.innerHTML = list.map((d, i) => {
+                const volInfo = getSubVolumeInfo(d.noDiv || '-', d.sub);
+                const jumlahMinggu = (d.weeks || []).length;
+                const weeksSorted = jumlahMinggu ? d.weeks.slice().sort((a, b) => a - b) : [];
+                const weeksLabel = weeksSorted.length ? weeksSorted.map(w => {
+                    const range = getWeekDateRangeDetailed(w, projForDates.tglMulai, projForDates.tglSelesai);
+                    return range ? `M${w} (${fmtShortDate(range.start)}-${fmtShortDate(range.end)})` : `M${w}`;
+                }).join(', ') : '-';
+                const bobotEkuivalen = (subtotalProyek > 0 && volInfo.hargaRataRata > 0)
+                    ? ((parseFloat(d.volume) || 0) * jumlahMinggu * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
+                return `
                 <tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-mono text-slate-400">${i + 1}</td>
                     <td class="p-3 text-white font-semibold">${d.noDiv || '-'} - ${d.sub}</td>
-                    <td class="p-3 font-mono">${d.tglMulai || '-'}</td>
-                    <td class="p-3 font-mono">${d.tglSelesai || '-'}</td>
-                    <td class="p-3 font-mono text-amber-300">${formatAngka(d.bobot)}%</td>
+                    <td class="p-3 font-mono text-sky-300">${formatAngka(d.volume)} ${volInfo.satuan}<span class="text-slate-500 font-normal"> /minggu</span></td>
+                    <td class="p-3 font-mono text-[11px]">${weeksLabel}</td>
+                    <td class="p-3 font-mono text-amber-300">${formatAngka(bobotEkuivalen)}%</td>
                     <td class="p-3 text-center">
                         <button onclick="editTsSchedule(${d.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
                         <button onclick="deleteTsSchedule(${d.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function editTsSchedule(id) {
@@ -5695,10 +5838,11 @@
             if (!item) return;
             document.getElementById('tsEditId').value = item.id;
             document.getElementById('tsDivSelect').value = `${item.noDiv || '-'}|||${item.sub}`;
-            document.getElementById('tsTglMulai').value = item.tglMulai || '';
-            document.getElementById('tsTglSelesai').value = item.tglSelesai || '';
-            document.getElementById('tsBobot').value = item.bobot;
-            document.getElementById('tsFormTitle').innerText = 'Edit Rencana Jadwal Pekerjaan';
+            document.getElementById('tsVolume').value = item.volume;
+            tsSelectedWeeks = Array.isArray(item.weeks) ? [...item.weeks].sort((a, b) => a - b) : [];
+            renderTsWeeksChips();
+            populateTsWeekPicker();
+            document.getElementById('tsFormTitle').innerText = 'Edit Rencana Volume & Minggu Pekerjaan';
             document.getElementById('btnCancelTsEdit').classList.remove('hidden');
             updateTsBobotInfo();
             window.scrollTo({ top: 150, behavior: 'smooth' });
@@ -5716,7 +5860,10 @@
         function cancelTsScheduleEdit() {
             document.getElementById('tsEditId').value = '';
             document.getElementById('formDivSchedule').reset();
-            document.getElementById('tsFormTitle').innerText = 'Atur Rencana Tanggal Mulai, Selesai & Bobot Per Pekerjaan';
+            tsSelectedWeeks = [];
+            renderTsWeeksChips();
+            populateTsWeekPicker();
+            document.getElementById('tsFormTitle').innerText = 'Atur Rencana Volume & Minggu Pelaksanaan Per Pekerjaan';
             document.getElementById('btnCancelTsEdit').classList.add('hidden');
             updateTsBobotInfo();
         }
@@ -5724,23 +5871,30 @@
         function renderTimeSchedule() {
             // Populate tsDivSelect (kepala Sub Pekerjaan RAB, bukan Divisi)
             populateTsSubSelect();
+            populateTsWeekPicker();
             renderJadwalList();
 
             const head = document.getElementById('scheduleMatrixHead');
             const body = document.getElementById('scheduleMatrixBody');
             head.innerHTML = '';
             body.innerHTML = '';
-
             const totalWeeks = getProjectScheduleWeeks();
+            const proj = projects.find(p => p.id === activeProjectId) || {};
 
+            // Header matrix: tiap kolom M1, M2, dst diberi keterangan rentang tanggal mingguannya (dd/mm - dd/mm)
+            // supaya langsung ketahuan M1/M2/dst itu tanggal berapa, tanpa perlu buka halaman lain.
             let headTr = '<tr><th class="p-3">No. & Kepala Sub Pekerjaan</th><th class="p-3">Metrik</th>';
             for (let w = 1; w <= totalWeeks; w++) {
-                headTr += `<th class="p-2 text-center font-mono">M${w}</th>`;
+                const range = getWeekDateRangeDetailed(w, proj.tglMulai, proj.tglSelesai);
+                const fmtShort = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+                const dateLabel = range ? `${fmtShort(range.start)}-${fmtShort(range.end)}` : '';
+                headTr += `<th class="p-2 text-center font-mono" ${range ? `title="${range.labelFull}"` : ''}>
+                    <div>M${w}</div>${dateLabel ? `<div class="text-[9px] font-normal normal-case text-slate-500 mt-0.5">${dateLabel}</div>` : ''}
+                </th>`;
             }
             headTr += '</tr>';
             head.innerHTML = headTr;
 
-            const proj = projects.find(p => p.id === activeProjectId) || {};
             const projRab = rabData.filter(r => r.projId === activeProjectId);
             const subtotal = projRab.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
 
@@ -5786,7 +5940,6 @@
                     const persen = subtotal > 0 ? (nilai / subtotal) * 100 : 0;
                     realisasiMingguan[w - 1] += persen;
                 });
-
                 // Komulatif & deviasi
                 const kumRencana = []; const kumRealisasi = []; const deviasi = [];
                 let runR = 0, runA = 0;
@@ -5865,27 +6018,42 @@
             const selVal = document.getElementById('tsDivSelect').value;
             if (!selVal) { alert('Pilih pekerjaan terlebih dahulu.'); return; }
             const [noDiv, sub] = selVal.split('|||');
-            const tglMulai = document.getElementById('tsTglMulai').value;
-            const tglSelesai = document.getElementById('tsTglSelesai').value;
-            const bobot = parseFloat(document.getElementById('tsBobot').value) || 0;
+            const volume = parseFloat(document.getElementById('tsVolume').value) || 0;
             const editId = document.getElementById('tsEditId').value;
 
-            // Validasi: bobot yang diinput tidak boleh melebihi sisa bobot pekerjaan tsb yang bisa dijadwalkan
-            const bobotTotal = getSubBobotTotal(noDiv, sub);
-            const sudahDijadwalkan = getTsScheduledBobot(noDiv, sub, editId || null);
-            const sisaBisaDijadwalkan = Math.max(0, bobotTotal - sudahDijadwalkan);
-            if (bobot > sisaBisaDijadwalkan + 0.01) {
-                alert(`Bobot (${formatAngka(bobot)}%) melebihi sisa bobot pekerjaan ini yang bisa dijadwalkan (${formatAngka(sisaBisaDijadwalkan)}%).`);
+            if (volume <= 0) { alert('Volume Rencana harus diisi lebih dari 0.'); return; }
+            if (tsSelectedWeeks.length === 0) { alert('Pilih minimal 1 minggu untuk volume rencana ini.'); return; }
+            // Validasi: total volume baru (volume x jumlah minggu terpilih) tidak boleh melebihi sisa volume
+            // pekerjaan ini yang bisa dijadwalkan (berdasarkan Volume Total RAB-nya)
+            const volInfo = getSubVolumeInfo(noDiv, sub);
+            const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
+            const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
+            const weeksSorted = [...tsSelectedWeeks].sort((a, b) => a - b);
+            const totalKomitmenBaru = volume * weeksSorted.length;
+            if (totalKomitmenBaru > sisaBisaDijadwalkan + 0.01) {
+                alert(`Total volume baru (${formatAngka(volume)} ${volInfo.satuan} x ${weeksSorted.length} minggu = ${formatAngka(totalKomitmenBaru)} ${volInfo.satuan}) melebihi sisa volume pekerjaan ini yang bisa dijadwalkan (${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}).`);
                 return;
+            }
+
+            // tglMulai/tglSelesai dihitung otomatis dari minggu paling awal & paling akhir yang dipilih -
+            // hanya untuk keperluan tampilan/kompatibilitas fitur lain (mis. Action Plan), TIDAK dipakai lagi
+            // sebagai dasar perhitungan Kurva S (yang sekarang berbasis minggu terpilih secara langsung).
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+            let tglMulai = '', tglSelesai = '';
+            if (proj.tglMulai) {
+                const rStart = getWeekDateRangeDetailed(weeksSorted[0], proj.tglMulai, proj.tglSelesai);
+                const rEnd = getWeekDateRangeDetailed(weeksSorted[weeksSorted.length - 1], proj.tglMulai, proj.tglSelesai);
+                if (rStart) tglMulai = rStart.start.toISOString().split('T')[0];
+                if (rEnd) tglSelesai = rEnd.end.toISOString().split('T')[0];
             }
 
             if (editId) {
                 const idx = divScheduleData.findIndex(d => d.id == editId);
                 if (idx !== -1) {
-                    divScheduleData[idx] = { ...divScheduleData[idx], noDiv, sub, tglMulai, tglSelesai, bobot };
+                    divScheduleData[idx] = { ...divScheduleData[idx], noDiv, sub, volume, weeks: weeksSorted, tglMulai, tglSelesai };
                 }
             } else {
-                divScheduleData.push({ id: Date.now(), projId: activeProjectId, noDiv, sub, tglMulai, tglSelesai, bobot });
+                divScheduleData.push({ id: Date.now(), projId: activeProjectId, noDiv, sub, volume, weeks: weeksSorted, tglMulai, tglSelesai });
             }
 
             localStorage.setItem('erp_div_schedule', JSON.stringify(divScheduleData));
@@ -5896,7 +6064,6 @@
         let scurveChartInstance = null;
         function renderSCurveChart() {
             const totalWeeks = getProjectScheduleWeeks();
-
             // Grafik dibungkus wrapper yang bisa digeser kiri-kanan (overflow-x-auto) dan lebar canvas
             // disesuaikan dengan jumlah minggu, supaya saat minggunya banyak, titik & garis grafik tetap
             // presisi/tidak berhimpitan di layar HP - bukan dipaksa muat ke satu lebar layar.
@@ -6008,6 +6175,7 @@
             const fmt = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             return { start: wStart, end: wEnd, label: `${fmt(wStart)} s/d ${fmt(wEnd)}` };
         }
+
         // Versi lengkap/detail dari rentang tanggal 1 minggu (nama hari + nama bulan penuh), dipakai
         // khusus pada halaman Laporan Mingguan supaya periode tanggalnya terbaca jelas & lengkap.
         function getWeekDateRangeDetailed(week, projStartStr, projEndStr) {
@@ -6068,11 +6236,12 @@
             const itemWeekly = subWeekly.map(v => v * itemShare);
 
             let wStart = null, wEnd = null;
-            if (sched && proj.tglMulai) {
-                const starts = entries.filter(e => e.tglMulai).map(e => getWeekIndexFromProjectStart(e.tglMulai, proj.tglMulai, totalWeeksProj) || 1);
-                const ends = entries.filter(e => e.tglSelesai).map(e => getWeekIndexFromProjectStart(e.tglSelesai, proj.tglMulai, totalWeeksProj) || 1);
-                wStart = starts.length ? Math.min(...starts) : null;
-                wEnd = ends.length ? Math.max(...ends) : null;
+            if (sched) {
+                const allWeeks = entries.flatMap(e => Array.isArray(e.weeks) ? e.weeks : []);
+                if (allWeeks.length) {
+                    wStart = Math.min(...allWeeks);
+                    wEnd = Math.max(...allWeeks);
+                }
             }
 
             const targetMingguIni = itemWeekly[week - 1] || 0;
@@ -6230,7 +6399,6 @@
                 if (s === 'Behind Schedule') return '#dc2626';
                 return '#64748b';
             };
-
             container.innerHTML = `
                 <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b;">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #1c2541; padding-bottom: 12px; margin-bottom: 16px;">
@@ -6566,7 +6734,6 @@
             const volInput = parseFloat(document.getElementById('poVolume').value) || 0;
 
             infoBox.innerHTML = `Total Kebutuhan: <strong class="text-white">${formatAngka(k.volume)} ${k.satuan}</strong> &nbsp;|&nbsp; Sudah Dipesan (orderan lain): <strong class="text-sky-300">${formatAngka(sudahDipesan)} ${k.satuan}</strong> &nbsp;|&nbsp; Sisa Bisa Dipesan: <strong class="text-emerald-400">${formatAngka(sisaBisaDipesan)} ${k.satuan}</strong>`;
-
             if (volInput > sisaBisaDipesan) {
                 warnText.innerText = `Volume order (${formatAngka(volInput)} ${k.satuan}) melebihi sisa kebutuhan yang bisa dipesan (${formatAngka(sisaBisaDipesan)} ${k.satuan}).`;
                 warnBox.classList.remove('hidden');
@@ -6658,6 +6825,7 @@
                 opt.style.display = hay.includes(query) ? '' : 'none';
             });
         }
+
         // Isi otomatis form Material Keluar dari Stok Sisa yang dipilih
         function fillMkFromSisa() {
             const key = document.getElementById('mkNamaSelect').value;
@@ -6775,7 +6943,6 @@
             const idx = group.findIndex(o => o.id === order.id);
             return { ke: idx === -1 ? group.length + 1 : idx + 1, total: Math.max(group.length, idx + 1) };
         }
-
         function handleMaterialSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -6783,6 +6950,7 @@
             const isEditOrder = materialEditContext && materialEditContext.type === 'order';
             const isEditMasuk = materialEditContext && materialEditContext.type === 'masuk';
             const isEditKeluar = materialEditContext && materialEditContext.type === 'keluar';
+
             if (activeMaterialSub === 'mat-kebutuhan') {
                 const payload = {
                     kode: document.getElementById('matKode').value.trim(),
@@ -7173,7 +7341,6 @@
                 `;
             }
         }
-
         function deleteMaterialItem(type, id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus item material ini?')) {
@@ -7341,7 +7508,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         };
         const BQ_OPNAME_ALL_FIELDS = ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'];
         const BQ_OPNAME_FIELD_ICON = { jumlah: 'fa-hashtag', panjang: 'fa-ruler-horizontal', lebar: 'fa-ruler-vertical', tinggi: 'fa-cube', koefisien: 'fa-percent' };
-
         // Menampilkan input field sesuai metode yang dipilih (field yang tidak relevan disembunyikan, bukan dihapus, agar nilai tidak hilang saat ganti-ganti metode)
         function renderBqOpnameFormFields() {
             const metode = document.getElementById('bqOpMetode').value;
@@ -7383,7 +7549,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             });
             return { metode, cfg, vals };
         }
-
         // Hitung volume 1 baris opname dari field-field yang relevan sesuai metode (field yang tidak dipakai dianggap 1, tidak mempengaruhi hasil kali)
         function computeBqOpnameVolume(metode, vals) {
             const cfg = BQ_OPNAME_METODE[metode];
@@ -7517,6 +7682,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             cancelBqOpnameEdit();
             renderBqOpnameDetail();
         }
+
         function editBqOpnameRow(id) {
             const row = bqOpnameData.find(o => o.id === id);
             if (!row) return;
@@ -7781,7 +7947,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('bqOpSumBobotKum').innerText = sumBobotKum.toFixed(2) + ' %';
             }
         }
-
         // Entry point render halaman Opname: render daftar master, lalu render detail jika sedang terbuka.
         function renderBqOpname() {
             renderBqOpnameMaster();
@@ -8453,7 +8618,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             alert('Semua hasil Backup Quantity berhasil dimasukkan ke halaman Kebutuhan Material!');
             switchTab('mat-kebutuhan');
         }
-
         // ===================================================================
         // 5. ABSENSI & KARYAWAN
         // ===================================================================
@@ -8461,6 +8625,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const isMasuk = activeAbsenType === 'absen-masuk';
             document.getElementById('absenTitle').innerHTML = isMasuk ? `<i class="fa-solid fa-right-to-bracket text-emerald-400"></i><span>Absen Masuk (Kamera & GPS)</span>` : `<i class="fa-solid fa-right-from-bracket text-rose-400"></i><span>Absen Keluar (Kamera & GPS)</span>`;
             document.getElementById('absenListTitle').innerText = isMasuk ? 'Riwayat Presensi Masuk' : 'Riwayat Presensi Keluar';
+
             const tbody = document.getElementById('absenTableBody');
             tbody.innerHTML = '';
             const data = (isMasuk ? absenMasukData : absenKeluarData).filter(d => d.projId === activeProjectId);
@@ -8515,7 +8680,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             const facingMode = preferredFacingMode || currentFacingMode || 'user';
             stopWebcamStream();
-
             // Coba minta kamera sesuai arah (depan/belakang) yang diinginkan - "ideal" agar tetap dapat
             // fallback ke kamera manapun jika perangkat Android hanya memiliki 1 kamera fisik.
             navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facingMode } }, audio: false })
@@ -8578,7 +8742,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function initGpsLocation() {
             refreshGpsAndAddress();
         }
-
         // Ambil ulang koordinat GPS (akurasi tinggi) + alamat terkini. Dipanggil saat membuka halaman
         // Absen Masuk/Keluar & sesaat sebelum foto diambil, supaya data pada watermark foto akurat.
         function refreshGpsAndAddress(callback) {
@@ -8796,6 +8959,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     logoImg,
                     jamKerjaText
                 });
+
                 const photoUrl = compressCanvasToDataUrl(canvas, 900, 0.72);
                 // 'ts' & 'tanggal' ditambahkan agar rekap Daftar Hadir bulanan bisa dihitung akurat
                 const newRecord = {
@@ -8892,7 +9056,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.arcTo(x, y, x + w, y, r);
             ctx.closePath();
         }
-
         // Mini peta skematik (grid + pin lokasi) digambar langsung di canvas - tidak memuat tile peta dari
         // server eksternal, supaya foto absensi tetap bisa disimpan (toDataURL) tanpa risiko error CORS/tainted canvas.
         function drawSchematicMap(ctx, x, y, w, h, pinColor) {
@@ -9068,6 +9231,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 resolve();
             });
         }
+
         // Konteks foto yang sedang dibuka di modal viewer: { id, isMasuk }
         let absenPhotoModalContext = null;
 
@@ -9088,6 +9252,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 infoHtml += `<div><i class="fa-solid fa-business-time text-emerald-400 mr-1.5 w-3.5 text-center"></i>${item.jamKerja}</div>`;
             }
             document.getElementById('absenPhotoModalInfo').innerHTML = infoHtml;
+
             document.getElementById('absenPhotoModal').classList.remove('hidden');
         }
 
@@ -9121,7 +9286,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const data = isMasuk ? absenMasukData : absenKeluarData;
             const item = data.find(d => d.id == absenPhotoModalContext.id);
             if (!item) return;
-
             const jenis = isMasuk ? 'Absen Masuk' : 'Absen Pulang';
             let caption = `LAPORAN KEHADIRAN KARYAWAN\nJenis: ${jenis}\nNama: ${item.nama}\nWaktu: ${item.waktu}\nAlamat: ${item.alamat || item.lokasi}`;
             if (item.jamKerja) caption += `\nJam Kerja: ${item.jamKerja}`;
@@ -9373,7 +9537,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const headerRow1 = ['Nama Karyawan'];
             for (let d = 1; d <= jumlahHari; d++) headerRow1.push(d);
             headerRow1.push('Hari Hadir', 'Jam Hadir', 'Hari Lembur', 'Jam Lembur', 'Izin', 'Sakit', 'Cuti');
-
             const wsData = [
                 ['PROCONSTRUCT ERP v3.0 - REKAP DAFTAR HADIR KARYAWAN'],
                 [`Proyek: ${proj.nama}    Lokasi: ${proj.lokasi || '-'}`],
@@ -9402,6 +9565,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             for (let d = 1; d <= jumlahHari; d++) cols.push({ wch: 6 });
             cols.push({ wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 6 }, { wch: 6 }, { wch: 6 });
             ws['!cols'] = cols;
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, `Daftar Hadir ${bulanStr}`);
             XLSX.writeFile(wb, `DaftarHadir_${bulanStr}_${proj.nama}.xlsx`);
@@ -9485,6 +9649,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             html2pdf().set(opt).from(container).save();
         }
+
         // Karyawan Management
         function renderEmployeeTable() {
             const tbody = document.getElementById('employeeTableBody');
@@ -9568,6 +9733,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
+
         function removeEmployeePhoto() {
             tempEmpPhoto = '';
             document.getElementById('empPhotoPreview').innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`;
@@ -9672,6 +9838,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     (u.projectId && myProjectIds.includes(u.projectId))
                 )
             );
+
             if (relevantUsers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500">Belum ada permintaan/akun User untuk proyek Anda.</td></tr>`;
                 return;
@@ -9957,7 +10124,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const rabIdsImported = new Set((backup.data.rab || []).map(r => r.id));
                     lapHarianData = [...lapHarianData.filter(l => !rabIdsImported.has(l.pekerjaanId)), ...(backup.data.lapHarian || [])];
                     lapHarianKendalaData = mergeAllByProj(lapHarianKendalaData, backup.data.lapHarianKendala);
-
                     rabData = mergeAllByProj(rabData, backup.data.rab);
                     lapMingguanData = mergeAllByProj(lapMingguanData, backup.data.lapMingguan);
                     divScheduleData = mergeAllByProj(divScheduleData, backup.data.divSchedule);
@@ -10070,6 +10236,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             rows.push({ kind: 'total', cells: ['TOTAL NILAI KEBUTUHAN MATERIAL', '', '', '', '', '', '', formatRupiah(total), '', '', '', ''] });
             return { title: 'Rencana Kebutuhan Material', headers, rows };
         }
+
         function buildOrderExportRows() {
             const headers = ['Tanggal PO', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Keterangan PO (Tahap)', 'Volume Order', 'Total Nilai', 'Estimasi Tiba', 'Supplier', 'Sudah Masuk', 'Sisa Belum Masuk', '% Sudah Masuk', 'Status'];
             const data = materialOrderData.filter(d => d.projId === activeProjectId);
@@ -10111,6 +10278,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 });
             });
             flushDaily(currentTanggal);
+
             const activeProj = projects.find(p => p.id === activeProjectId);
             const rentangProyek = (sortedData.length && activeProj && activeProj.tglMulai && activeProj.tglSelesai)
                 ? `${activeProj.tglMulai} s/d ${activeProj.tglSelesai}`
@@ -10299,6 +10467,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             XLSX.utils.book_append_sheet(wb, ws, "DataExport");
             XLSX.writeFile(wb, filename);
         }
+
         function triggerPdfExport(type) {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const container = document.getElementById('printContainer');
@@ -10361,6 +10530,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             currentWaType = type;
             document.getElementById('waModal').classList.remove('hidden');
             document.getElementById('waModalTitle').innerText = `Export Format WhatsApp Text (${type.toUpperCase()})`;
+
             const container = document.getElementById('waSelectControlContainer');
             container.innerHTML = '';
 
@@ -10381,6 +10551,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function closeWaModal() {
             document.getElementById('waModal').classList.add('hidden');
         }
+
         function generateWaTextContent() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             let text = `🏗️ *PROCONSTRUCT ERP v3.0 - LAPORAN* 🏗️\n*Proyek:* ${proj.nama}\n*Lokasi:* ${proj.lokasi}\n\n`;
