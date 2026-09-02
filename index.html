@@ -512,7 +512,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                     <div class="navy-card p-4 rounded-2xl border border-amber-500/30">
                         <div class="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 mb-2"><i class="fa-solid fa-calculator"></i></div>
-                        <div id="homeKpiTotalAnggaran" class="text-sm md:text-base font-extrabold text-white truncate">Rp 0</div>
+                        <div id="homeKpiTotalAnggaran" class="text-sm md:text-base font-extrabold text-white break-words leading-tight">Rp 0</div>
                         <div class="text-[10px] text-slate-400 mt-0.5">Total Anggaran (RAB)</div>
                     </div>
                     <div class="navy-card p-4 rounded-2xl border border-emerald-500/30">
@@ -563,10 +563,27 @@
                         </div>
                     </div>
                     <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700 lg:col-span-3">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Aktivitas Laporan Harian Terbaru</h3>
-                        <div id="homeRecentActivity" class="space-y-2 max-h-[220px] overflow-y-auto custom-scroll pr-1">
-                            <div class="text-xs text-slate-500 italic text-center py-8">Belum ada aktivitas.</div>
+                        <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-sky-400"></i> Progress Minggu Ini (Kumulatif)</h3>
+                            <span id="homeWeeklyProgressPeriod" class="text-[11px] font-mono text-slate-400 bg-[#0b132b] border border-slate-700 rounded-lg px-2 py-1 whitespace-nowrap">-</span>
                         </div>
+                        <div id="homeWeeklyProgressEmpty" class="hidden text-xs text-slate-500 italic py-10 text-center">Rencana jadwal (Time Schedule) belum diisi untuk proyek ini.</div>
+                        <div id="homeWeeklyProgressContent" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="bg-[#0b132b] border border-sky-500/30 rounded-xl p-3">
+                                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Rencana Kumulatif</div>
+                                <div id="homeWeeklyRencana" class="text-xl font-extrabold text-sky-300 font-mono mt-1 break-words leading-tight">0%</div>
+                            </div>
+                            <div class="bg-[#0b132b] border border-emerald-500/30 rounded-xl p-3">
+                                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Realisasi Kumulatif</div>
+                                <div id="homeWeeklyRealisasi" class="text-xl font-extrabold text-emerald-300 font-mono mt-1 break-words leading-tight">0%</div>
+                            </div>
+                            <div id="homeWeeklyDeviasiBox" class="bg-[#0b132b] border border-slate-700 rounded-xl p-3">
+                                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wide">Deviasi</div>
+                                <div id="homeWeeklyDeviasi" class="text-xl font-extrabold font-mono mt-1 break-words leading-tight">0%</div>
+                                <div id="homeWeeklyDeviasiLabel" class="text-[10px] mt-0.5"></div>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-3">Rencana &amp; Realisasi dihitung kumulatif dari Minggu ke-1 sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal pada halaman Time Schedule.</p>
                     </div>
                 </div>
 
@@ -729,6 +746,7 @@
                         <div id="rabTotalGrandSum" class="text-xl font-black text-emerald-400 font-mono">Rp 0</div>
                     </div>
                 </div>
+
                 <div class="navy-card p-5 rounded-2xl space-y-4" id="rabFormCard">
                     <h3 id="rabFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Form Input Item RAB</h3>
                     <form id="formRAB" onsubmit="handleRABSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
@@ -976,10 +994,8 @@
                                     <th class="p-3">Tanggal</th>
                                     <th class="p-3">Cuaca (P/S/S/M)</th>
                                     <th class="p-3">Material Masuk / Keluar (Pertanggal)</th>
-                                    <th class="p-3">Item Pekerjaan & Volume</th>
-                                    <th class="p-3">Tenaga Kerja</th>
+                                    <th class="p-3">Item Pekerjaan, Tenaga Kerja & Aksi</th>
                                     <th class="p-3">Kendala & Notulen</th>
-                                    <th class="p-3 text-center col-aksi">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="lapHarianTableBody" class="divide-y divide-slate-800">
@@ -1469,7 +1485,6 @@
                                     </optgroup>
                                 </select>
                             </div>
-
                             <button onclick="processBqImageAnalysis()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                                 <span>Analisis Gambar & Hitung Material Otomatis</span>
@@ -1841,6 +1856,7 @@
                             <span class="font-bold text-white">Live Kamera WebCam</span>
                             <span class="text-emerald-400 text-[10px] font-mono"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i>ONLINE</span>
                         </div>
+
                         <div class="relative bg-slate-950 rounded-xl overflow-hidden aspect-video flex items-center justify-center border border-slate-700">
                             <video id="webcamVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
                             <canvas id="snapshotCanvas" class="hidden"></canvas>
@@ -1857,7 +1873,7 @@
 
                             <div class="absolute bottom-2 left-2 right-2 bg-slate-900/80 backdrop-blur text-[10px] text-slate-200 px-2 py-1.5 rounded border border-slate-700 space-y-1">
                                 <div><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i><span id="currentGpsText">Mencari Lokasi GPS...</span></div>
-                                <div class="truncate"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i><span id="currentAddressText">Mencari alamat...</span></div>
+                                <div class="leading-snug"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i><span id="currentAddressText">Mencari alamat...</span></div>
                             </div>
                         </div>
 
@@ -2350,7 +2366,6 @@
                 </h3>
                 <button onclick="closeAbsenPhotoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-
             <div class="flex-1 overflow-y-auto custom-scroll bg-black flex items-center justify-center p-2">
                 <img id="absenPhotoModalImg" src="" class="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg">
             </div>
@@ -2617,6 +2632,7 @@
             </form>
         </div>
     </div>
+
     <!-- HIDDEN CONTAINER FOR PRINTING / PDF GENERATION -->
     <div id="printContainer" class="hidden"></div>
 
@@ -2658,6 +2674,7 @@
                 photo: ''
             }
         ];
+
         // Sesi login memakai sessionStorage (bukan localStorage) agar setiap aplikasi benar-benar
         // ditutup (tab/app ditutup) lalu dibuka kembali, pengguna WAJIB login ulang dari halaman Login.
         let currentUser = JSON.parse(sessionStorage.getItem('erp_current_user')) || null;
@@ -2741,6 +2758,7 @@
                 banner.classList.remove('hidden');
             }
         }
+
         try {
             firebase.initializeApp(firebaseConfig);
             cloudDb = firebase.firestore();
@@ -2872,7 +2890,6 @@
             cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection(conf.sub).doc(String(record.id)).set(record)
                 .catch(err => showCloudSyncError('Kirim data absensi ke cloud', err));
         }
-
         let cloudAbsenUnsubs = [];
         const _migratedAbsenWorkspaces = new Set();
 
@@ -2908,6 +2925,7 @@
                     });
                 });
             }
+
             Object.keys(CLOUD_WORKSPACE_SUBCOLLECTION).forEach(localKey => {
                 const conf = CLOUD_WORKSPACE_SUBCOLLECTION[localKey];
                 const unsub = mainDocRef.collection(conf.sub).onSnapshot(snap => {
@@ -3012,6 +3030,7 @@
             stopAbsenSubcollectionSync();
             cloudWorkspaceId = null;
         }
+
         // Setiap ada localStorage.setItem, otomatis dorong ke Firestore bila key terkait termasuk yang disinkron.
         // Tidak ada satupun kode lain di aplikasi ini yang perlu diubah — cukup "sadap" di titik ini.
         const _origLocalStorageSetItem = localStorage.setItem.bind(localStorage);
@@ -3053,6 +3072,7 @@
             if (currentUser.role === 'Admin') return true;
             return currentUser.canEdit !== false;
         }
+
         // Proyek yang boleh dilihat oleh akun yang sedang login:
         // - Admin hanya melihat proyek miliknya sendiri (ownerId === id Admin tsb).
         // - User hanya melihat 1 proyek yang telah ia gabung (sesuai kode dari Admin).
@@ -3142,7 +3162,6 @@
             const collapsed = localStorage.getItem('erp_sidebar_collapsed') === '1';
             if (collapsed) aside.classList.add('sidebar-collapsed');
         }
-
         function toggleSidebar() {
             const aside = document.getElementById('mainSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
@@ -3163,7 +3182,6 @@
             if (aside) aside.classList.remove('sidebar-open');
             if (backdrop) backdrop.classList.remove('active');
         }
-
         function checkAuthStatus() {
             if (!currentUser) {
                 document.getElementById('authModal').classList.remove('hidden');
@@ -3331,7 +3349,6 @@
         function hideLoginError() {
             document.getElementById('loginErrorBox').classList.add('hidden');
         }
-
         // Toggle lihat/sembunyikan kata sandi pada input password manapun (Login & Daftar).
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
@@ -3640,6 +3657,7 @@
                 document.getElementById('projectForm').reset();
             }
         }
+
         function closeProjectModal() {
             document.getElementById('projectModal').classList.add('hidden');
         }
@@ -3891,6 +3909,7 @@
                 sisaHariText = diffDays > 0 ? `${diffDays} hari lagi` : (diffDays === 0 ? 'Selesai hari ini' : `Lewat ${Math.abs(diffDays)} hari`);
             }
             document.getElementById('homeProjectSisaHari').innerText = sisaHariText;
+
             const btnQuickKaryawan = document.getElementById('homeQuickKaryawan');
             if (btnQuickKaryawan) btnQuickKaryawan.classList.toggle('hidden', !isAdminUser());
 
@@ -3903,7 +3922,9 @@
                 document.getElementById('homeKpiMaterial').innerText = '0';
                 document.getElementById('homeProgressBar').style.width = '0%';
                 document.getElementById('homeProgressLabel').innerText = '0%';
-                document.getElementById('homeRecentActivity').innerHTML = `<div class="text-xs text-slate-500 italic text-center py-8">Belum ada proyek aktif.</div>`;
+                document.getElementById('homeWeeklyProgressPeriod').innerText = '-';
+                document.getElementById('homeWeeklyProgressContent').classList.add('hidden');
+                document.getElementById('homeWeeklyProgressEmpty').classList.remove('hidden');
                 if (homeBudgetChartInstance) { homeBudgetChartInstance.destroy(); homeBudgetChartInstance = null; }
                 const emptyEl = document.getElementById('homeChartEmptyState');
                 if (emptyEl) emptyEl.classList.remove('hidden');
@@ -3949,28 +3970,9 @@
             const projMaterial = kebutuhanMatData.filter(m => m.projId === activeProjectId);
             document.getElementById('homeKpiMaterial').innerText = projMaterial.length;
 
-            // Aktivitas Laporan Harian Terbaru
-            const rabIdsProj = new Set(projRAB.map(r => r.id));
-            const recentLap = lapHarianData.filter(l => rabIdsProj.has(l.pekerjaanId))
-                .slice()
-                .sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || ((b.id || 0) - (a.id || 0)))
-                .slice(0, 6);
-            const activityEl = document.getElementById('homeRecentActivity');
-            if (recentLap.length === 0) {
-                activityEl.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-8">Belum ada aktivitas Laporan Harian.</div>`;
-            } else {
-                activityEl.innerHTML = recentLap.map(l => {
-                    const rabItem = rabData.find(r => r.id == l.pekerjaanId);
-                    const namaPekerjaan = rabItem ? rabItem.rincian : 'Item tidak ditemukan';
-                    return `<div class="flex items-center justify-between bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2.5">
-                        <div class="min-w-0">
-                            <div class="text-xs font-semibold text-slate-200 truncate">${namaPekerjaan}</div>
-                            <div class="text-[10px] text-slate-500 mt-0.5">${l.tanggal || '-'} ${l.tenaga ? '• ' + l.tenaga : ''}</div>
-                        </div>
-                        <div class="text-xs font-mono font-bold text-emerald-300 shrink-0 ml-2">+${formatAngka(l.volume || 0)} ${rabItem ? rabItem.satuan : ''}</div>
-                    </div>`;
-                }).join('');
-            }
+            // Progress Minggu Ini (Kumulatif): Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
+            // dihitung sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal (Time Schedule)
+            renderHomeWeeklyProgress(proj);
 
             // Chart Komposisi Anggaran per Divisi
             const chartCanvas = document.getElementById('homeBudgetChart');
@@ -4010,6 +4012,68 @@
                         }
                     }
                 });
+            }
+        }
+
+        // Progress Minggu Ini (Kumulatif) pada Beranda: Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
+        // dihitung sampai dengan minggu berjalan saat ini (berdasarkan tanggal hari ini terhadap Tanggal
+        // Mulai proyek), memakai data Rencana Jadwal yang sama dengan Kurva-S pada halaman Time Schedule.
+        function renderHomeWeeklyProgress(proj) {
+            const contentEl = document.getElementById('homeWeeklyProgressContent');
+            const emptyEl = document.getElementById('homeWeeklyProgressEmpty');
+            const periodEl = document.getElementById('homeWeeklyProgressPeriod');
+            if (!contentEl || !emptyEl || !periodEl) return;
+
+            if (!proj || !proj.tglMulai) {
+                contentEl.classList.add('hidden');
+                emptyEl.classList.remove('hidden');
+                emptyEl.innerText = 'Tanggal Mulai proyek belum diisi (isi di menu Kelola Proyek).';
+                periodEl.innerText = '-';
+                return;
+            }
+
+            const { totalWeeks, planCumulative, realCumulative } = computeProjectCumulativeSCurve();
+            const hasSchedule = divScheduleData.some(d => d.projId === activeProjectId && (d.weeks || []).length > 0);
+            if (!hasSchedule) {
+                contentEl.classList.add('hidden');
+                emptyEl.classList.remove('hidden');
+                emptyEl.innerText = 'Rencana jadwal (Time Schedule) belum diisi untuk proyek ini.';
+                periodEl.innerText = '-';
+                return;
+            }
+            const todayStr = new Date().toISOString().split('T')[0];
+            let currentWeek = getWeekIndexFromProjectStart(todayStr, proj.tglMulai, totalWeeks);
+            // Kalau hari ini sebelum Tanggal Mulai proyek (belum mulai), tampilkan posisi Minggu 1 (belum berjalan)
+            if (!currentWeek) currentWeek = 1;
+            currentWeek = Math.max(1, Math.min(currentWeek, totalWeeks));
+
+            const range = getWeekDateRangeDetailed(currentWeek, proj.tglMulai, proj.tglSelesai);
+            periodEl.innerText = range ? `Minggu ${currentWeek}: ${range.labelShort}` : `Minggu ${currentWeek}`;
+
+            const rencanaKumulatif = planCumulative[currentWeek - 1] || 0;
+            const realisasiKumulatif = realCumulative[currentWeek - 1] || 0;
+            const deviasi = realisasiKumulatif - rencanaKumulatif;
+
+            contentEl.classList.remove('hidden');
+            emptyEl.classList.add('hidden');
+            document.getElementById('homeWeeklyRencana').innerText = formatAngka(rencanaKumulatif) + '%';
+            document.getElementById('homeWeeklyRealisasi').innerText = formatAngka(realisasiKumulatif) + '%';
+
+            const deviasiEl = document.getElementById('homeWeeklyDeviasi');
+            const deviasiBoxEl = document.getElementById('homeWeeklyDeviasiBox');
+            const deviasiLabelEl = document.getElementById('homeWeeklyDeviasiLabel');
+            const deviasiText = (deviasi >= 0 ? '+' : '') + formatAngka(deviasi) + '%';
+            deviasiEl.innerText = deviasiText;
+            if (deviasi >= 0) {
+                deviasiEl.className = 'text-xl font-extrabold font-mono mt-1 break-words leading-tight text-emerald-400';
+                deviasiBoxEl.className = 'bg-[#0b132b] border border-emerald-500/30 rounded-xl p-3';
+                deviasiLabelEl.innerHTML = '<i class="fa-solid fa-arrow-up mr-1"></i>Lebih cepat dari rencana';
+                deviasiLabelEl.className = 'text-[10px] mt-0.5 text-emerald-400';
+            } else {
+                deviasiEl.className = 'text-xl font-extrabold font-mono mt-1 break-words leading-tight text-red-400';
+                deviasiBoxEl.className = 'bg-[#0b132b] border border-red-500/30 rounded-xl p-3';
+                deviasiLabelEl.innerHTML = '<i class="fa-solid fa-arrow-down mr-1"></i>Terlambat dari rencana';
+                deviasiLabelEl.className = 'text-[10px] mt-0.5 text-red-400';
             }
         }
 
@@ -4186,7 +4250,6 @@
                                 </button>
                             </div>`
                         : `<span class="text-slate-600 text-[10px]" title="Hanya Admin yang dapat mengubah/menghapus data RAB"><i class="fa-solid fa-lock"></i></span>`;
-
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-800/50 transition';
                     tr.innerHTML = `
@@ -4312,7 +4375,6 @@
                 renderRAB();
             }
         }
-
         // Naik/turunkan urutan tampil 1 item RAB, TERBATAS hanya di dalam Divisi yang sama (tidak bisa
         // melewati/melompat ke divisi lain). Dilakukan dengan menukar posisi item ini dengan tetangganya
         // (item lain di divisi yang sama, urutan sebelum/sesudahnya) langsung di dalam array rabData,
@@ -4333,7 +4395,6 @@
             const idxInGroup = groupItems.findIndex(r => r.id === item.id);
             const targetItem = direction === 'up' ? groupItems[idxInGroup - 1] : groupItems[idxInGroup + 1];
             if (!targetItem) return; // Sudah di ujung divisi (atas/bawah) - tidak bisa naik/turun melewati divisi lain
-
             // Tukar posisi kedua item langsung di dalam array rabData (yang berisi data semua proyek),
             // supaya urutan tampil berubah persis & tersimpan permanen, tanpa mengganggu urutan proyek lain.
             const realIdxA = rabData.findIndex(r => r.id === item.id);
@@ -4394,6 +4455,7 @@
             persenEl.value = '';
             renderRAB();
         }
+
         function removeBiayaTambahan(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus biaya tambahan.');
@@ -4477,6 +4539,7 @@
                 const satuan = row['Satuan'] || row['satuan'] || 'ls';
                 const volume = parseFloat(row['Volume'] || row['volume'] || 1);
                 const harga = parseFloat(row['HargaSatuan'] || row['hargasatuan'] || row['Harga'] || 0);
+
                 if (sub) {
                     rabData.push({
                         id: Date.now() + Math.random(),
@@ -4562,7 +4625,6 @@
             if (scrollIntoView) rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return rowId;
         }
-
         function removeLhPekerjaanRow(rowId) {
             const container = document.getElementById('lhPekerjaanRowsContainer');
             if (container.querySelectorAll('.lh-pekerjaan-row').length <= 1) {
@@ -4581,6 +4643,7 @@
                 if (numEl) numEl.innerText = idx + 1;
             });
         }
+
         function updateLhRemoveButtonsState() {
             const rows = document.querySelectorAll('#lhPekerjaanRowsContainer .lh-pekerjaan-row');
             rows.forEach(row => {
@@ -4688,7 +4751,7 @@
             }
 
             if (projLh.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data Laporan Harian.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Belum ada data Laporan Harian.</td></tr>`;
                 return;
             }
 
@@ -4712,7 +4775,18 @@
             const projMatMasuk = materialMasukData.filter(m => m.projId === activeProjectId);
             const projMatKeluar = materialKeluarData.filter(m => m.projId === activeProjectId);
 
-            Object.values(groupedByDate).forEach(group => {
+            // Urutkan berdasarkan tanggal (lama -> baru) supaya list selalu rapi & tidak acak-acakan
+            const sortedGroups = Object.values(groupedByDate).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
+            let currentMonthKey = null;
+
+            sortedGroups.forEach(group => {
+                // Sisipkan baris pemisah setiap kali data berpindah bulan
+                const monthKey = (group.tanggal || '').slice(0, 7); // "YYYY-MM"
+                if (monthKey !== currentMonthKey) {
+                    tbody.innerHTML += buildMonthSeparatorRow(group.tanggal, 5);
+                    currentMonthKey = monthKey;
+                }
+
                 const dateMatMasuk = projMatMasuk.filter(m => m.tanggal === group.tanggal);
                 const dateMatKeluar = projMatKeluar.filter(m => m.tanggal === group.tanggal);
                 const kendalaNotulen = findLhKendalaByDate(group.tanggal);
@@ -4722,26 +4796,53 @@
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition align-top';
-                
-                // Construct Item Pekerjaan & Volume list HTML
-                let workHtml = '<ul class="space-y-1.5">';
-                let tenagaHtml = '<ul class="space-y-1.5">';
-                let actionHtml = '<div class="flex flex-col space-y-1 items-center">';
+
+                // Item Pekerjaan, Tenaga Kerja & Aksi digabung jadi 1 nested table supaya tiap baris
+                // (per item pekerjaan) benar-benar SEJAJAR satu sama lain - Rincian pekerjaan, tenaga
+                // yang mengerjakannya, dan tombol edit/hapusnya ada di baris yang sama persis.
+                let combinedRowsHtml = '';
+                let totalTenagaEstimasi = 0;
                 group.items.forEach(item => {
                     const rab = rabData.find(r => r.id == item.pekerjaanId);
-                    const rabName = rab ? `${rab.sub} (${rab.satuan})` : 'Pekerjaan';
-                    workHtml += `<li class="border-b border-slate-800 pb-1"><span class="font-bold text-white">${rabName}</span>: <span class="text-emerald-400 font-mono font-bold">${formatAngka(item.volume)}</span></li>`;
-                    tenagaHtml += `<li class="border-b border-slate-800 pb-1 text-amber-300">${item.tenaga || 'Standar'} (${item.jamAktif || 8}h + ${item.jamLembur || 0}h)</li>`;
-                    actionHtml += `
-                        <div class="flex space-x-1">
-                            <button onclick="editLapHarian(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded transition" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                            <button onclick="deleteLapHarian(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded transition" title="Hapus"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
-                        </div>
+                    const noDivLabel = rab ? (rab.noDiv || '-') : '-';
+                    const rincianLabel = rab ? (rab.rincian || rab.sub) : 'Pekerjaan';
+                    const satuanLabel = rab ? (rab.satuan || '') : '';
+                    totalTenagaEstimasi += estimateTotalTenagaFromText(item.tenaga);
+                    combinedRowsHtml += `
+                        <tr class="border-t border-slate-800 align-top">
+                            <td class="py-1.5 pr-2">
+                                <span class="text-slate-500 font-mono text-[10px]">${noDivLabel}</span>
+                                <div class="font-bold text-white">${rincianLabel}</div>
+                                <div class="text-emerald-400 font-mono font-bold">${formatAngka(item.volume)} ${satuanLabel}</div>
+                            </td>
+                            <td class="py-1.5 pr-2 text-amber-300 align-middle">${item.tenaga || 'Standar'} (${item.jamAktif || 8}h + ${item.jamLembur || 0}h)</td>
+                            <td class="py-1.5 text-center align-middle">
+                                <div class="flex justify-center space-x-1">
+                                    <button onclick="editLapHarian(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded transition" title="Edit"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                    <button onclick="deleteLapHarian(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded transition" title="Hapus"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
+                                </div>
+                            </td>
+                        </tr>
                     `;
                 });
-                workHtml += '</ul>';
-                tenagaHtml += '</ul>';
-                actionHtml += '</div>';
+                const combinedTableHtml = `
+                    <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                            <tr class="text-slate-500">
+                                <th class="text-left pb-1 pr-2 font-semibold">Item Pekerjaan</th>
+                                <th class="text-left pb-1 pr-2 font-semibold">Tenaga Kerja</th>
+                                <th class="text-center pb-1 font-semibold w-14">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>${combinedRowsHtml}</tbody>
+                        <tfoot>
+                            <tr class="border-t border-amber-500/30">
+                                <td class="pt-1.5 pr-2 font-bold text-amber-300" colspan="2">Total Tenaga Kerja Hari Ini</td>
+                                <td class="pt-1.5 text-center font-bold text-amber-300">${totalTenagaEstimasi > 0 ? formatAngka(totalTenagaEstimasi) + ' org' : '-'}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
 
                 tr.innerHTML = `
                     <td class="p-3 font-mono font-bold text-amber-400">${group.tanggal}</td>
@@ -4759,8 +4860,7 @@
                             <div><strong class="text-rose-400">Keluar:</strong> ${matTextKeluar}</div>
                         </div>
                     </td>
-                    <td class="p-3">${workHtml}</td>
-                    <td class="p-3">${tenagaHtml}</td>
+                    <td class="p-3">${combinedTableHtml}</td>
                     <td class="p-3">
                         <div class="text-[11px] space-y-1">
                             <div><strong class="text-amber-300">Kendala:</strong> ${kendalaNotulen && kendalaNotulen.kendala ? kendalaNotulen.kendala : '-'}</div>
@@ -4771,7 +4871,6 @@
                             </div>
                         </div>
                     </td>
-                    <td class="p-3 text-center">${actionHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -4978,6 +5077,7 @@
                 renderLapHarian();
             }
         }
+
         function cancelLhKendalaEdit() {
             document.getElementById('lhkEditId').value = '';
             document.getElementById('formLhKendala').reset();
@@ -5007,7 +5107,6 @@
             const bulletMatch = !numberedMatch && currentLine.match(/^(\s*)([-*•])(\s+)/);
 
             if (!numberedMatch && !bulletMatch) return; // biarkan Enter berjalan normal
-
             e.preventDefault();
             const markerLength = (numberedMatch || bulletMatch)[0].length;
             const restOfLine = currentLine.substring(markerLength);
@@ -5049,7 +5148,6 @@
             const periodeLabelEl = document.getElementById('lmPeriodeLabel');
             const tbody = document.getElementById('lapMingguanTableBody');
             if (!tbody) return;
-
             const proj = projects.find(p => p.id === activeProjectId) || {};
 
             // Isi ulang opsi Minggu setiap render (bukan hanya sekali) supaya rentang tanggalnya selalu
@@ -5364,7 +5462,6 @@
                     divGroupMap.get(key).items.push(item);
                 });
                 divGroups.sort((ga, gb) => compareDivisionKey(ga.noDiv, gb.noDiv));
-
                 let sumMoneyBulanIni = 0;
                 let sumBobotBulanIni = 0;
                 let grandJumlahHargaRab = 0, grandBobotRab = 0;
@@ -5469,7 +5566,6 @@
                     grandBobotLalu += divBobotLalu; grandBobotIni += divBobotIni; grandBobotKum += divBobotKum;
                     grandUang += divUang;
                 });
-
                 const grandTr = document.createElement('tr');
                 grandTr.className = 'bg-purple-950/40 border-t-2 border-purple-500/60';
                 grandTr.innerHTML = `
@@ -5658,7 +5754,6 @@
             populateTsWeekPicker();
             updateTsBobotInfo();
         }
-
         // Hapus 1 minggu dari daftar minggu yang sedang disusun pada form
         function removeTsWeek(w) {
             tsSelectedWeeks = tsSelectedWeeks.filter(x => x !== w);
@@ -5712,6 +5807,7 @@
             if (!sel || !infoEl || !sel.value) { if (infoEl) infoEl.innerHTML = ''; return; }
             const [noDiv, sub] = sel.value.split('|||');
             const editId = document.getElementById('tsEditId').value;
+
             const volInfo = getSubVolumeInfo(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
@@ -5732,6 +5828,7 @@
                     ? (totalKomitmenBaru * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
                 preview = `<br>Preview: ${formatAngka(volInputVal)} ${volInfo.satuan} &times; ${jumlahMinggu} minggu = <span class="font-bold text-sky-300">${formatAngka(totalKomitmenBaru)} ${volInfo.satuan}</span> (&asymp; <span class="font-bold text-amber-300">${formatAngka(bobotKomitmenBaru)}%</span> bobot)`;
             }
+
             infoEl.innerHTML = `Volume Total Pekerjaan (RAB): <span class="font-bold text-white">${formatAngka(volInfo.totalVolume)} ${volInfo.satuan}</span> &middot; Sudah Dijadwalkan: <span class="font-bold text-amber-300">${formatAngka(sudahDijadwalkan)} ${volInfo.satuan}</span> &middot; Sisa Bisa Dijadwalkan: <span class="font-bold text-emerald-400">${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}</span>${warning}${preview}`;
         }
 
@@ -5878,6 +5975,7 @@
             const body = document.getElementById('scheduleMatrixBody');
             head.innerHTML = '';
             body.innerHTML = '';
+
             const totalWeeks = getProjectScheduleWeeks();
             const proj = projects.find(p => p.id === activeProjectId) || {};
 
@@ -5940,6 +6038,7 @@
                     const persen = subtotal > 0 ? (nilai / subtotal) * 100 : 0;
                     realisasiMingguan[w - 1] += persen;
                 });
+
                 // Komulatif & deviasi
                 const kumRencana = []; const kumRealisasi = []; const deviasi = [];
                 let runR = 0, runA = 0;
@@ -6011,7 +6110,6 @@
 
             renderSCurveChart();
         }
-
         function handleDivScheduleSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -6023,6 +6121,7 @@
 
             if (volume <= 0) { alert('Volume Rencana harus diisi lebih dari 0.'); return; }
             if (tsSelectedWeeks.length === 0) { alert('Pilih minimal 1 minggu untuk volume rencana ini.'); return; }
+
             // Validasi: total volume baru (volume x jumlah minggu terpilih) tidak boleh melebihi sisa volume
             // pekerjaan ini yang bisa dijadwalkan (berdasarkan Volume Total RAB-nya)
             const volInfo = getSubVolumeInfo(noDiv, sub);
@@ -6061,27 +6160,11 @@
             renderTimeSchedule();
         }
 
-        let scurveChartInstance = null;
-        function renderSCurveChart() {
+        // Hitung Rencana Kumulatif & Realisasi Kumulatif (%) per minggu, dijumlahkan dari SELURUH pekerjaan
+        // proyek aktif. Dipakai bersama oleh Grafik Kurva-S (Time Schedule) & widget "Progress Minggu Ini"
+        // di Beranda, supaya angkanya selalu konsisten di kedua tempat.
+        function computeProjectCumulativeSCurve() {
             const totalWeeks = getProjectScheduleWeeks();
-            // Grafik dibungkus wrapper yang bisa digeser kiri-kanan (overflow-x-auto) dan lebar canvas
-            // disesuaikan dengan jumlah minggu, supaya saat minggunya banyak, titik & garis grafik tetap
-            // presisi/tidak berhimpitan di layar HP - bukan dipaksa muat ke satu lebar layar.
-            const wrapper = document.getElementById('scurveChartWrapper');
-            const inner = document.getElementById('scurveChartInner');
-            const canvasEl = document.getElementById('scurveCanvas');
-            if (wrapper && inner) {
-                const pxPerWeek = 55; // lebar minimum per titik minggu agar tetap terbaca jelas & presisi di layar HP
-                const minWidth = Math.max(wrapper.clientWidth || 0, totalWeeks * pxPerWeek);
-                inner.style.width = minWidth + 'px';
-            }
-
-            const ctx = canvasEl.getContext('2d');
-            if (scurveChartInstance) scurveChartInstance.destroy();
-
-            const labels = Array.from({length: totalWeeks}, (_, i) => `M${i+1}`);
-
-            // Total kumulatif rencana & realisasi seluruh pekerjaan (mengikuti data tabel Time Schedule di atas)
             const proj = projects.find(p => p.id === activeProjectId) || {};
             const projRab = rabData.filter(r => r.projId === activeProjectId);
             const subtotal = projRab.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
@@ -6089,7 +6172,6 @@
 
             const totalRencanaMingguan = Array(totalWeeks).fill(0);
             const totalRealisasiMingguan = Array(totalWeeks).fill(0);
-
             subKeys.forEach(key => {
                 const [noDiv, sub] = key.split('|||');
                 const subItems = projRab.filter(r => r.sub === sub && (r.noDiv || '-') === noDiv);
@@ -6109,14 +6191,40 @@
                 });
             });
 
-            const planData = []; const realData = [];
+            const planCumulative = []; const realCumulative = [];
             let runR = 0, runA = 0;
             for (let w = 0; w < totalWeeks; w++) {
                 runR += totalRencanaMingguan[w];
                 runA += totalRealisasiMingguan[w];
-                planData.push(parseFloat(runR.toFixed(2)));
-                realData.push(parseFloat(runA.toFixed(2)));
+                planCumulative.push(parseFloat(runR.toFixed(2)));
+                realCumulative.push(parseFloat(runA.toFixed(2)));
             }
+            return { totalWeeks, planCumulative, realCumulative, proj };
+        }
+
+        let scurveChartInstance = null;
+        function renderSCurveChart() {
+            const totalWeeks = getProjectScheduleWeeks();
+
+            // Grafik dibungkus wrapper yang bisa digeser kiri-kanan (overflow-x-auto) dan lebar canvas
+            // disesuaikan dengan jumlah minggu, supaya saat minggunya banyak, titik & garis grafik tetap
+            // presisi/tidak berhimpitan di layar HP - bukan dipaksa muat ke satu lebar layar.
+            const wrapper = document.getElementById('scurveChartWrapper');
+            const inner = document.getElementById('scurveChartInner');
+            const canvasEl = document.getElementById('scurveCanvas');
+            if (wrapper && inner) {
+                const pxPerWeek = 55; // lebar minimum per titik minggu agar tetap terbaca jelas & presisi di layar HP
+                const minWidth = Math.max(wrapper.clientWidth || 0, totalWeeks * pxPerWeek);
+                inner.style.width = minWidth + 'px';
+            }
+
+            const ctx = canvasEl.getContext('2d');
+            if (scurveChartInstance) scurveChartInstance.destroy();
+
+            const labels = Array.from({length: totalWeeks}, (_, i) => `M${i+1}`);
+
+            // Total kumulatif rencana & realisasi seluruh pekerjaan (mengikuti data tabel Time Schedule di atas)
+            const { planCumulative: planData, realCumulative: realData } = computeProjectCumulativeSCurve();
 
             scurveChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -7162,6 +7270,7 @@
                 let dailyVolumeMap = {};
                 let dailyNilai = 0;
                 let currentTanggal = null;
+                let currentMonthKeyOrder = null;
 
                 const flushDailySubtotal = (tgl) => {
                     if (tgl === null) return;
@@ -7181,6 +7290,12 @@
                 sortedData.forEach(item => {
                     if (currentTanggal !== null && item.tanggal !== currentTanggal) {
                         flushDailySubtotal(currentTanggal);
+                    }
+                    // Sisipkan baris pemisah setiap kali data berpindah bulan (dicek sebelum baris tanggal baru dimulai)
+                    const monthKey = (item.tanggal || '').slice(0, 7);
+                    if (monthKey && monthKey !== currentMonthKeyOrder) {
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 14);
+                        currentMonthKeyOrder = monthKey;
                     }
                     currentTanggal = item.tanggal;
 
@@ -7240,7 +7355,13 @@
                 // Urutkan berdasarkan Tanggal Terima
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
                 let totalNilaiMasuk = 0;
+                let currentMonthKeyMasuk = null;
                 sortedData.forEach(item => {
+                    const monthKey = (item.tanggal || '').slice(0, 7);
+                    if (monthKey && monthKey !== currentMonthKeyMasuk) {
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 9);
+                        currentMonthKeyMasuk = monthKey;
+                    }
                     const hargaSatuan = getHargaSatuan(item.nama, item.dimensi, item.spesifikasi);
                     const totalItem = (item.volume || 0) * hargaSatuan;
                     totalNilaiMasuk += totalItem;
@@ -7275,7 +7396,13 @@
                 // Urutkan berdasarkan Tanggal Keluar
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
                 let totalNilaiKeluar = 0;
+                let currentMonthKeyKeluar = null;
                 sortedData.forEach(item => {
+                    const monthKey = (item.tanggal || '').slice(0, 7);
+                    if (monthKey && monthKey !== currentMonthKeyKeluar) {
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 9);
+                        currentMonthKeyKeluar = monthKey;
+                    }
                     const hargaSatuan = getHargaSatuan(item.nama, item.dimensi, item.spesifikasi);
                     const totalItem = (item.volume || 0) * hargaSatuan;
                     totalNilaiKeluar += totalItem;
@@ -7341,6 +7468,7 @@
                 `;
             }
         }
+
         function deleteMaterialItem(type, id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus item material ini?')) {
@@ -7384,7 +7512,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('notaExtractedTextResult').value = simulatedExtractedText;
             }, 500);
         }
-
         function applyScannedNotaItems() {
             // Automatically push all extracted items to Material Masuk
             const today = new Date().toISOString().split('T')[0];
@@ -7508,6 +7635,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         };
         const BQ_OPNAME_ALL_FIELDS = ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'];
         const BQ_OPNAME_FIELD_ICON = { jumlah: 'fa-hashtag', panjang: 'fa-ruler-horizontal', lebar: 'fa-ruler-vertical', tinggi: 'fa-cube', koefisien: 'fa-percent' };
+
         // Menampilkan input field sesuai metode yang dipilih (field yang tidak relevan disembunyikan, bukan dihapus, agar nilai tidak hilang saat ganti-ganti metode)
         function renderBqOpnameFormFields() {
             const metode = document.getElementById('bqOpMetode').value;
@@ -7549,6 +7677,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             });
             return { metode, cfg, vals };
         }
+
         // Hitung volume 1 baris opname dari field-field yang relevan sesuai metode (field yang tidak dipakai dianggap 1, tidak mempengaruhi hasil kali)
         function computeBqOpnameVolume(metode, vals) {
             const cfg = BQ_OPNAME_METODE[metode];
@@ -7802,7 +7931,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     </div>`;
             }
         }
-
         // Render area detail (form input + tabel rincian segmen + ringkasan) untuk item pekerjaan yang
         // sedang dibuka pada bqOpDetailArea. Dipanggil setiap ada perubahan data opname/minggu.
         function renderBqOpnameDetail() {
@@ -7947,6 +8075,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('bqOpSumBobotKum').innerText = sumBobotKum.toFixed(2) + ' %';
             }
         }
+
         // Entry point render halaman Opname: render daftar master, lalu render detail jika sedang terbuka.
         function renderBqOpname() {
             renderBqOpnameMaster();
@@ -8618,6 +8747,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             alert('Semua hasil Backup Quantity berhasil dimasukkan ke halaman Kebutuhan Material!');
             switchTab('mat-kebutuhan');
         }
+
         // ===================================================================
         // 5. ABSENSI & KARYAWAN
         // ===================================================================
@@ -8635,16 +8765,28 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return;
             }
 
-            tbody.innerHTML = data.slice().reverse().map(item => {
+            // Urutkan berdasarkan waktu absen, terbaru di atas (paling mudah dicari), dan tidak lagi mengandalkan
+            // urutan input data mentah (yang bisa acak-acakan setelah sinkronisasi cloud/edit foto)
+            const sortedData = data.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            let currentMonthKey = null;
+            let rowsHtml = '';
+            sortedData.forEach(item => {
+                // Sisipkan baris pemisah setiap kali data berpindah bulan
+                const monthKey = (item.tanggal || '').slice(0, 7); // "YYYY-MM"
+                if (monthKey && monthKey !== currentMonthKey) {
+                    rowsHtml += buildMonthSeparatorRow(item.tanggal, 5);
+                    currentMonthKey = monthKey;
+                }
+
                 const mapsLink = (item.lat != null && item.lng != null) ? `https://www.google.com/maps?q=${item.lat},${item.lng}` : null;
                 const alamatText = item.alamat || item.lokasi || '-';
-                return `
+                rowsHtml += `
                     <tr class="hover:bg-slate-800/50 transition align-middle">
                         <td class="p-3"><div class="w-14 h-14 rounded-lg overflow-hidden bg-slate-800 cursor-pointer" onclick="openAbsenPhotoModal(${item.id}, ${isMasuk})"><img src="${item.photo}" class="w-full h-full object-cover"></div></td>
                         <td class="p-3 font-bold text-white">${item.nama}${item.jamKerja ? `<div class="text-[10px] font-normal text-emerald-400 mt-0.5"><i class="fa-solid fa-business-time mr-1"></i>${item.jamKerja}</div>` : ''}</td>
                         <td class="p-3 font-mono text-amber-400">${item.waktu}</td>
                         <td class="p-3 text-[11px] text-slate-300 max-w-[220px]">
-                            <div class="truncate" title="${alamatText}"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${alamatText}</div>
+                            <div class="break-words leading-snug"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${alamatText}</div>
                             ${mapsLink ? `<a href="${mapsLink}" target="_blank" rel="noopener" class="text-sky-400 hover:underline text-[10px] inline-flex items-center mt-0.5"><i class="fa-solid fa-map-location-dot mr-1"></i>Buka di Google Maps</a>` : ''}
                         </td>
                         <td class="p-3 text-center space-y-1">
@@ -8653,7 +8795,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         </td>
                     </tr>
                 `;
-            }).join('');
+            });
+            tbody.innerHTML = rowsHtml;
         }
 
         // ===================================================================
@@ -8680,6 +8823,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             const facingMode = preferredFacingMode || currentFacingMode || 'user';
             stopWebcamStream();
+
             // Coba minta kamera sesuai arah (depan/belakang) yang diinginkan - "ideal" agar tetap dapat
             // fallback ke kamera manapun jika perangkat Android hanya memiliki 1 kamera fisik.
             navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facingMode } }, audio: false })
@@ -8742,6 +8886,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function initGpsLocation() {
             refreshGpsAndAddress();
         }
+
         // Ambil ulang koordinat GPS (akurasi tinggi) + alamat terkini. Dipanggil saat membuka halaman
         // Absen Masuk/Keluar & sesaat sebelum foto diambil, supaya data pada watermark foto akurat.
         function refreshGpsAndAddress(callback) {
@@ -8919,7 +9064,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
                 // Refresh GPS & alamat sesaat sebelum foto diambil, supaya data pada watermark akurat & terkini
                 await new Promise(resolve => refreshGpsAndAddress(resolve));
-
                 // Hitung Jam Kerja (khusus Absen Keluar/Pulang): dicari dari record Absen Masuk hari ini milik karyawan yang sama
                 let jamKerjaText = null;
                 if (!isMasuk) {
@@ -8940,7 +9084,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         jamKerjaText = 'Data Absen Masuk hari ini tidak ditemukan';
                     }
                 }
-
                 const proj = projects.find(p => p.id === activeProjectId) || {};
                 let logoImg = null;
                 if (proj.logo) {
@@ -9045,7 +9188,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             return lines;
         }
-
         // Path rounded-rectangle generik dipakai oleh badge label & mini peta skematik
         function roundRectPath(ctx, x, y, w, h, r) {
             ctx.beginPath();
@@ -9056,6 +9198,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.arcTo(x, y, x + w, y, r);
             ctx.closePath();
         }
+
         // Mini peta skematik (grid + pin lokasi) digambar langsung di canvas - tidak memuat tile peta dari
         // server eksternal, supaya foto absensi tetap bisa disimpan (toDataURL) tanpa risiko error CORS/tainted canvas.
         function drawSchematicMap(ctx, x, y, w, h, pinColor) {
@@ -9128,7 +9271,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const koordText = (opts.lat != null && opts.lng != null)
                     ? `${opts.lat.toFixed(6)}, ${opts.lng.toFixed(6)}` + (opts.accuracy ? ` (Akurasi ±${opts.accuracy}m)` : '')
                     : 'Koordinat tidak tersedia';
-
                 const logoSize = 40 * scale;
                 const mapBoxSize = 66 * scale;
                 const textX = pad + logoSize + pad;
@@ -9149,7 +9291,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
                 const panelHeight = Math.max(pad * 2 + logoSize + 6 * scale, pad * 2 + fontSizeSmall + (10 * scale) + (lines.length * lineHeight));
                 const panelY = h - panelHeight;
-
                 // Latar gradien gelap transparan
                 const grad = ctx.createLinearGradient(0, panelY, 0, h);
                 grad.addColorStop(0, 'rgba(3,7,18,0.10)');
@@ -9191,7 +9332,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 ctx.beginPath();
                 ctx.arc(pad + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
                 ctx.stroke();
-
                 // Badge label "FOTO ABSEN MASUK/PULANG" di pojok kanan atas
                 const badgeText = opts.isMasuk ? 'FOTO ABSEN MASUK' : 'FOTO ABSEN PULANG';
                 ctx.font = `bold ${fontSizeSmall}px Arial`;
@@ -9246,7 +9386,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             let infoHtml = `
                 <div><i class="fa-regular fa-clock text-amber-400 mr-1.5 w-3.5 text-center"></i>${item.waktu}</div>
-                <div class="truncate"><i class="fa-solid fa-location-dot text-rose-400 mr-1.5 w-3.5 text-center"></i>${item.alamat || item.lokasi}</div>
+                <div class="break-words leading-snug"><i class="fa-solid fa-location-dot text-rose-400 mr-1.5 w-3.5 text-center"></i>${item.alamat || item.lokasi}</div>
             `;
             if (item.jamKerja) {
                 infoHtml += `<div><i class="fa-solid fa-business-time text-emerald-400 mr-1.5 w-3.5 text-center"></i>${item.jamKerja}</div>`;
@@ -9286,6 +9426,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const data = isMasuk ? absenMasukData : absenKeluarData;
             const item = data.find(d => d.id == absenPhotoModalContext.id);
             if (!item) return;
+
             const jenis = isMasuk ? 'Absen Masuk' : 'Absen Pulang';
             let caption = `LAPORAN KEHADIRAN KARYAWAN\nJenis: ${jenis}\nNama: ${item.nama}\nWaktu: ${item.waktu}\nAlamat: ${item.alamat || item.lokasi}`;
             if (item.jamKerja) caption += `\nJam Kerja: ${item.jamKerja}`;
@@ -9379,7 +9520,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const masuk = masukList.find(a => a.tanggal === tgl);
                     const leave = leaveList.find(l => l.tanggal === tgl);
                     let dayInfo = { tgl, d, jenis: null, jamKerja: 0, jamLembur: 0 };
-
                     if (masuk) {
                         const keluar = keluarList.find(a => a.tanggal === tgl);
                         dayInfo.jenis = 'Hadir';
@@ -9537,6 +9677,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const headerRow1 = ['Nama Karyawan'];
             for (let d = 1; d <= jumlahHari; d++) headerRow1.push(d);
             headerRow1.push('Hari Hadir', 'Jam Hadir', 'Hari Lembur', 'Jam Lembur', 'Izin', 'Sakit', 'Cuti');
+
             const wsData = [
                 ['PROCONSTRUCT ERP v3.0 - REKAP DAFTAR HADIR KARYAWAN'],
                 [`Proyek: ${proj.nama}    Lokasi: ${proj.lokasi || '-'}`],
@@ -10124,6 +10265,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const rabIdsImported = new Set((backup.data.rab || []).map(r => r.id));
                     lapHarianData = [...lapHarianData.filter(l => !rabIdsImported.has(l.pekerjaanId)), ...(backup.data.lapHarian || [])];
                     lapHarianKendalaData = mergeAllByProj(lapHarianKendalaData, backup.data.lapHarianKendala);
+
                     rabData = mergeAllByProj(rabData, backup.data.rab);
                     lapMingguanData = mergeAllByProj(lapMingguanData, backup.data.lapMingguan);
                     divScheduleData = mergeAllByProj(divScheduleData, backup.data.divSchedule);
@@ -10564,11 +10706,15 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const dateVal = document.getElementById('waInputDate') ? document.getElementById('waInputDate').value : new Date().toISOString().split('T')[0];
                 text += `📅 *LAPORAN HARIAN LAPANGAN*\nTanggal: ${dateVal}\n`;
                 const dateLh = lapHarianData.filter(l => l.tanggal === dateVal);
+                let totalTenagaWa = 0;
                 dateLh.forEach((item, i) => {
                     const rab = rabData.find(r => r.id == item.pekerjaanId);
-                    const namaPekerjaan = rab ? (rab.sub + (rab.rincian ? ` - ${rab.rincian}` : '')) : 'Pekerjaan';
-                    text += `${i+1}. ${namaPekerjaan} | Vol: ${formatAngka(item.volume)} | Tenaga: ${item.tenaga || '-'}\n`;
+                    const namaPekerjaan = rab ? `${rab.noDiv || '-'} - ${rab.rincian || rab.sub}` : 'Pekerjaan';
+                    const satuanPekerjaan = rab ? (rab.satuan || '') : '';
+                    totalTenagaWa += estimateTotalTenagaFromText(item.tenaga);
+                    text += `${i+1}. ${namaPekerjaan} | Vol: ${formatAngka(item.volume)} ${satuanPekerjaan} | Tenaga: ${item.tenaga || '-'}\n`;
                 });
+                text += `\n👷 *TOTAL TENAGA KERJA HARI INI:* ${totalTenagaWa > 0 ? formatAngka(totalTenagaWa) + ' orang' : '-'}\n`;
                 // Kendala & Notulen: 1x per hari (bukan per item pekerjaan)
                 const knForDate = findLhKendalaByDate(dateVal);
                 text += `\n⚠️ *KENDALA*\n`;
@@ -10612,7 +10758,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             navigator.clipboard.writeText(txt.value);
             alert('Teks WhatsApp berhasil disalin!');
         }
-
         function sendWaDirect() {
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
@@ -10632,12 +10777,43 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             return n.toLocaleString('id-ID', { maximumFractionDigits: maxDecimals });
         }
 
+        // ---- Helper Baris Pemisah Bulan (dipakai di berbagai tabel list yang diurutkan berdasarkan tanggal) ----
+        // Label "Bulan Tahun" dalam Bahasa Indonesia dari sebuah string tanggal (YYYY-MM-DD)
+        function formatMonthYearLabel(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        }
+
+        // Baris pemisah bulan generik, dipakai di berbagai tabel list bertanggal supaya tiap kali data
+        // berpindah bulan ada baris pemisah visual yang jelas (label "Bulan Tahun") sebelum melanjutkan
+        // ke baris-baris bulan berikutnya.
+        function buildMonthSeparatorRow(dateStr, colspan) {
+            return `<tr class="bg-[#0b132b]"><td colspan="${colspan}" class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 border-y border-amber-500/20">
+                <i class="fa-regular fa-calendar mr-1.5"></i>${formatMonthYearLabel(dateStr)}
+            </td></tr>`;
+        }
+
         // Helper Format Label Material: Nama + Dimensi + Spesifikasi (dipakai supaya identitas material
         // selalu jelas di mana pun ditampilkan, termasuk pada Data Laporan Harian & Export WA-nya)
         function formatMaterialLabel(item) {
             if (!item) return '-';
             const extra = [item.dimensi, item.spesifikasi].filter(Boolean).join(' - ');
             return extra ? `${item.nama} (${extra})` : item.nama;
+        }
+
+        // Perkirakan jumlah total tenaga kerja (orang) dari teks bebas kolom "Tenaga" pada Laporan Harian,
+        // mis. "5 Tukang, 2 Mandor, 1 Kepala Tukang" -> dijumlah jadi 8. Dipakai utk baris "Total Tenaga
+        // Kerja Hari Ini" pada list & export WhatsApp. Kalau formatnya tidak diawali angka, segmen tsb dilewati.
+        function estimateTotalTenagaFromText(tenagaText) {
+            if (!tenagaText) return 0;
+            let total = 0;
+            String(tenagaText).split(/,|(?:\bdan\b)/i).forEach(seg => {
+                const m = seg.trim().match(/^(\d+(?:[.,]\d+)?)/);
+                if (m) total += parseFloat(m[1].replace(',', '.'));
+            });
+            return total;
         }
     </script>
 </body>
