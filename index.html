@@ -1622,6 +1622,53 @@
                     </div>
                 </div>
 
+                <!-- REKAP RUANGAN / BAGIAN YANG SUDAH DIOPNAME -->
+                <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="font-bold text-xs text-slate-200"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i>Rekap Ruangan / Bagian yang Sudah Diopname (s/d Minggu Terpilih)</span>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Rekap otomatis dari semua Segmen/Ruangan/Posisi yang pernah diinput pada menu Detail Opname, supaya mudah dipantau ruangan mana saja yang sudah dicek &amp; mana yang perlu diopname/diupdate lagi minggu ini.</p>
+                        </div>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                            <input type="text" id="bqOpRuanganSearchInput" oninput="renderBqOpnameRuanganRecap()" placeholder="Cari nama ruangan/bagian..." class="w-full bg-[#1c2541] border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-white text-xs">
+                            <button type="button" onclick="document.getElementById('bqOpRuanganSearchInput').value=''; renderBqOpnameRuanganRecap();" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-[11px]" title="Bersihkan Pencarian">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs p-3 bg-[#0b132b]/50 border-b border-slate-700">
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Total Ruangan/Bagian Tercatat</span>
+                            <div id="bqOpRuanganSumTotal" class="text-base font-black text-white font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Sudah Diopname Minggu Ini</span>
+                            <div id="bqOpRuanganSumMingguIni" class="text-base font-black text-emerald-400 font-mono mt-1">0</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
+                            <span class="text-slate-400 text-[10px]">Belum Diupdate Minggu Ini</span>
+                            <div id="bqOpRuanganSumBelumIni" class="text-base font-black text-amber-300 font-mono mt-1">0</div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                <tr>
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Ruangan / Bagian / Segmen</th>
+                                    <th class="p-3">Item Pekerjaan Tercakup</th>
+                                    <th class="p-3">Jumlah Baris Opname</th>
+                                    <th class="p-3">Pertama Diopname</th>
+                                    <th class="p-3">Terakhir Diopname</th>
+                                    <th class="p-3">Status Minggu Terpilih</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bqOpnameRuanganRecapBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- TABEL RINCIAN HASIL OPNAME PER ITEM PEKERJAAN RAB -->
                 <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -2366,6 +2413,7 @@
                 </h3>
                 <button onclick="closeAbsenPhotoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+
             <div class="flex-1 overflow-y-auto custom-scroll bg-black flex items-center justify-center p-2">
                 <img id="absenPhotoModalImg" src="" class="max-w-full max-h-[70vh] w-auto h-auto object-contain rounded-lg">
             </div>
@@ -2696,7 +2744,6 @@
             { id: 1, projId: 'PRJ-01', nama: 'Semen Gresik 50kg', satuan: 'Sak', volume: 200, harga: 68000, supplier: 'TB Sinar Jaya' },
             { id: 2, projId: 'PRJ-01', nama: 'Besi Beton Ø12mm', satuan: 'Batang', volume: 150, harga: 95000, supplier: 'TB Baja Utama' }
         ];
-
         let materialOrderData = JSON.parse(localStorage.getItem('erp_mat_order')) || [];
         let materialMasukData = JSON.parse(localStorage.getItem('erp_mat_masuk')) || [];
         let materialKeluarData = JSON.parse(localStorage.getItem('erp_mat_keluar')) || [];
@@ -2890,6 +2937,7 @@
             cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection(conf.sub).doc(String(record.id)).set(record)
                 .catch(err => showCloudSyncError('Kirim data absensi ke cloud', err));
         }
+
         let cloudAbsenUnsubs = [];
         const _migratedAbsenWorkspaces = new Set();
 
@@ -3052,7 +3100,6 @@
         let currentGpsLng = 119.4327;
         let currentGpsAccuracy = null;
         let currentAddressText = 'Mencari alamat...';
-
         // Excel Import Temp State
         let tempExcelWorkbook = null;
         let tempExcelSheetNames = [];
@@ -3162,6 +3209,7 @@
             const collapsed = localStorage.getItem('erp_sidebar_collapsed') === '1';
             if (collapsed) aside.classList.add('sidebar-collapsed');
         }
+
         function toggleSidebar() {
             const aside = document.getElementById('mainSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
@@ -3182,6 +3230,7 @@
             if (aside) aside.classList.remove('sidebar-open');
             if (backdrop) backdrop.classList.remove('active');
         }
+
         function checkAuthStatus() {
             if (!currentUser) {
                 document.getElementById('authModal').classList.remove('hidden');
@@ -3239,7 +3288,6 @@
             btn.disabled = loading;
             btn.innerHTML = html;
         }
-
         function showUnverifiedBox(email) {
             document.getElementById('formLogin').classList.add('hidden');
             const box = document.getElementById('unverifiedEmailBox');
@@ -3349,6 +3397,7 @@
         function hideLoginError() {
             document.getElementById('loginErrorBox').classList.add('hidden');
         }
+
         // Toggle lihat/sembunyikan kata sandi pada input password manapun (Login & Daftar).
         function togglePasswordVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
@@ -3427,7 +3476,6 @@
                 // agar Firebase bisa mengirim email verifikasi asli via sendEmailVerification().
                 const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
                 await cred.user.sendEmailVerification();
-
                 const newUser = {
                     id: 'USR-' + Date.now(),
                     uid: cred.user.uid,
@@ -3469,7 +3517,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-user-plus mr-1"></i> Daftar Akun Baru');
             }
         }
-
         // Admin: import file "Permintaan Akun" yang dikirim oleh User baru, lalu masukkan ke daftar Pending
         function handleImportJoinRequest(e) {
             const file = e.target.files[0];
@@ -3826,7 +3873,6 @@
                 if (el) { el.classList.remove('hidden'); el.style.display = ''; }
                 return el;
             };
-
             if (tabId.startsWith('mat-')) {
                 activeMaterialSub = tabId;
                 materialEditContext = null;
@@ -3973,7 +4019,6 @@
             // Progress Minggu Ini (Kumulatif): Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
             // dihitung sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal (Time Schedule)
             renderHomeWeeklyProgress(proj);
-
             // Chart Komposisi Anggaran per Divisi
             const chartCanvas = document.getElementById('homeBudgetChart');
             const emptyStateEl = document.getElementById('homeChartEmptyState');
@@ -4041,6 +4086,7 @@
                 periodEl.innerText = '-';
                 return;
             }
+
             const todayStr = new Date().toISOString().split('T')[0];
             let currentWeek = getWeekIndexFromProjectStart(todayStr, proj.tglMulai, totalWeeks);
             // Kalau hari ini sebelum Tanggal Mulai proyek (belum mulai), tampilkan posisi Minggu 1 (belum berjalan)
@@ -4182,7 +4228,6 @@
             const displayRAB = rabSearchQuery
                 ? projRAB.filter(r => `${r.noDiv} ${r.div} ${r.sub} ${r.rincian} ${r.satuan}`.toLowerCase().includes(rabSearchQuery))
                 : projRAB;
-
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Tidak ada item RAB yang cocok dengan pencarian "${rabSearchEl ? rabSearchEl.value : ''}".</td></tr>`;
                 applyRoleBasedUI();
@@ -4250,6 +4295,7 @@
                                 </button>
                             </div>`
                         : `<span class="text-slate-600 text-[10px]" title="Hanya Admin yang dapat mengubah/menghapus data RAB"><i class="fa-solid fa-lock"></i></span>`;
+
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-800/50 transition';
                     tr.innerHTML = `
@@ -4375,6 +4421,7 @@
                 renderRAB();
             }
         }
+
         // Naik/turunkan urutan tampil 1 item RAB, TERBATAS hanya di dalam Divisi yang sama (tidak bisa
         // melewati/melompat ke divisi lain). Dilakukan dengan menukar posisi item ini dengan tetangganya
         // (item lain di divisi yang sama, urutan sebelum/sesudahnya) langsung di dalam array rabData,
@@ -4395,6 +4442,7 @@
             const idxInGroup = groupItems.findIndex(r => r.id === item.id);
             const targetItem = direction === 'up' ? groupItems[idxInGroup - 1] : groupItems[idxInGroup + 1];
             if (!targetItem) return; // Sudah di ujung divisi (atas/bawah) - tidak bisa naik/turun melewati divisi lain
+
             // Tukar posisi kedua item langsung di dalam array rabData (yang berisi data semua proyek),
             // supaya urutan tampil berubah persis & tersimpan permanen, tanpa mengganggu urutan proyek lain.
             const realIdxA = rabData.findIndex(r => r.id === item.id);
@@ -4625,6 +4673,7 @@
             if (scrollIntoView) rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return rowId;
         }
+
         function removeLhPekerjaanRow(rowId) {
             const container = document.getElementById('lhPekerjaanRowsContainer');
             if (container.querySelectorAll('.lh-pekerjaan-row').length <= 1) {
@@ -4661,7 +4710,6 @@
             const btnTambah = document.getElementById('btnTambahLhPekerjaan');
             if (btnTambah) btnTambah.classList.remove('hidden');
         }
-
         function filterLhPekerjaanOptions(rowId) {
             const row = document.querySelector(`.lh-pekerjaan-row[data-row-id="${rowId}"]`);
             if (!row) return;
@@ -4724,7 +4772,6 @@
                 select.appendChild(opt);
             });
         }
-
         function renderLapHarian() {
             // Pastikan minimal 1 baris item pekerjaan tersedia di form, lalu segarkan opsi RAB pada tiap baris yang sudah ada
             // (tidak mereset seluruh form agar isian yang sedang diketik user tidak hilang saat renderLapHarian dipanggil ulang)
@@ -5102,11 +5149,11 @@
 
             const lineStart = value.lastIndexOf('\n', start - 1) + 1;
             const currentLine = value.substring(lineStart, start);
-
             const numberedMatch = currentLine.match(/^(\s*)(\d+)([.\)])(\s+)/);
             const bulletMatch = !numberedMatch && currentLine.match(/^(\s*)([-*•])(\s+)/);
 
             if (!numberedMatch && !bulletMatch) return; // biarkan Enter berjalan normal
+
             e.preventDefault();
             const markerLength = (numberedMatch || bulletMatch)[0].length;
             const restOfLine = currentLine.substring(markerLength);
@@ -5148,6 +5195,7 @@
             const periodeLabelEl = document.getElementById('lmPeriodeLabel');
             const tbody = document.getElementById('lapMingguanTableBody');
             if (!tbody) return;
+
             const proj = projects.find(p => p.id === activeProjectId) || {};
 
             // Isi ulang opsi Minggu setiap render (bukan hanya sekali) supaya rentang tanggalnya selalu
@@ -5247,7 +5295,6 @@
                         divUang += jumlahUang;
                         sumMoneyMingguIni += (volIni * item.harga);
                         sumBobotMingguIni += bobotIni;
-
                         const inputsDisabled = !canEditLm ? 'disabled' : '';
                         const tr = document.createElement('tr');
                         tr.className = 'hover:bg-slate-800/50 transition';
@@ -5462,6 +5509,7 @@
                     divGroupMap.get(key).items.push(item);
                 });
                 divGroups.sort((ga, gb) => compareDivisionKey(ga.noDiv, gb.noDiv));
+
                 let sumMoneyBulanIni = 0;
                 let sumBobotBulanIni = 0;
                 let grandJumlahHargaRab = 0, grandBobotRab = 0;
@@ -5498,7 +5546,6 @@
                         const bobotIni = subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
                         const bobotKum = subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0;
                         const jumlahUang = volKum * item.harga;
-
                         // % Bobot Item = progress kumulatif item ini terhadap bobot RAB (rencana) miliknya SENDIRI,
                         // yaitu (Bobot Komulatif Bulan Ini / Bobot RAB item) x 100. Idealnya tidak lebih dari 100%;
                         // jika melebihi 100% berarti volume yang diinput sudah melebihi volume rencana RAB-nya.
@@ -5561,11 +5608,11 @@
                         <td class="p-3"></td>
                     `;
                     tbody.appendChild(subtotalTr);
-
                     grandJumlahHargaRab += divJumlahHargaRab; grandBobotRab += divBobotRab;
                     grandBobotLalu += divBobotLalu; grandBobotIni += divBobotIni; grandBobotKum += divBobotKum;
                     grandUang += divUang;
                 });
+
                 const grandTr = document.createElement('tr');
                 grandTr.className = 'bg-purple-950/40 border-t-2 border-purple-500/60';
                 grandTr.innerHTML = `
@@ -5686,7 +5733,6 @@
                 .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub && d.id != excludeId)
                 .reduce((a, c) => a + ((parseFloat(c.volume) || 0) * ((c.weeks || []).length)), 0);
         }
-
         // Total bobot yang sudah dimasukkan (dijadwalkan) utk 1 pekerjaan, dikonversi dari total volume terjadwal
         function getTsScheduledBobot(noDiv, sub, excludeId) {
             const volInfo = getSubVolumeInfo(noDiv, sub);
@@ -5754,6 +5800,7 @@
             populateTsWeekPicker();
             updateTsBobotInfo();
         }
+
         // Hapus 1 minggu dari daftar minggu yang sedang disusun pada form
         function removeTsWeek(w) {
             tsSelectedWeeks = tsSelectedWeeks.filter(x => x !== w);
@@ -5811,7 +5858,6 @@
             const volInfo = getSubVolumeInfo(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
-
             const volInputVal = parseFloat(volInput.value) || 0;
             const jumlahMinggu = tsSelectedWeeks.length;
             const totalKomitmenBaru = volInputVal * jumlahMinggu;
@@ -6110,6 +6156,7 @@
 
             renderSCurveChart();
         }
+
         function handleDivScheduleSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -6172,6 +6219,7 @@
 
             const totalRencanaMingguan = Array(totalWeeks).fill(0);
             const totalRealisasiMingguan = Array(totalWeeks).fill(0);
+
             subKeys.forEach(key => {
                 const [noDiv, sub] = key.split('|||');
                 const subItems = projRab.filter(r => r.sub === sub && (r.noDiv || '-') === noDiv);
@@ -6507,6 +6555,7 @@
                 if (s === 'Behind Schedule') return '#dc2626';
                 return '#64748b';
             };
+
             container.innerHTML = `
                 <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b;">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #1c2541; padding-bottom: 12px; margin-bottom: 16px;">
@@ -6842,6 +6891,7 @@
             const volInput = parseFloat(document.getElementById('poVolume').value) || 0;
 
             infoBox.innerHTML = `Total Kebutuhan: <strong class="text-white">${formatAngka(k.volume)} ${k.satuan}</strong> &nbsp;|&nbsp; Sudah Dipesan (orderan lain): <strong class="text-sky-300">${formatAngka(sudahDipesan)} ${k.satuan}</strong> &nbsp;|&nbsp; Sisa Bisa Dipesan: <strong class="text-emerald-400">${formatAngka(sisaBisaDipesan)} ${k.satuan}</strong>`;
+
             if (volInput > sisaBisaDipesan) {
                 warnText.innerText = `Volume order (${formatAngka(volInput)} ${k.satuan}) melebihi sisa kebutuhan yang bisa dipesan (${formatAngka(sisaBisaDipesan)} ${k.satuan}).`;
                 warnBox.classList.remove('hidden');
@@ -6920,7 +6970,6 @@
             }
             return true;
         }
-
         // Filter opsi material pada form Material Keluar (Pilih Material dari Stok Sisa) berdasarkan pencarian
         function filterMkMaterialOptions() {
             const searchEl = document.getElementById('mkSearchMaterial');
@@ -7025,7 +7074,6 @@
             });
             if (keluarChanged) localStorage.setItem('erp_mat_keluar', JSON.stringify(materialKeluarData));
         }
-
         // Helper: hitung status masuk (%) & sisa belum masuk untuk 1 item Material Order
         // excludeMasukId: opsional, dipakai saat mode edit Material Masuk agar volume item yang sedang diedit tidak ikut dihitung
         // PENTING: dicocokkan berdasarkan orderId PERSIS (data yg benar2 dipilih di dropdown "Pilih Material" pada form Material Masuk),
@@ -7051,6 +7099,7 @@
             const idx = group.findIndex(o => o.id === order.id);
             return { ke: idx === -1 ? group.length + 1 : idx + 1, total: Math.max(group.length, idx + 1) };
         }
+
         function handleMaterialSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -7171,7 +7220,6 @@
             document.getElementById('formMaterial').reset();
             renderMaterialSection();
         }
-
         // Cari harga satuan material berdasarkan Nama + Dimensi + Spesifikasi (BUKAN nama saja),
         // mengacu ke data Kebutuhan Material (master harga) pada proyek aktif.
         // Ini mencegah harga tertukar antar item yang namanya sama tapi dimensi/spesifikasinya berbeda.
@@ -7512,6 +7560,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('notaExtractedTextResult').value = simulatedExtractedText;
             }, 500);
         }
+
         function applyScannedNotaItems() {
             // Automatically push all extracted items to Material Masuk
             const today = new Date().toISOString().split('T')[0];
@@ -7548,7 +7597,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
-
         function processBqImageAnalysis() {
             const kategori = document.getElementById('bqKategori').value;
             // Simulated AI calculation
@@ -7716,7 +7764,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqOpnameDetail();
             detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
         // Tutup area detail & kembali ke daftar rincian per item pekerjaan.
         function closeBqOpnameDetail() {
             bqOpnameSelectedPekerjaanId = null;
@@ -7810,6 +7857,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             syncOpnameToLapMingguan(bqOpnameSelectedPekerjaanId, bqOpnameSelectedMinggu);
             cancelBqOpnameEdit();
             renderBqOpnameDetail();
+            renderBqOpnameRuanganRecap();
         }
 
         function editBqOpnameRow(id) {
@@ -7858,6 +7906,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
             if (row) syncOpnameToLapMingguan(row.pekerjaanId, row.mingguKe);
             renderBqOpnameDetail();
+            renderBqOpnameRuanganRecap();
         }
 
         // Naik/turun urutan baris opname (tukar nilai 'order' dengan baris tetangga dalam pekerjaan & minggu yang sama)
@@ -7931,6 +7980,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     </div>`;
             }
         }
+
         // Render area detail (form input + tabel rincian segmen + ringkasan) untuk item pekerjaan yang
         // sedang dibuka pada bqOpDetailArea. Dipanggil setiap ada perubahan data opname/minggu.
         function renderBqOpnameDetail() {
@@ -8074,6 +8124,82 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('bqOpSumBobotIni').innerText = sumBobotIni.toFixed(2) + ' %';
                 document.getElementById('bqOpSumBobotKum').innerText = sumBobotKum.toFixed(2) + ' %';
             }
+
+            renderBqOpnameRuanganRecap();
+        }
+
+        // Rekap Ruangan/Bagian/Segmen yang sudah diopname, dikumpulkan dari SELURUH baris opname
+        // (lintas item pekerjaan RAB) milik proyek aktif, dari Minggu 1 sampai dengan minggu yang
+        // sedang dipilih (kumulatif). Tujuannya supaya user langsung tahu ruangan/bagian mana saja
+        // yang sudah pernah dicek di lapangan, dan mana yang belum diupdate pada minggu berjalan,
+        // sehingga opname minggu berikutnya bisa lanjut/lengkapi ruangan yang belum tersentuh.
+        function renderBqOpnameRuanganRecap() {
+            const tbody = document.getElementById('bqOpnameRuanganRecapBody');
+            if (!tbody) return;
+
+            const selectedMinggu = bqOpnameSelectedMinggu || 'Minggu 1';
+            const selectedWeekNum = parseInt((selectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+            const searchEl = document.getElementById('bqOpRuanganSearchInput');
+            const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+            // Ambil baris opname milik proyek aktif saja, s/d minggu terpilih (kumulatif)
+            const rows = bqOpnameData.filter(o => {
+                const rab = rabData.find(r => r.id == o.pekerjaanId);
+                if (!rab || rab.projId !== activeProjectId) return false;
+                const weekNum = parseInt((o.mingguKe || '').replace(/\D/g, ''), 10) || 1;
+                return weekNum <= selectedWeekNum;
+            });
+
+            // Kelompokkan per nama ruangan/segmen (disamakan lower+trim supaya "Lantai 1" & "lantai 1 " dianggap sama)
+            const groupMap = new Map();
+            rows.forEach(o => {
+                const nama = (o.segmen || '-').toString().trim();
+                const key = nama.toLowerCase();
+                const weekNum = parseInt((o.mingguKe || '').replace(/\D/g, ''), 10) || 1;
+                if (!groupMap.has(key)) {
+                    groupMap.set(key, { nama, pekerjaanIds: new Set(), jumlahBaris: 0, mingguPertama: weekNum, mingguTerakhir: weekNum, adaMingguTerpilih: false });
+                }
+                const g = groupMap.get(key);
+                g.pekerjaanIds.add(o.pekerjaanId);
+                g.jumlahBaris++;
+                if (weekNum < g.mingguPertama) g.mingguPertama = weekNum;
+                if (weekNum > g.mingguTerakhir) g.mingguTerakhir = weekNum;
+                if (o.mingguKe === selectedMinggu) g.adaMingguTerpilih = true;
+            });
+
+            let groups = Array.from(groupMap.values());
+            if (query) groups = groups.filter(g => g.nama.toLowerCase().includes(query));
+            groups.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+
+            const totalRuangan = groups.length;
+            const sudahMingguIni = groups.filter(g => g.adaMingguTerpilih).length;
+            const belumMingguIni = totalRuangan - sudahMingguIni;
+            const totalEl = document.getElementById('bqOpRuanganSumTotal');
+            const sudahEl = document.getElementById('bqOpRuanganSumMingguIni');
+            const belumEl = document.getElementById('bqOpRuanganSumBelumIni');
+            if (totalEl) totalEl.innerText = totalRuangan;
+            if (sudahEl) sudahEl.innerText = sudahMingguIni;
+            if (belumEl) belumEl.innerText = belumMingguIni;
+
+            if (groups.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">${rows.length === 0 ? 'Belum ada ruangan/bagian yang diopname s/d ' + selectedMinggu + '.' : 'Tidak ada ruangan yang cocok dengan pencarian.'}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = groups.map((g, idx) => {
+                const statusBadge = g.adaMingguTerpilih
+                    ? `<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold whitespace-nowrap"><i class="fa-solid fa-circle-check mr-1"></i>Sudah Diopname ${selectedMinggu}</span>`
+                    : `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold whitespace-nowrap"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Belum Diupdate ${selectedMinggu}</span>`;
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-3">${idx + 1}</td>
+                        <td class="p-3 font-semibold text-white">${g.nama || '-'}</td>
+                        <td class="p-3 font-mono">${g.pekerjaanIds.size}</td>
+                        <td class="p-3 font-mono">${g.jumlahBaris}</td>
+                        <td class="p-3 text-slate-400">Minggu ${g.mingguPertama}</td>
+                        <td class="p-3 text-sky-300 font-semibold">Minggu ${g.mingguTerakhir}</td>
+                        <td class="p-3">${statusBadge}</td>
+                    </tr>`;
+            }).join('');
         }
 
         // Entry point render halaman Opname: render daftar master, lalu render detail jika sedang terbuka.
