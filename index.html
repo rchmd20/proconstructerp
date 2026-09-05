@@ -7866,7 +7866,9 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // berdasarkan rabId + mingguKe), supaya "Volume Minggu Ini" pada Laporan Mingguan otomatis
         // mengikuti hasil opname lapangan tanpa perlu input ulang manual.
         function syncOpnameToLapMingguan(rabId, mingguKe) {
-            const volumeBersih = bqR2(bqOpnameNetVolumeForWeek(rabId, mingguKe));
+            // Presisi penuh (tidak dibulatkan 2 desimal) supaya Bobot/Kurva S/Progress yang memakai
+            // angka ini di halaman lain tetap sesuai dengan input asli, bukan angka yang sudah dipotong.
+            const volumeBersih = bqOpnameNetVolumeForWeek(rabId, mingguKe);
             let entry = lapMingguanData.find(l => l.rabId == rabId && l.mingguKe === mingguKe);
             if (entry) {
                 entry.volume = volumeBersih;
@@ -7911,7 +7913,13 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const segmen = document.getElementById('bqOpSegmen').value.trim();
             const tipe = document.getElementById('bqOpTipe').value;
             const catatan = document.getElementById('bqOpCatatan').value.trim();
-            const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: bqR2(volume), mingguKe: bqOpnameSelectedMinggu };
+
+            // Simpan volume hasil hitungan APA ADANYA (presisi penuh, tidak dibulatkan ke 2 desimal),
+            // supaya rumus lain yang mengambil nilai ini (kumulatif, Laporan Mingguan, Bobot, Kurva S,
+            // dll) memakai angka yang benar-benar sesuai input, bukan angka yang sudah terpotong jadi
+            // 2 desimal seperti yang ditampilkan di tabel. Pembulatan 2 desimal HANYA untuk tampilan
+            // (lihat formatAngka), tidak untuk data yang disimpan/dipakai hitung lebih lanjut.
+            const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: volume, mingguKe: bqOpnameSelectedMinggu };
 
             if (bqOpEditRowId) {
                 const idx = bqOpnameData.findIndex(o => o.id === bqOpEditRowId);
@@ -8113,7 +8121,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const periodeLabelEl = document.getElementById('bqOpPeriodeLabel');
             const tbody = document.getElementById('bqOpnameMasterTableBody');
             if (!tbody) return;
-
             const proj = projects.find(p => p.id === activeProjectId) || {};
 
             if (mingguSel) {
@@ -8162,6 +8169,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     divGroupMap.get(key).items.push(item);
                 });
                 divGroups.sort((ga, gb) => compareDivisionKey(ga.noDiv, gb.noDiv));
+
                 let no = 0, sudahCount = 0, belumCount = 0, sumBobotIni = 0, sumBobotKum = 0;
                 divGroups.forEach(group => {
                     group.items.forEach(item => {
@@ -9043,6 +9051,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 if (typeof callback === 'function') callback();
             }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 });
         }
+
         // Reverse-geocoding koordinat -> alamat lengkap, memakai OpenStreetMap Nominatim (gratis, tanpa API key).
         function fetchAddressFromCoords(lat, lng, callback) {
             currentAddressText = 'Mencari alamat...';
@@ -9126,6 +9135,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             closeAbsenPhotoModal();
             renderAbsenSection();
         }
+
         async function takeAttendanceSnapshot() {
             // Absen Masuk/Keluar SENGAJA tidak dikunci oleh izin edit (canUserEdit) - akun User harus tetap
             // bisa melakukan absensi kapan pun, meskipun Admin menonaktifkan izin edit data proyek lainnya.
@@ -9412,7 +9422,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const mapBoxSize = 66 * scale;
                 const textX = pad + logoSize + pad;
                 const maxTextWidth = w - textX - pad - mapBoxSize - pad;
-
                 ctx.font = `${fontSizeSmall}px Arial`;
                 const addressLines = wrapCanvasText(ctx, 'Alamat: ' + (opts.alamat || '-'), Math.max(40, maxTextWidth), 2);
 
@@ -9440,6 +9449,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 // Garis aksen atas: hijau (Absen Masuk) / merah muda (Absen Pulang)
                 ctx.fillStyle = opts.isMasuk ? '#10b981' : '#f43f5e';
                 ctx.fillRect(0, panelY, w, 3 * scale);
+
                 // Logo perusahaan/proyek (bulat) - fallback ke inisial jika belum ada logo
                 const logoY = panelY + pad;
                 if (opts.logoImg) {
@@ -9642,7 +9652,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const projMasuk = absenMasukData.filter(a => a.projId === activeProjectId && a.tanggal && a.tanggal.startsWith(bulanStr));
             const projKeluar = absenKeluarData.filter(a => a.projId === activeProjectId && a.tanggal && a.tanggal.startsWith(bulanStr));
             const projLeave = leaveData.filter(l => l.projId === activeProjectId && l.tanggal && l.tanggal.startsWith(bulanStr));
-
             const [y, m] = bulanStr.split('-').map(Number);
             const jumlahHari = new Date(y, m, 0).getDate();
 
@@ -9691,6 +9700,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const izin = leaveList.filter(l => l.jenis === 'Izin').length;
                 const sakit = leaveList.filter(l => l.jenis === 'Sakit').length;
                 const cuti = leaveList.filter(l => l.jenis === 'Cuti').length;
+
                 return {
                     nama: k.nama,
                     days,
@@ -9746,7 +9756,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const bulanStr = bulanInput ? bulanInput.value : new Date().toISOString().slice(0, 7);
             const [y, m] = bulanStr.split('-').map(Number);
             const jumlahHari = new Date(y, m, 0).getDate();
-
             const rekap = buildDaftarHadirRekap(bulanStr);
 
             // Header dinamis: Nama Karyawan | tanggal 1..N | kolom total
@@ -9795,6 +9804,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 `;
             });
         }
+
         // Export Excel Daftar Hadir - isinya sama persis dengan tabel di halaman (breakdown per tanggal + total)
         function exportDaftarHadirExcel() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
@@ -10382,6 +10392,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     if (!backup || !Array.isArray(backup.projects) || !backup.data) { alert('File backup semua proyek tidak valid.'); return; }
 
                     if (!confirm(`File ini berisi ${backup.projects.length} proyek. Semua proyek tersebut akan dimuat / ditimpa ke akun ini. Lanjutkan?`)) return;
+
                     // Gabungkan daftar proyek (timpa yang id-nya sama, tambahkan yang baru)
                     // Kepemilikan (ownerId) SELALU dipindah ke akun Admin yang sedang mengimpor, apapun isi
                     // ownerId di file backup (baik itu kosong/tidak ada, maupun milik akun lain) — supaya semua
@@ -10675,6 +10686,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function triggerExcelExport(type) {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const materialTypes = ['mat-kebutuhan', 'mat-order', 'mat-masuk', 'mat-keluar', 'mat-sisa'];
+
             if (materialTypes.includes(type)) {
                 const built = getMaterialExportBuilder(type);
                 const filename = `${type}_${proj.nama}.xlsx`;
@@ -10898,7 +10910,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             navigator.clipboard.writeText(txt.value);
             alert('Teks WhatsApp berhasil disalin!');
         }
-
         function sendWaDirect() {
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
@@ -10919,7 +10930,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         }
 
         // ---- Helper Baris Pemisah Bulan (dipakai di berbagai tabel list yang diurutkan berdasarkan tanggal) ----
-
         // Label "Bulan Tahun" dalam Bahasa Indonesia dari sebuah string tanggal (YYYY-MM-DD)
         function formatMonthYearLabel(dateStr) {
             if (!dateStr) return '-';
