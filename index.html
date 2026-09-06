@@ -324,15 +324,26 @@
                     </button>
                 </div>
 
-                <!-- 1. RAB -->
-                <div>
-                    <button onclick="switchTab('rab')" id="menu-rab" class="nav-sub-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition text-left font-semibold">
-                        <div class="flex items-center space-x-2.5">
+                <!-- 1. RAB (Kontrak Awal & CCO) -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
+                        <span class="flex items-center space-x-2">
                             <i class="fa-solid fa-calculator text-amber-400 w-4"></i>
-                            <span>RAB Proyek</span>
-                        </div>
-                    </button>
+                            <span>RAB PROYEK</span>
+                        </span>
+                    </div>
+                    <div class="pl-4 space-y-1 border-l-2 border-slate-700 ml-3">
+                        <button onclick="switchTab('rab')" id="menu-rab" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-signature text-[10px]"></i>
+                            <span>RAB Kontrak Awal</span>
+                        </button>
+                        <button onclick="switchTab('rab-cco')" id="menu-rab-cco" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-pen text-[10px]"></i>
+                            <span>RAB CCO</span>
+                        </button>
+                    </div>
                 </div>
+
                 <!-- 2. LAPORAN (Accordion) -->
                 <div class="space-y-1">
                     <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
@@ -490,7 +501,6 @@
             <div class="text-center text-[10px] text-slate-500 shrink-0 pb-1">
                 &copy; <span id="copyrightYearSidebar"></span> ProConstruct ERP. All Rights Reserved.<br>Developed by rchmd20.
             </div>
-
         </aside>
 
         <!-- MAIN CONTENT CONTAINER -->
@@ -500,6 +510,7 @@
             <!-- SECTION 0: BERANDA / HOMEPAGE DASHBOARD -->
             <!-- =================================================================== -->
             <section id="sec-home" class="content-section space-y-6">
+
                 <!-- Hero Welcome Banner -->
                 <div class="navy-card rounded-2xl border border-amber-500/30 p-5 md:p-6 relative overflow-hidden shadow-lg">
                     <div class="absolute -right-10 -top-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl"></div>
@@ -562,6 +573,7 @@
                         <div class="text-[10px] text-slate-400 mt-0.5">Jenis Kebutuhan Material</div>
                     </div>
                 </div>
+
                 <!-- Progress Bar Fisik -->
                 <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700">
                     <div class="flex items-center justify-between mb-2">
@@ -614,7 +626,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                         <button onclick="switchTab('rab')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-xl py-4 transition group">
                             <i class="fa-solid fa-calculator text-amber-400 text-lg group-hover:scale-110 transition"></i>
-                            <span class="text-[11px] font-semibold text-slate-300 text-center">RAB Proyek</span>
+                            <span class="text-[11px] font-semibold text-slate-300 text-center">RAB Kontrak Awal</span>
                         </button>
                         <button onclick="switchTab('lap-harian')" class="flex flex-col items-center justify-center gap-2 bg-[#0b132b] hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 rounded-xl py-4 transition group">
                             <i class="fa-solid fa-calendar-day text-sky-400 text-lg group-hover:scale-110 transition"></i>
@@ -656,7 +668,6 @@
                 </div>
 
             </section>
-
             <!-- =================================================================== -->
             <!-- SECTION 1: RAB PROYEK -->
             <!-- =================================================================== -->
@@ -666,9 +677,9 @@
                     <div>
                         <h2 class="text-lg font-bold text-white flex items-center space-x-2">
                             <i class="fa-solid fa-calculator text-amber-400"></i>
-                            <span>Rencana Anggaran Biaya (RAB)</span>
+                            <span>RAB Kontrak Awal (Rencana Anggaran Biaya)</span>
                         </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Input Divisi, Sub Pekerjaan, Volume, Harga Satuan, PPN, PPH & Perhitungan Bobot Otomatis.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Input Divisi, Sub Pekerjaan, Volume, Harga Satuan, PPN, PPH & Perhitungan Bobot Otomatis. Ini adalah RAB kontrak awal - semua halaman lain (Laporan, Time Schedule, Opname, dsb) mengambil data dari sini. Untuk perubahan kontrak (adendum), gunakan halaman <span class="text-amber-300 font-semibold">RAB CCO</span>.</p>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
@@ -848,6 +859,139 @@
             </section>
 
             <!-- =================================================================== -->
+            <!-- SECTION 1.1: RAB CCO (Contract Change Order / Adendum) -->
+            <!-- =================================================================== -->
+            <section id="sec-rab-cco" class="content-section hidden space-y-6" style="display:none;">
+
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155] shadow-lg">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-file-pen text-amber-400"></i>
+                            <span>RAB CCO (Contract Change Order / Adendum)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Catat perubahan kontrak (pekerjaan tambah, kurang, baru, atau dihilangkan) lengkap dengan justifikasinya. CCO 1 mengacu ke RAB Kontrak Awal, CCO 2 mengacu ke hasil CCO 1, dan seterusnya berantai.</p>
+                    </div>
+                </div>
+
+                <div id="rabCcoReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i>
+                    <span>Halaman RAB CCO bersifat lihat-saja (read-only) untuk akun User. Hanya Admin yang dapat menambah, mengubah, atau menghapus CCO.</span>
+                </div>
+                <!-- SELEKTOR CCO -->
+                <div class="navy-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i>
+                        <span class="text-xs font-bold text-slate-300 whitespace-nowrap">Pilih CCO:</span>
+                    </div>
+                    <select id="rabCcoSelect" onchange="selectRabCco(this.value)" class="bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white text-xs flex-1 max-w-xs">
+                        <!-- JS Populated -->
+                    </select>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button id="btnAddRabCco" onclick="addNewRabCco()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah CCO Baru</span>
+                        </button>
+                        <button id="btnDeleteRabCco" onclick="deleteRabCco()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Hapus CCO Ini</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="rabCcoEmptyState" class="hidden navy-card rounded-2xl p-10 text-center text-slate-500">
+                    <i class="fa-solid fa-file-circle-plus text-3xl mb-3"></i>
+                    <p>Belum ada CCO untuk proyek ini. Klik "Tambah CCO Baru" untuk membuat CCO 1.</p>
+                </div>
+
+                <div id="rabCcoContent" class="hidden space-y-6">
+
+                    <!-- RINGKASAN NILAI -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                        <div class="navy-card p-3 rounded-xl">
+                            <span class="text-slate-400 text-[10px]">Nilai Sebelum CCO Ini</span>
+                            <div id="ccoSumSebelum" class="text-sm font-black text-slate-200 font-mono mt-1">Rp 0</div>
+                        </div>
+                        <div class="navy-card p-3 rounded-xl">
+                            <span class="text-slate-400 text-[10px]">Nilai Setelah CCO Ini</span>
+                            <div id="ccoSumSesudah" class="text-sm font-black text-sky-300 font-mono mt-1">Rp 0</div>
+                        </div>
+                        <div class="navy-card p-3 rounded-xl">
+                            <span class="text-slate-400 text-[10px]">Selisih (Rp)</span>
+                            <div id="ccoSumSelisihRp" class="text-sm font-black text-emerald-400 font-mono mt-1">Rp 0</div>
+                        </div>
+                        <div class="navy-card p-3 rounded-xl">
+                            <span class="text-slate-400 text-[10px]">Selisih (%)</span>
+                            <div id="ccoSumSelisihPersen" class="text-sm font-black text-emerald-400 font-mono mt-1">0.00%</div>
+                        </div>
+                    </div>
+
+                    <!-- TABEL PEKERJAAN ACUAN (bisa diedit volume/harga -> otomatis jadi Tambah/Kurang, atau ditandai Dihilangkan) -->
+                    <div class="navy-card rounded-2xl overflow-hidden">
+                        <div class="p-3 bg-[#0b132b] border-b border-slate-700">
+                            <span class="font-bold text-slate-200 text-xs">Pekerjaan Acuan (dari <span id="ccoBaselineLabel" class="text-amber-300">RAB Kontrak Awal</span>) — ubah Volume/Harga Baru untuk mencatat Pekerjaan Tambah/Kurang, atau klik "Hilangkan" untuk Pekerjaan Dihilangkan</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                    <tr>
+                                        <th class="p-2">No</th>
+                                        <th class="p-2">Uraian Pekerjaan</th>
+                                        <th class="p-2">Satuan</th>
+                                        <th class="p-2">Volume Awal</th>
+                                        <th class="p-2">Volume Baru</th>
+                                        <th class="p-2">Harga Awal</th>
+                                        <th class="p-2">Harga Baru</th>
+                                        <th class="p-2">Status</th>
+                                        <th class="p-2">Justifikasi</th>
+                                        <th class="p-2 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rabCcoBaselineTableBody" class="divide-y divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TABEL PEKERJAAN BARU -->
+                    <div class="navy-card rounded-2xl overflow-hidden">
+                        <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex items-center justify-between">
+                            <span class="font-bold text-slate-200 text-xs">Pekerjaan Baru (item yang belum ada di acuan)</span>
+                            <button id="btnAddRabCcoBaru" onclick="addRabCcoBaruRow()" class="bg-sky-600 hover:bg-sky-500 text-white text-[11px] px-3 py-1.5 rounded-lg font-semibold flex items-center space-x-1.5 transition">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Tambah Item Baru</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                    <tr>
+                                        <th class="p-2">No</th>
+                                        <th class="p-2">No Divisi</th>
+                                        <th class="p-2">Divisi</th>
+                                        <th class="p-2">Sub Pekerjaan</th>
+                                        <th class="p-2">Rincian</th>
+                                        <th class="p-2">Satuan</th>
+                                        <th class="p-2">Volume</th>
+                                        <th class="p-2">Harga Satuan</th>
+                                        <th class="p-2">Justifikasi</th>
+                                        <th class="p-2 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rabCcoBaruTableBody" class="divide-y divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button id="btnSaveRabCco" onclick="saveRabCcoChanges()" class="bg-amber-500 hover:bg-amber-400 text-[#0b132b] text-sm px-5 py-2.5 rounded-xl font-bold flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Simpan Perubahan CCO Ini</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================================== -->
             <!-- SECTION 2.1: LAPORAN HARIAN -->
             <!-- =================================================================== -->
             <section id="sec-lap-harian" class="content-section hidden space-y-6" style="display:none;">
@@ -962,7 +1106,6 @@
                         </div>
                     </form>
                 </div>
-
                 <!-- FORM INPUT KENDALA & NOTULEN (TERPISAH, 1X PER TANGGAL, BISA DIEDIT) -->
                 <div class="navy-card p-5 rounded-2xl space-y-4">
                     <h3 id="lhKendalaFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 flex items-center space-x-2">
@@ -1529,7 +1672,6 @@
                                 <span class="text-[10px] text-slate-500 font-bold uppercase">Atau</span>
                                 <div class="flex-1 h-px bg-slate-700"></div>
                             </div>
-
                             <div class="pt-1 space-y-3">
                                 <h4 class="text-[11px] font-bold text-sky-400 uppercase tracking-wider flex items-center space-x-1.5">
                                     <i class="fa-solid fa-ruler-combined"></i>
@@ -1613,7 +1755,6 @@
                         </button>
                     </div>
                 </div>
-
                 <!-- PILIH MINGGU OPNAME -->
                 <div class="navy-card p-4 rounded-2xl space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-b border-slate-700 pb-3">
@@ -1695,6 +1836,7 @@
                 <!-- AREA DETAIL OPNAME UNTUK 1 ITEM PEKERJAAN PADA MINGGU TERPILIH -->
                 <div id="bqOpDetailArea" class="hidden space-y-6">
                     <div id="bqOpJudulInfo" class="text-[11px] text-slate-400"></div>
+
                     <!-- FORM TAMBAH/EDIT BARIS OPNAME -->
                     <div class="navy-card p-5 rounded-2xl space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-700 pb-2">
@@ -1925,6 +2067,7 @@
                                 <div class="leading-snug"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i><span id="currentAddressText">Mencari alamat...</span></div>
                             </div>
                         </div>
+
                         <div class="space-y-3 text-xs">
                             <div id="absenEditNotice" class="hidden bg-amber-500/10 border border-amber-500/40 text-amber-300 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
                                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Mode edit: ambil ulang foto untuk record ini</span>
@@ -1966,6 +2109,7 @@
                     </div>
                 </div>
             </section>
+
             <!-- =================================================================== -->
             <!-- SECTION 5.1: DAFTAR HADIR (REKAP BULANAN) -->
             <!-- =================================================================== -->
@@ -2070,6 +2214,7 @@
                     </div>
                 </div>
             </section>
+
             <!-- =================================================================== -->
             <!-- SECTION 6.2: PROFIL KARYAWAN & SETTING AKUN -->
             <!-- =================================================================== -->
@@ -2342,6 +2487,7 @@
                     <label class="block text-slate-300 font-bold">Pilih File Excel:</label>
                     <input type="file" id="rabExcelFileInput" accept=".xlsx, .xls, .csv" onchange="handleExcelFileSelected(event)" class="w-full bg-[#0b132b] border border-slate-700 rounded-xl p-2 text-slate-300">
                 </div>
+
                 <div id="excelSheetSelectorBox" class="hidden space-y-2 p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                     <label class="block text-amber-400 font-bold">Ditemukan Multiple Sheet. Pilih Sheet:</label>
                     <select id="excelSheetSelect" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg p-2 text-white font-semibold">
@@ -2742,7 +2888,6 @@
             { id: 1, projId: 'PRJ-01', nama: 'Semen Gresik 50kg', satuan: 'Sak', volume: 200, harga: 68000, supplier: 'TB Sinar Jaya' },
             { id: 2, projId: 'PRJ-01', nama: 'Besi Beton Ø12mm', satuan: 'Batang', volume: 150, harga: 95000, supplier: 'TB Baja Utama' }
         ];
-
         let materialOrderData = JSON.parse(localStorage.getItem('erp_mat_order')) || [];
         let materialMasukData = JSON.parse(localStorage.getItem('erp_mat_masuk')) || [];
         let materialKeluarData = JSON.parse(localStorage.getItem('erp_mat_keluar')) || [];
@@ -2756,6 +2901,10 @@
         let bqResultsData = JSON.parse(localStorage.getItem('erp_bq_results')) || [];
         // Data Opname Lapangan (Backup Quantity > Opname): tiap baris = 1 hitungan opname untuk 1 item pekerjaan RAB
         let bqOpnameData = JSON.parse(localStorage.getItem('erp_bq_opname')) || [];
+        // Daftar CCO (Contract Change Order/adendum) per proyek: { id, projId, nomor, tanggal, keterangan }
+        let rabCcoList = JSON.parse(localStorage.getItem('erp_rab_cco_list')) || [];
+        // Baris perubahan per CCO: { id, projId, ccoId, refId, tipe: 'ubah'|'baru'|'hilang', ...field RAB, justifikasi, order }
+        let rabCcoItems = JSON.parse(localStorage.getItem('erp_rab_cco_items')) || [];
         // Penanda kombinasi (item pekerjaan, minggu) yang SUDAH PERNAH disentuh user - diisi manual, hasil
         // salinan otomatis dari minggu lalu, ATAU baris terakhirnya sengaja dihapus sampai kosong. Dipakai
         // supaya fitur "salin otomatis dari minggu lalu" tidak menghidupkan kembali baris yang memang sengaja
@@ -2828,7 +2977,8 @@
             erp_lap_mingguan: 'lapMingguan', erp_div_schedule: 'divSchedule', erp_kebutuhan_mat: 'kebutuhanMat',
             erp_mat_order: 'materialOrder', erp_mat_masuk: 'materialMasuk', erp_mat_keluar: 'materialKeluar',
             erp_karyawan: 'karyawan',
-            erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname'
+            erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname',
+            erp_rab_cco_list: 'rabCcoList', erp_rab_cco_items: 'rabCcoItems'
         };
         // erp_absen_masuk & erp_absen_keluar SENGAJA TIDAK dimasukkan ke CLOUD_WORKSPACE_FIELD di atas.
         // Kedua data ini memuat FOTO (base64) yang bisa besar, sehingga kalau digabung jadi 1 field string
@@ -2870,6 +3020,8 @@
                     case 'erp_bq_results': bqResultsData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_bq_opname': bqOpnameData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_bq_opname_touched': bqOpnameTouchedWeeks = JSON.parse(localStorage.getItem(k)) || []; break;
+                    case 'erp_rab_cco_list': rabCcoList = JSON.parse(localStorage.getItem(k)) || []; break;
+                    case 'erp_rab_cco_items': rabCcoItems = JSON.parse(localStorage.getItem(k)) || []; break;
                 }
             });
             // Jika sesi sedang login, refresh currentUser dari daftar users terbaru (mis. status approval berubah)
@@ -2908,6 +3060,7 @@
             localArr.forEach(item => { if (item && item.id != null && !map.has(item.id)) map.set(item.id, item); });
             return JSON.stringify(Array.from(map.values()));
         }
+
         // Dorong 1 key localStorage GLOBAL (users/projects) ke Firestore (debounced)
         function pushGlobalKeyToCloud(key) {
             if (!cloudDb || !cloudReady || cloudApplyingRemote) return;
@@ -3175,7 +3328,6 @@
                 ownerId: user.id
             };
         }
-
         // Menentukan activeProjectId yang benar untuk akun yang sedang login, agar setiap akun
         // hanya melihat proyek & datanya sendiri (bukan proyek/data akun lain, termasuk akun demo).
         function resolveActiveProjectForCurrentUser() {
@@ -3222,6 +3374,7 @@
                 if (el) el.textContent = thisYear;
             });
         });
+
         // ===================================================================
         // INPUT TANGGAL SERAGAM: klik di mana saja pada kotak input tanggal (bukan hanya ikon
         // kalender kecil di kanan) langsung membuka popup kalender bawaan browser, di SELURUH
@@ -3321,7 +3474,6 @@
                 default: return (err && err.message) ? err.message : 'Terjadi kesalahan. Silakan coba lagi.';
             }
         }
-
         function setBtnLoading(btn, loading, html) {
             if (!btn) return;
             btn.disabled = loading;
@@ -3426,7 +3578,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-paper-plane mr-1"></i> Kirim Ulang Email Verifikasi');
             }
         }
-
         function showLoginError(message) {
             const box = document.getElementById('loginErrorBox');
             document.getElementById('loginErrorText').innerText = message;
@@ -3515,6 +3666,7 @@
                 // agar Firebase bisa mengirim email verifikasi asli via sendEmailVerification().
                 const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
                 await cred.user.sendEmailVerification();
+
                 const newUser = {
                     id: 'USR-' + Date.now(),
                     uid: cred.user.uid,
@@ -3656,6 +3808,18 @@
             if (rabTambahanLabel) rabTambahanLabel.disabled = !admin;
             if (rabTambahanPersen) rabTambahanPersen.disabled = !admin;
 
+            // --- Halaman RAB CCO: User hanya boleh melihat, tidak boleh tambah/ubah/hapus CCO ---
+            const rabCcoReadOnlyNotice = document.getElementById('rabCcoReadOnlyNotice');
+            const btnAddRabCco = document.getElementById('btnAddRabCco');
+            const btnDeleteRabCco = document.getElementById('btnDeleteRabCco');
+            const btnSaveRabCco = document.getElementById('btnSaveRabCco');
+            const btnAddRabCcoBaru = document.getElementById('btnAddRabCcoBaru');
+            if (rabCcoReadOnlyNotice) rabCcoReadOnlyNotice.classList.toggle('hidden', admin);
+            if (btnAddRabCco) btnAddRabCco.classList.toggle('hidden', !admin);
+            if (btnDeleteRabCco) btnDeleteRabCco.classList.toggle('hidden', !admin);
+            if (btnSaveRabCco) btnSaveRabCco.classList.toggle('hidden', !admin);
+            if (btnAddRabCcoBaru) btnAddRabCcoBaru.classList.toggle('hidden', !admin);
+
             // --- Data Karyawan: halaman ini hanya ada untuk Admin ---
             const menuKaryawan = document.getElementById('menu-data-karyawan');
             if (menuKaryawan) menuKaryawan.classList.toggle('hidden', !admin);
@@ -3703,6 +3867,7 @@
             updateSidebarProjectInfo();
             renderActiveTabContent();
         }
+
         function updateSidebarProjectInfo() {
             const visible = getVisibleProjects();
             const proj = visible.find(p => p.id === activeProjectId) || visible[0];
@@ -3744,6 +3909,7 @@
         function closeProjectModal() {
             document.getElementById('projectModal').classList.add('hidden');
         }
+
         let tempProjectLogo = '';
         function previewProjectLogo(e) {
             const file = e.target.files[0];
@@ -3785,6 +3951,7 @@
                 });
                 activeProjectId = newId;
             }
+
             localStorage.setItem('erp_projects', JSON.stringify(projects));
             localStorage.setItem('erp_active_project', activeProjectId);
             closeProjectModal();
@@ -3893,7 +4060,6 @@
                 mainScrollArea.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
             }
             window.scrollTo({ top: 0, behavior: 'auto' });
-
             // Kamera absensi HANYA boleh aktif di halaman Absen Masuk / Absen Keluar.
             // Begitu user pindah ke halaman manapun selain itu, kamera langsung dimatikan.
             const isAbsenCameraTab = (tabId === 'absen-masuk' || tabId === 'absen-keluar');
@@ -3943,6 +4109,7 @@
         function renderActiveTabContent() {
             if (currentTab === 'home') renderHomeDashboard();
             else if (currentTab === 'rab') renderRAB();
+            else if (currentTab === 'rab-cco') renderRabCcoPage();
             else if (currentTab === 'lap-harian') renderLapHarian();
             else if (currentTab === 'lap-mingguan') renderLapMingguan();
             else if (currentTab === 'lap-bulanan') renderLapBulanan();
@@ -4060,7 +4227,6 @@
             // Progress Minggu Ini (Kumulatif): Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
             // dihitung sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal (Time Schedule)
             renderHomeWeeklyProgress(proj);
-
             // Chart Komposisi Anggaran per Divisi
             const chartCanvas = document.getElementById('homeBudgetChart');
             const emptyStateEl = document.getElementById('homeChartEmptyState');
@@ -4141,6 +4307,7 @@
             const rencanaKumulatif = planCumulative[currentWeek - 1] || 0;
             const realisasiKumulatif = realCumulative[currentWeek - 1] || 0;
             const deviasi = realisasiKumulatif - rencanaKumulatif;
+
             contentEl.classList.remove('hidden');
             emptyEl.classList.add('hidden');
             document.getElementById('homeWeeklyRencana').innerText = formatAngka(rencanaKumulatif) + '%';
@@ -4269,7 +4436,6 @@
             const displayRAB = rabSearchQuery
                 ? projRAB.filter(r => `${r.noDiv} ${r.div} ${r.sub} ${r.rincian} ${r.satuan}`.toLowerCase().includes(rabSearchQuery))
                 : projRAB;
-
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Tidak ada item RAB yang cocok dengan pencarian "${rabSearchEl ? rabSearchEl.value : ''}".</td></tr>`;
                 applyRoleBasedUI();
@@ -4476,6 +4642,7 @@
             const projRAB = rabData.filter(r => r.projId === activeProjectId);
             const item = projRAB.find(r => r.id === id || r.id == id);
             if (!item) return;
+
             // Kelompok "1 divisi" = item lain dengan No/Div + Nama Divisi yang sama, dalam urutan
             // kemunculannya saat ini di projRAB (persis mengikuti logika grouping pada renderRAB).
             const divKey = (item.noDiv || '-') + '||' + (item.div || '-');
@@ -4751,7 +4918,6 @@
             const btnTambah = document.getElementById('btnTambahLhPekerjaan');
             if (btnTambah) btnTambah.classList.remove('hidden');
         }
-
         function filterLhPekerjaanOptions(rowId) {
             const row = document.querySelector(`.lh-pekerjaan-row[data-row-id="${rowId}"]`);
             if (!row) return;
@@ -4814,6 +4980,305 @@
                 select.appendChild(opt);
             });
         }
+        // ===================================================================
+        // 1.1 RAB CCO MODULE (Contract Change Order / Adendum)
+        // ===================================================================
+        // Baseline utk CCO nomor `nomor`: kalau nomor<=1 -> RAB Kontrak Awal (rabData); kalau nomor>1
+        // -> hasil (efektif) CCO nomor-1, dihitung berantai secara rekursif.
+        function getRabCcoBaselineList(projId, nomor) {
+            if (nomor <= 1) return rabData.filter(r => r.projId === projId).map(r => ({ ...r }));
+            return computeRabCcoResult(projId, nomor - 1);
+        }
+
+        // Hasil (daftar item efektif) SETELAH perubahan CCO `nomor` diterapkan ke baseline-nya.
+        // nomor 0/negatif dianggap "belum ada CCO sama sekali" -> hasilnya = RAB Kontrak Awal apa adanya.
+        function computeRabCcoResult(projId, nomor) {
+            if (nomor < 1) return rabData.filter(r => r.projId === projId).map(r => ({ ...r }));
+            const baseline = getRabCcoBaselineList(projId, nomor);
+            const cco = rabCcoList.find(c => c.projId === projId && c.nomor === nomor);
+            if (!cco) return baseline; // CCO ini belum pernah dibuat -> baseline apa adanya
+            const changes = rabCcoItems.filter(c => c.ccoId === cco.id).sort((a, b) => (a.order || 0) - (b.order || 0));
+            let result = baseline.map(item => ({ ...item }));
+            changes.forEach(ch => {
+                if (ch.tipe === 'hilang') {
+                    result = result.filter(item => String(item.id) !== String(ch.refId));
+                } else if (ch.tipe === 'baru') {
+                    result.push({
+                        id: `cco${cco.id}-${ch.id}`, projId,
+                        noDiv: ch.noDiv || '', div: ch.div || '', sub: ch.sub || '', rincian: ch.rincian || '',
+                        satuan: ch.satuan || '', volume: Number(ch.volumeBaru) || 0, harga: Number(ch.hargaBaru) || 0
+                    });
+                } else { // 'ubah' (tambah/kurang volume atau harga pada item existing)
+                    const idx = result.findIndex(item => String(item.id) === String(ch.refId));
+                    if (idx !== -1) {
+                        result[idx] = {
+                            ...result[idx],
+                            volume: (ch.volumeBaru !== null && ch.volumeBaru !== undefined) ? Number(ch.volumeBaru) : result[idx].volume,
+                            harga: (ch.hargaBaru !== null && ch.hargaBaru !== undefined) ? Number(ch.hargaBaru) : result[idx].harga
+                        };
+                    }
+                }
+            });
+            return result;
+        }
+        let rabCcoSelectedNomor = null; // nomor CCO yang sedang dibuka di halaman RAB CCO
+
+        function renderRabCcoPage() {
+            const notice = document.getElementById('rabCcoReadOnlyNotice');
+            if (notice) applyRoleBasedUI();
+            const select = document.getElementById('rabCcoSelect');
+            const ccoList = rabCcoList.filter(c => c.projId === activeProjectId).sort((a, b) => a.nomor - b.nomor);
+
+            if (ccoList.length === 0) {
+                select.innerHTML = '';
+                document.getElementById('rabCcoEmptyState').classList.remove('hidden');
+                document.getElementById('rabCcoContent').classList.add('hidden');
+                rabCcoSelectedNomor = null;
+                return;
+            }
+            document.getElementById('rabCcoEmptyState').classList.add('hidden');
+            document.getElementById('rabCcoContent').classList.remove('hidden');
+
+            if (!rabCcoSelectedNomor || !ccoList.some(c => c.nomor === rabCcoSelectedNomor)) {
+                rabCcoSelectedNomor = ccoList[ccoList.length - 1].nomor; // default ke CCO terbaru
+            }
+            select.innerHTML = ccoList.map(c => `<option value="${c.nomor}" ${c.nomor === rabCcoSelectedNomor ? 'selected' : ''}>CCO ${c.nomor}${c.tanggal ? ' - ' + c.tanggal : ''}</option>`).join('');
+
+            renderRabCcoDetail();
+        }
+
+        function selectRabCco(nomorStr) {
+            rabCcoSelectedNomor = parseInt(nomorStr, 10);
+            renderRabCcoDetail();
+        }
+
+        // Menambah CCO baru dengan nomor urut berikutnya (tak terbatas). Baseline-nya otomatis mengikuti
+        // hasil CCO sebelumnya (atau RAB Kontrak Awal kalau ini CCO 1) - tidak perlu dipilih manual.
+        function addNewRabCco() {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menambah CCO.'); return; }
+            const existing = rabCcoList.filter(c => c.projId === activeProjectId);
+            const nextNomor = existing.length === 0 ? 1 : Math.max(...existing.map(c => c.nomor)) + 1;
+            rabCcoList.push({
+                id: Date.now(), projId: activeProjectId, nomor: nextNomor,
+                tanggal: new Date().toISOString().split('T')[0]
+            });
+            localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
+            rabCcoSelectedNomor = nextNomor;
+            renderRabCcoPage();
+        }
+
+        // Hapus CCO - HANYA boleh menghapus CCO dengan nomor TERTINGGI (paling baru) pada proyek ini, supaya
+        // rantai acuan CCO 1 -> CCO 2 -> CCO 3 dst tidak putus di tengah (menghapus CCO di tengah akan membuat
+        // CCO sesudahnya kehilangan acuan datanya).
+        function deleteRabCco() {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menghapus CCO.'); return; }
+            if (!rabCcoSelectedNomor) return;
+            const existing = rabCcoList.filter(c => c.projId === activeProjectId);
+            const maxNomor = Math.max(...existing.map(c => c.nomor));
+            if (rabCcoSelectedNomor !== maxNomor) {
+                alert(`Hanya CCO dengan nomor terbaru (CCO ${maxNomor}) yang boleh dihapus, supaya urutan acuan CCO tidak putus. Hapus dulu CCO ${maxNomor} sebelum menghapus CCO ${rabCcoSelectedNomor}.`);
+                return;
+            }
+            if (!confirm(`Hapus CCO ${rabCcoSelectedNomor} beserta seluruh perubahan di dalamnya? Tindakan ini tidak bisa dibatalkan.`)) return;
+            const cco = existing.find(c => c.nomor === rabCcoSelectedNomor);
+            rabCcoList = rabCcoList.filter(c => c.id !== cco.id);
+            rabCcoItems = rabCcoItems.filter(c => c.ccoId !== cco.id);
+            localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
+            localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
+            rabCcoSelectedNomor = null;
+            renderRabCcoPage();
+        }
+
+        // Baris "Pekerjaan Baru" yang sedang diedit di form (belum tentu sudah tersimpan) - direset/dimuat ulang
+        // setiap kali renderRabCcoDetail() dipanggil, dari rabCcoItems bertipe 'baru' milik CCO yang dipilih.
+        let rabCcoBaruDraft = [];
+
+        function renderRabCcoDetail() {
+            if (!rabCcoSelectedNomor) return;
+            const admin = isAdminUser();
+            const cco = rabCcoList.find(c => c.projId === activeProjectId && c.nomor === rabCcoSelectedNomor);
+            if (!cco) return;
+
+            const baseline = getRabCcoBaselineList(activeProjectId, rabCcoSelectedNomor);
+            const changes = rabCcoItems.filter(c => c.ccoId === cco.id);
+            const changeByRef = new Map(changes.filter(c => c.refId !== null && c.refId !== undefined).map(c => [String(c.refId), c]));
+            rabCcoBaruDraft = changes.filter(c => c.tipe === 'baru').map(c => ({ ...c }));
+
+            document.getElementById('ccoBaselineLabel').innerText = rabCcoSelectedNomor <= 1 ? 'RAB Kontrak Awal' : `hasil CCO ${rabCcoSelectedNomor - 1}`;
+
+            // ---- Tabel pekerjaan acuan (existing) ----
+            const tbody = document.getElementById('rabCcoBaselineTableBody');
+            if (baseline.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Tidak ada item pekerjaan acuan.</td></tr>`;
+            } else {
+                tbody.innerHTML = baseline.map((item, idx) => {
+                    const ch = changeByRef.get(String(item.id));
+                    const isHilang = ch && ch.tipe === 'hilang';
+                    const volBaru = ch && ch.tipe === 'ubah' && ch.volumeBaru !== null && ch.volumeBaru !== undefined ? ch.volumeBaru : item.volume;
+                    const hargaBaru = ch && ch.tipe === 'ubah' && ch.hargaBaru !== null && ch.hargaBaru !== undefined ? ch.hargaBaru : item.harga;
+                    const justifikasi = ch ? (ch.justifikasi || '') : '';
+                    let statusBadge = '<span class="text-slate-600">Tetap</span>';
+                    if (isHilang) {
+                        statusBadge = '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">DIHILANGKAN</span>';
+                    } else {
+                        const nilaiLama = item.volume * item.harga;
+                        const nilaiBaru = volBaru * hargaBaru;
+                        if (Math.abs(nilaiBaru - nilaiLama) > 0.0001) {
+                            statusBadge = nilaiBaru > nilaiLama
+                                ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">PEKERJAAN TAMBAH</span>'
+                                : '<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">PEKERJAAN KURANG</span>';
+                        }
+                    }
+                    return `
+                        <tr class="${isHilang ? 'opacity-50' : ''}">
+                            <td class="p-2">${idx + 1}</td>
+                            <td class="p-2 text-white">${escapeHtml(item.rincian || item.sub)}<div class="text-[10px] text-slate-500">${escapeHtml(item.div)} / ${escapeHtml(item.sub)}</div></td>
+                            <td class="p-2">${escapeHtml(item.satuan)}</td>
+                            <td class="p-2 font-mono text-slate-400">${formatAngka(item.volume)}</td>
+                            <td class="p-2"><input type="number" step="any" data-cco-vol="${item.id}" value="${volBaru}" ${admin && !isHilang ? '' : 'disabled'} class="w-24 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                            <td class="p-2 font-mono text-slate-400">${formatRupiah(item.harga)}</td>
+                            <td class="p-2"><input type="number" step="any" data-cco-harga="${item.id}" value="${hargaBaru}" ${admin && !isHilang ? '' : 'disabled'} class="w-28 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                            <td class="p-2" data-cco-status="${item.id}">${statusBadge}</td>
+                            <td class="p-2"><input type="text" data-cco-justif="${item.id}" value="${escapeHtml(justifikasi)}" placeholder="Alasan perubahan..." ${admin ? '' : 'disabled'} class="w-40 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                            <td class="p-2 text-center">
+                                ${admin ? `<button onclick="toggleRabCcoHilang('${item.id}')" class="text-[10px] px-2 py-1 rounded-lg font-bold ${isHilang ? 'bg-slate-600 hover:bg-slate-500 text-white' : 'bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white'}">${isHilang ? 'Batalkan' : 'Hilangkan'}</button>` : '-'}
+                            </td>
+                        </tr>`;
+                }).join('');
+            }
+            renderRabCcoBaruTable();
+            renderRabCcoSummary(baseline, cco);
+        }
+
+        // Tombol "Hilangkan/Batalkan" di tabel acuan langsung tersimpan on-click (bukan menunggu tombol Simpan
+        // di bawah), supaya baris yang dihilangkan langsung hilang dari daftar/summary tanpa membingungkan.
+        function toggleRabCcoHilang(refId) {
+            if (!isAdminUser()) return;
+            const cco = rabCcoList.find(c => c.projId === activeProjectId && c.nomor === rabCcoSelectedNomor);
+            if (!cco) return;
+            const idx = rabCcoItems.findIndex(c => c.ccoId === cco.id && String(c.refId) === String(refId));
+            if (idx !== -1 && rabCcoItems[idx].tipe === 'hilang') {
+                // Batalkan status dihilangkan
+                rabCcoItems.splice(idx, 1);
+            } else {
+                // Hapus dulu perubahan volume/harga lama pada item ini (kalau ada), lalu tandai dihilangkan
+                rabCcoItems = rabCcoItems.filter(c => !(c.ccoId === cco.id && String(c.refId) === String(refId)));
+                rabCcoItems.push({ id: Date.now(), projId: activeProjectId, ccoId: cco.id, refId, tipe: 'hilang', justifikasi: '', order: rabCcoItems.length + 1 });
+            }
+            localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
+            renderRabCcoDetail();
+        }
+
+        function renderRabCcoBaruTable() {
+            const tbody = document.getElementById('rabCcoBaruTableBody');
+            const admin = isAdminUser();
+            if (rabCcoBaruDraft.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-500">Belum ada pekerjaan baru ditambahkan.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = rabCcoBaruDraft.map((row, idx) => `
+                <tr>
+                    <td class="p-2">${idx + 1}</td>
+                    <td class="p-2"><input type="text" data-baru-nodiv="${idx}" value="${escapeHtml(row.noDiv)}" ${admin ? '' : 'disabled'} class="w-16 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="text" data-baru-div="${idx}" value="${escapeHtml(row.div)}" ${admin ? '' : 'disabled'} class="w-28 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="text" data-baru-sub="${idx}" value="${escapeHtml(row.sub)}" ${admin ? '' : 'disabled'} class="w-28 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="text" data-baru-rincian="${idx}" value="${escapeHtml(row.rincian)}" ${admin ? '' : 'disabled'} class="w-36 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="text" data-baru-satuan="${idx}" value="${escapeHtml(row.satuan)}" ${admin ? '' : 'disabled'} class="w-16 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="number" step="any" data-baru-volume="${idx}" value="${row.volumeBaru ?? ''}" ${admin ? '' : 'disabled'} class="w-20 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="number" step="any" data-baru-harga="${idx}" value="${row.hargaBaru ?? ''}" ${admin ? '' : 'disabled'} class="w-24 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2"><input type="text" data-baru-justif="${idx}" value="${escapeHtml(row.justifikasi)}" placeholder="Alasan pekerjaan baru..." ${admin ? '' : 'disabled'} class="w-40 bg-[#0b132b] border border-slate-700 rounded px-2 py-1 text-white text-xs"></td>
+                    <td class="p-2 text-center">${admin ? `<button onclick="removeRabCcoBaruRow(${idx})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>` : '-'}</td>
+                </tr>`).join('');
+        }
+
+        function addRabCcoBaruRow() {
+            if (!isAdminUser()) return;
+            rabCcoBaruDraft.push({ id: Date.now(), tipe: 'baru', noDiv: '', div: '', sub: '', rincian: '', satuan: '', volumeBaru: '', hargaBaru: '', justifikasi: '' });
+            renderRabCcoBaruTable();
+        }
+
+        function removeRabCcoBaruRow(idx) {
+            rabCcoBaruDraft.splice(idx, 1);
+            renderRabCcoBaruTable();
+        }
+
+        function renderRabCcoSummary(baseline, cco) {
+            const nilaiSebelum = baseline.reduce((a, c) => a + (c.volume * c.harga), 0);
+            const hasilSesudah = computeRabCcoResult(activeProjectId, rabCcoSelectedNomor);
+            const nilaiSesudah = hasilSesudah.reduce((a, c) => a + (c.volume * c.harga), 0);
+            const selisih = nilaiSesudah - nilaiSebelum;
+            const selisihPersen = nilaiSebelum > 0 ? (selisih / nilaiSebelum) * 100 : 0;
+            document.getElementById('ccoSumSebelum').innerText = formatRupiah(nilaiSebelum);
+            document.getElementById('ccoSumSesudah').innerText = formatRupiah(nilaiSesudah);
+            const elRp = document.getElementById('ccoSumSelisihRp');
+            const elPersen = document.getElementById('ccoSumSelisihPersen');
+            elRp.innerText = (selisih >= 0 ? '+' : '') + formatRupiah(selisih);
+            elRp.className = 'text-sm font-black font-mono mt-1 ' + (selisih >= 0 ? 'text-emerald-400' : 'text-red-400');
+            elPersen.innerText = (selisihPersen >= 0 ? '+' : '') + selisihPersen.toFixed(2) + '%';
+            elPersen.className = 'text-sm font-black font-mono mt-1 ' + (selisihPersen >= 0 ? 'text-emerald-400' : 'text-red-400');
+        }
+
+        // Simpan seluruh perubahan CCO yang sedang dibuka: baca semua input volume/harga/justifikasi baru
+        // dari tabel acuan (tipe 'ubah', hanya disimpan kalau volume/harga memang berbeda dari acuan) +
+        // seluruh baris "Pekerjaan Baru" dari form draft (tipe 'baru'). Baris "Dihilangkan" sudah tersimpan
+        // langsung saat tombol Hilangkan diklik (lihat toggleRabCcoHilang), jadi tidak diulang di sini.
+        function saveRabCcoChanges() {
+            if (!isAdminUser()) { alert('Akses ditolak.'); return; }
+            const cco = rabCcoList.find(c => c.projId === activeProjectId && c.nomor === rabCcoSelectedNomor);
+            if (!cco) return;
+            const baseline = getRabCcoBaselineList(activeProjectId, rabCcoSelectedNomor);
+
+            // Buang dulu perubahan lama bertipe 'ubah' & 'baru' milik CCO ini (akan ditulis ulang dari form);
+            // baris 'hilang' TIDAK disentuh karena sudah dikelola langsung oleh toggleRabCcoHilang().
+            rabCcoItems = rabCcoItems.filter(c => !(c.ccoId === cco.id && (c.tipe === 'ubah' || c.tipe === 'baru')));
+
+            let order = rabCcoItems.filter(c => c.ccoId === cco.id).length;
+            let jumlahPerubahan = 0;
+
+            baseline.forEach(item => {
+                // Item yang sedang ditandai "Dihilangkan" dilewati - tidak perlu dicatat perubahan volume/harga.
+                const isHilang = rabCcoItems.some(c => c.ccoId === cco.id && c.tipe === 'hilang' && String(c.refId) === String(item.id));
+                if (isHilang) return;
+                const volInput = document.querySelector(`[data-cco-vol="${item.id}"]`);
+                const hargaInput = document.querySelector(`[data-cco-harga="${item.id}"]`);
+                const justifInput = document.querySelector(`[data-cco-justif="${item.id}"]`);
+                if (!volInput || !hargaInput) return;
+                const volBaru = parseFloat(volInput.value) || 0;
+                const hargaBaru = parseFloat(hargaInput.value) || 0;
+                const justifikasi = justifInput ? justifInput.value.trim() : '';
+                // Hanya disimpan sebagai baris perubahan kalau memang berbeda dari acuan - item yang tidak
+                // diutak-atik sama sekali tidak perlu baris perubahan (konsisten dgn prinsip "0 kalau belum
+                // ada perubahan" yang sudah dipakai di fitur Opname).
+                if (Math.abs(volBaru - item.volume) > 0.0001 || Math.abs(hargaBaru - item.harga) > 0.0001) {
+                    rabCcoItems.push({
+                        id: Date.now() + order, projId: activeProjectId, ccoId: cco.id, refId: item.id, tipe: 'ubah',
+                        volumeBaru: volBaru, hargaBaru: hargaBaru, justifikasi, order: ++order
+                    });
+                    jumlahPerubahan++;
+                }
+            });
+
+            rabCcoBaruDraft.forEach((row, idx) => {
+                const noDiv = document.querySelector(`[data-baru-nodiv="${idx}"]`)?.value.trim() || '';
+                const div = document.querySelector(`[data-baru-div="${idx}"]`)?.value.trim() || '';
+                const sub = document.querySelector(`[data-baru-sub="${idx}"]`)?.value.trim() || '';
+                const rincian = document.querySelector(`[data-baru-rincian="${idx}"]`)?.value.trim() || '';
+                const satuan = document.querySelector(`[data-baru-satuan="${idx}"]`)?.value.trim() || '';
+                const volumeBaru = parseFloat(document.querySelector(`[data-baru-volume="${idx}"]`)?.value) || 0;
+                const hargaBaru = parseFloat(document.querySelector(`[data-baru-harga="${idx}"]`)?.value) || 0;
+                const justifikasi = document.querySelector(`[data-baru-justif="${idx}"]`)?.value.trim() || '';
+                if (!sub && !rincian) return; // baris kosong yang belum diisi sama sekali dilewati
+                rabCcoItems.push({
+                    id: row.id || (Date.now() + 1000 + idx), projId: activeProjectId, ccoId: cco.id, refId: null, tipe: 'baru',
+                    noDiv, div, sub, rincian, satuan, volumeBaru, hargaBaru, justifikasi, order: ++order
+                });
+                jumlahPerubahan++;
+            });
+
+            localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
+            alert(`Perubahan CCO ${rabCcoSelectedNomor} berhasil disimpan (${jumlahPerubahan} baris perubahan tercatat).`);
+            renderRabCcoDetail();
+        }
 
         function renderLapHarian() {
             // Pastikan minimal 1 baris item pekerjaan tersedia di form, lalu segarkan opsi RAB pada tiap baris yang sudah ada
@@ -4827,7 +5292,6 @@
                     existingRows.forEach(row => filterLhPekerjaanOptions(row.dataset.rowId));
                 }
             }
-
             const tbody = document.getElementById('lapHarianTableBody');
             tbody.innerHTML = '';
             let projLh = lapHarianData.filter(l => {
@@ -5189,6 +5653,7 @@
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const value = textarea.value;
+
             const lineStart = value.lastIndexOf('\n', start - 1) + 1;
             const currentLine = value.substring(lineStart, start);
 
@@ -5209,6 +5674,7 @@
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 return;
             }
+
             let insertion;
             if (numberedMatch) {
                 const indent = numberedMatch[1];
@@ -5271,6 +5737,7 @@
             tbody.innerHTML = '';
             const projRAB = rabData.filter(r => r.projId === activeProjectId);
             const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
+
             const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
             const displayRAB = query
                 ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
@@ -5375,6 +5842,7 @@
                         `;
                         tbody.appendChild(tr);
                     });
+
                     grandJumlahHargaRab += divJumlahHargaRab; grandBobotRab += divBobotRab;
                     grandBobotLalu += divBobotLalu; grandBobotIni += divBobotIni; grandBobotKum += divBobotKum;
                     grandUang += divUang;
@@ -5432,7 +5900,6 @@
                         });
                     }
                 } catch (err) { planBobotMinggu = 0; }
-
                 document.getElementById('lmSumMoney').innerText = formatRupiah(sumMoneyMingguIni);
                 document.getElementById('lmSumPlanBobot').innerText = planBobotMinggu.toFixed(2) + '%';
                 document.getElementById('lmSumRealBobot').innerText = sumBobotMingguIni.toFixed(2) + '%';
@@ -5458,6 +5925,7 @@
             const mingguSel = document.getElementById('lmFilterMingguSelect');
             const mingguKe = mingguSel ? mingguSel.value : 'Minggu 1';
             const volume = parseFloat(val) || 0;
+
             let entry = lapMingguanData.find(l => l.rabId == rabId && l.mingguKe === mingguKe);
             if (entry) {
                 entry.volume = volume;
@@ -5562,6 +6030,7 @@
                 divGroups.forEach(group => {
                     let divJumlahHargaRab = 0, divBobotRab = 0;
                     let divBobotLalu = 0, divBobotIni = 0, divBobotKum = 0, divUang = 0;
+
                     group.items.forEach(item => {
                         // Jumlah Harga & Bobot (%) di sini PERSIS sama dengan kolom di list RAB / Laporan Mingguan
                         // (nilai & bobot penuh/rencana item ini terhadap keseluruhan proyek).
@@ -5724,7 +6193,6 @@
             const wk = Math.floor(diffDays / 7) + 1;
             return wk > cap ? cap : wk;
         }
-
         // Hitung total kolom minggu yang perlu ditampilkan pada Matriks Time Schedule & Grafik Kurva S,
         // berdasarkan durasi proyek (tglMulai - tglSelesai) dan rencana divisi yang sudah diinput.
         // Minimum 12 minggu (tampilan semula), maksimum dibatasi 104 minggu (~2 tahun) agar tetap ringan.
@@ -5813,6 +6281,7 @@
                 });
             return weekly;
         }
+
         // Populate dropdown pemilih minggu (#tsWeekPicker) dengan minggu 1..totalWeeks beserta rentang
         // tanggalnya, mengecualikan minggu yang sudah dipilih di tsSelectedWeeks supaya tidak dobel.
         function populateTsWeekPicker() {
@@ -6101,7 +6570,6 @@
                     const [noDivA] = a.split('|||'); const [noDivB] = b.split('|||');
                     return compareDivisionKey(noDivA, noDivB);
                 });
-
             if (subKeys.length === 0) {
                 body.innerHTML = `<tr><td colspan="${totalWeeks + 2}" class="p-6 text-center text-slate-500">Belum ada data RAB / Pekerjaan.</td></tr>`;
                 renderSCurveChart();
@@ -6122,7 +6590,6 @@
                 // Rencana mingguan: dijumlahkan dari SEMUA periode jadwal pekerjaan ini (bisa lebih dari 1 periode,
                 // masing2 dgn bobot manual & rentang tanggalnya sendiri)
                 const rencanaMingguan = getSubScheduleWeekly(noDiv, sub, totalWeeks, proj.tglMulai);
-
                 // Realisasi mingguan: HARUS mengikuti/sama persis dengan Laporan Mingguan - yaitu "Bobot
                 // Minggu Ini" per item RAB (dari hasil opname bersih minggu itu), bukan dihitung ulang secara
                 // terpisah dari Laporan Harian. Supaya Time Schedule selalu konsisten dengan Laporan Mingguan.
@@ -6316,6 +6783,7 @@
 
             const ctx = canvasEl.getContext('2d');
             if (scurveChartInstance) scurveChartInstance.destroy();
+
             const labels = Array.from({length: totalWeeks}, (_, i) => `M${i+1}`);
 
             // Total kumulatif rencana & realisasi seluruh pekerjaan (mengikuti data tabel Time Schedule di atas)
@@ -6378,6 +6846,7 @@
             const fmt = (d) => d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             return { start: wStart, end: wEnd, label: `${fmt(wStart)} s/d ${fmt(wEnd)}` };
         }
+
         // Versi lengkap/detail dari rentang tanggal 1 minggu (nama hari + nama bulan penuh), dipakai
         // khusus pada halaman Laporan Mingguan supaya periode tanggalnya terbaca jelas & lengkap.
         function getWeekDateRangeDetailed(week, projStartStr, projEndStr) {
@@ -6834,7 +7303,6 @@
                 filterMkPekerjaanOptions(editItem ? editItem.pekerjaanId : '');
                 if (editItem) fillMkFromSisa();
             }
-
             if (submitBtn) submitBtn.innerHTML = isEdit ? '<i class="fa-solid fa-floppy-disk mr-1"></i> Update Data' : '<i class="fa-solid fa-plus mr-1"></i> Simpan Data';
             if (cancelBtn) cancelBtn.classList.toggle('hidden', !isEdit);
         }
@@ -6918,7 +7386,6 @@
                 .filter(o => o.kebutuhanId == kebutuhanId && o.id != excludeOrderId)
                 .reduce((a, c) => a + (c.volume || 0), 0);
         }
-
         // Validasi real-time: volume order tidak boleh melebihi sisa kebutuhan material yang belum dipesan
         function validatePoVolume() {
             const kebId = document.getElementById('poKebutuhanId').value;
@@ -7002,7 +7469,6 @@
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
 
             infoBox.innerHTML = `Volume Order: <strong class="text-white">${formatAngka(o.volume)} ${o.satuan}</strong> &nbsp;|&nbsp; Sudah Masuk (nota lain): <strong class="text-sky-300">${formatAngka(st.totalMasuk)} ${o.satuan}</strong> &nbsp;|&nbsp; Sisa Belum Masuk: <strong class="text-emerald-400">${formatAngka(st.sisa)} ${o.satuan}</strong>`;
-
             if (warnBox && warnText) {
                 if (volInput > st.sisa) {
                     warnText.innerText = `Volume masuk (${formatAngka(volInput)} ${o.satuan}) melebihi sisa yang belum diterima (${formatAngka(st.sisa)} ${o.satuan}).`;
@@ -7028,6 +7494,7 @@
                 opt.style.display = hay.includes(query) ? '' : 'none';
             });
         }
+
         // Isi otomatis form Material Keluar dari Stok Sisa yang dipilih
         function fillMkFromSisa() {
             const key = document.getElementById('mkNamaSelect').value;
@@ -7043,7 +7510,6 @@
             document.getElementById('mkSatuan').value = s ? s.satuan : '';
             document.getElementById('mkSisaInfo').value = s ? `${formatAngka(s.sisa)} ${s.satuan}` : '';
         }
-
         // Helper: hitung daftar stok sisa material (masuk - keluar) untuk proyek aktif
         // excludeKeluarId: opsional, dipakai saat mode edit agar volume item yang sedang diedit tidak ikut mengurangi sisa
         function getMaterialSisaList(excludeKeluarId) {
@@ -7106,7 +7572,6 @@
                 }
             });
             if (masukChanged) localStorage.setItem('erp_mat_masuk', JSON.stringify(materialMasukData));
-
             // 3) Material Keluar dicocokkan lewat kombinasi Nama+Dimensi+Spesifikasi LAMA
             //    (Material Keluar tidak menyimpan id relasi, jadi dicocokkan lewat composite key)
             let keluarChanged = false;
@@ -7153,6 +7618,7 @@
             const isEditOrder = materialEditContext && materialEditContext.type === 'order';
             const isEditMasuk = materialEditContext && materialEditContext.type === 'masuk';
             const isEditKeluar = materialEditContext && materialEditContext.type === 'keluar';
+
             if (activeMaterialSub === 'mat-kebutuhan') {
                 const payload = {
                     kode: document.getElementById('matKode').value.trim(),
@@ -7294,7 +7760,6 @@
             const m = cari(materialMasukData) || cari(materialOrderData) || cari(kebutuhanMatData);
             return { dimensi: (m && m.dimensi) || '', spesifikasi: (m && m.spesifikasi) || '' };
         }
-
         function renderMaterialTable() {
             const head = document.getElementById('materialTableHead');
             const tbody = document.getElementById('materialTableBody');
@@ -7399,7 +7864,6 @@
                     totalNilaiOrder += totalItem;
                     dailyNilai += totalItem;
                     dailyVolumeMap[item.satuan] = (dailyVolumeMap[item.satuan] || 0) + (item.volume || 0);
-
                     let statusBadge;
                     if (st.persen >= 100) statusBadge = `<span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold">Sudah Masuk</span>`;
                     else if (st.persen > 0) statusBadge = `<span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold">Belum 100%</span>`;
@@ -7693,7 +8157,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
             renderBqResultsTable();
         }
-
         // Kosongkan SELURUH daftar hasil estimasi/material takeoff yang sudah tidak digunakan lagi
         // (mis. mau mulai analisis gambar baru dari nol, atau daftar lama sudah tidak relevan).
         function clearBqEstimasiData() {
@@ -7908,6 +8371,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             bqOpEditRowId = null;
             document.getElementById('bqOpDetailArea').classList.add('hidden');
         }
+
         // Kontribusi bersih 1 baris opname terhadap "Opname Minggu Ini". Untuk baris yang DIKETIK MANUAL
         // minggu ini (bukan hasil salin), kontribusinya = nilai baris itu sendiri (Tambah positif, Kurang
         // negatif) - seperti biasa. Untuk baris hasil SALINAN OTOMATIS dari minggu lalu, kontribusinya HANYA
@@ -8217,7 +8681,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         </tr>`;
                 }).join('');
             }
-
             const summaryEl = document.getElementById('bqOpnameSummary');
             if (summaryEl) {
                 const kontribusiRows = rows.map(r => bqOpnameRowNetContribution(r));
@@ -8411,6 +8874,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     };
                 });
         }
+
         // ===================================================================
         // BACKUP QUANTITY - INPUT MANUAL SESUAI KATEGORI PEKERJAAN
         // Setiap kategori punya field input & metode/rumus perhitungan sendiri.
@@ -8998,6 +9462,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 </div>`;
             }).join('');
         }
+
         // Hitung kebutuhan material dari input manual sesuai kategori pekerjaan yang dipilih
         function calculateBqManual() {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -9118,7 +9583,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 webcamStream = null;
             }
         }
-
         function startWebcam(preferredFacingMode) {
             const video = document.getElementById('webcamVideo');
             const errorOverlay = document.getElementById('webcamErrorOverlay');
@@ -9265,7 +9729,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // Konteks mode EDIT foto absensi (retake foto pada record yang sudah ada, tanpa mengubah data
         // nama/waktu/lokasi aslinya). null jika sedang tidak dalam mode edit.
         let editingAbsenContext = null;
-
         function editAbsenRecordPhoto(id, isMasuk) {
             closeAbsenPhotoModal();
             editingAbsenContext = { id, isMasuk };
@@ -9433,7 +9896,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
                     pushAbsenRecordToCloud('erp_absen_keluar', newRecord);
                 }
-
                 renderAbsenSection();
                 alert('Absensi berhasil direkam dengan foto, alamat, & koordinat GPS akurat!');
             } finally {
@@ -9564,6 +10026,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.fillText('PETA', x + w / 2, y + h - 3);
             ctx.textAlign = 'left';
         }
+
         // Menempelkan watermark lengkap ke foto absensi: logo perusahaan/proyek, label Foto Absen Masuk/Pulang,
         // nama karyawan, tanggal & waktu foto, alamat lengkap, koordinat GPS akurat, mini peta, dan (khusus
         // Absen Pulang) total jam kerja sejak Absen Masuk.
@@ -9663,11 +10126,11 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 ctx.textBaseline = 'middle';
                 ctx.fillText(badgeText, badgeX + badgePaddingX, badgeY + badgeH / 2 + 0.5);
                 ctx.textBaseline = 'alphabetic';
-
                 // Nama proyek (kecil, di samping logo)
                 ctx.font = `${fontSizeSmall}px Arial`;
                 ctx.fillStyle = '#94a3b8';
                 ctx.fillText(opts.namaProyek || '', textX, panelY + pad + fontSizeSmall * 0.9);
+
                 // Baris-baris info utama
                 let ly = panelY + pad + fontSizeSmall + (10 * scale);
                 lines.forEach(line => {
@@ -9688,6 +10151,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
         // Konteks foto yang sedang dibuka di modal viewer: { id, isMasuk }
         let absenPhotoModalContext = null;
+
         function openAbsenPhotoModal(id, isMasuk) {
             const data = isMasuk ? absenMasukData : absenKeluarData;
             const item = data.find(d => d.id == id);
@@ -9708,6 +10172,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             document.getElementById('absenPhotoModal').classList.remove('hidden');
         }
+
         function closeAbsenPhotoModal() {
             document.getElementById('absenPhotoModal').classList.add('hidden');
             absenPhotoModalContext = null;
@@ -9728,6 +10193,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.click();
             document.body.removeChild(a);
         }
+
         // Share foto absensi yang sedang dibuka langsung ke WhatsApp (atau share sheet lain di HP) menggunakan
         // Web Share API (bisa mengirim FILE gambar, bukan cuma teks/link). Jika perangkat/browser tidak
         // mendukung share file, otomatis fallback: unduh dulu fotonya lalu kirim teks info via WhatsApp Web.
@@ -9748,6 +10214,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const blob = await res.blob();
                 const namaFile = `${isMasuk ? 'Absen-Masuk' : 'Absen-Pulang'}-${(item.nama || 'Karyawan').replace(/\s+/g, '-')}.jpg`;
                 const file = new File([blob], namaFile, { type: 'image/jpeg' });
+
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({ files: [file], text: caption, title: jenis });
                     return;
@@ -9805,7 +10272,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             document.getElementById('formDhLeave').reset();
             renderDaftarHadir();
         }
-
         // Helper: hitung rekap kehadiran 1 bulan (YYYY-MM) untuk seluruh karyawan proyek aktif
         // Setiap karyawan juga menyertakan breakdown per tanggal (days[]) selain total.
         function buildDaftarHadirRekap(bulanStr) {
@@ -9978,6 +10444,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const jumlahHari = new Date(y, m, 0).getDate();
             const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             const rekap = buildDaftarHadirRekap(bulanStr);
+
             const dayCellText = (d) => {
                 if (d.jenis === 'Hadir') return d.setengahHari ? `H½ ${d.jamKerja.toFixed(1)}j` : `H ${d.jamKerja.toFixed(1)}j${d.jamLembur > 0 ? ' +' + d.jamLembur.toFixed(1) + 'j' : ''}`;
                 if (d.jenis) return d.jenis.charAt(0);
@@ -10426,7 +10893,9 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenKeluar: absenKeluarData.filter(a => a.projId === activeProjectId),
                     leave: leaveData.filter(l => l.projId === activeProjectId),
                     bqResults: bqResultsData,
-                    bqOpname: bqOpnameData.filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; })
+                    bqOpname: bqOpnameData.filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; }),
+                    rabCcoList: rabCcoList.filter(c => c.projId === activeProjectId),
+                    rabCcoItems: rabCcoItems.filter(c => c.projId === activeProjectId)
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -10453,7 +10922,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const existingIdx = projects.findIndex(p => p.id === importedProj.id);
                     if (existingIdx !== -1) projects[existingIdx] = importedProj; else projects.push(importedProj);
                     localStorage.setItem('erp_projects', JSON.stringify(projects));
-
                     const pid = importedProj.id;
                     const mergeByProj = (arr, incoming, key) => {
                         const others = arr.filter(x => x[key] !== pid);
@@ -10477,6 +10945,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     leaveData = mergeByProj(leaveData, backup.data.leave, 'projId');
                     if (Array.isArray(backup.data.bqResults) && backup.data.bqResults.length) bqResultsData = backup.data.bqResults;
                     bqOpnameData = [...bqOpnameData.filter(o => !rabIdsProj.has(o.pekerjaanId)), ...(backup.data.bqOpname || [])];
+                    rabCcoList = mergeByProj(rabCcoList, backup.data.rabCcoList, 'projId');
+                    rabCcoItems = mergeByProj(rabCcoItems, backup.data.rabCcoItems, 'projId');
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -10493,6 +10963,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));
                     localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
                     localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+                    localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
+                    localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
 
                     activeProjectId = pid;
                     localStorage.setItem('erp_active_project', activeProjectId);
@@ -10534,7 +11006,9 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     absenKeluar: absenKeluarData,
                     leave: leaveData,
                     bqResults: bqResultsData,
-                    bqOpname: bqOpnameData
+                    bqOpname: bqOpnameData,
+                    rabCcoList: rabCcoList,
+                    rabCcoItems: rabCcoItems
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -10544,6 +11018,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.download = `backup_semua_proyek_${acc}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
+
         function importAllProjectsDataBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -10588,6 +11063,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     leaveData = mergeAllByProj(leaveData, backup.data.leave);
                     if (Array.isArray(backup.data.bqResults) && backup.data.bqResults.length) bqResultsData = backup.data.bqResults;
                     if (Array.isArray(backup.data.bqOpname)) bqOpnameData = backup.data.bqOpname;
+                    rabCcoList = mergeAllByProj(rabCcoList, backup.data.rabCcoList);
+                    rabCcoItems = mergeAllByProj(rabCcoItems, backup.data.rabCcoItems);
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -10604,6 +11081,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));
                     localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
                     localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
+                    localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
+                    localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
 
                     if (backup.projects.length > 0) {
                         activeProjectId = backup.projects[0].id;
@@ -10816,6 +11295,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return { wch: Math.min(Math.max(maxLen + 2, 10), 42) };
             });
         }
+
         // Escape teks agar aman ditampilkan di dalam tabel HTML (untuk PDF)
         function escapeExportHtml(str) {
             return (str ?? '').toString()
@@ -11071,7 +11551,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             navigator.clipboard.writeText(txt.value);
             alert('Teks WhatsApp berhasil disalin!');
         }
-
         function sendWaDirect() {
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
