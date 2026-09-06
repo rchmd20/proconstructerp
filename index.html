@@ -1069,7 +1069,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 text-xs">
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Nilai Uang Progress Minggu Ini</span>
                             <div id="lmSumMoney" class="text-base font-black text-emerald-400 font-mono mt-1">Rp 0</div>
@@ -1085,6 +1085,10 @@
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Bobot Deviasi Minggu</span>
                             <div id="lmSumDevBobot" class="text-base font-black text-emerald-400 font-mono mt-1">0.00 %</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-sky-500/40">
+                            <span class="text-slate-400 text-[10px]">Bobot Komulatif s/d Minggu Ini</span>
+                            <div id="lmSumKumBobot" class="text-base font-black text-sky-300 font-mono mt-1">0.00 %</div>
                         </div>
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Status Minggu</span>
@@ -1178,7 +1182,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 text-xs">
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Nilai Uang Progress Bulan Ini</span>
                             <div id="lbSumMoney" class="text-base font-black text-emerald-400 font-mono mt-1">Rp 0</div>
@@ -1194,6 +1198,10 @@
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Bobot Deviasi Bulan</span>
                             <div id="lbSumDevBobot" class="text-base font-black text-emerald-400 font-mono mt-1">0.00 %</div>
+                        </div>
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-sky-500/40">
+                            <span class="text-slate-400 text-[10px]">Bobot Komulatif s/d Bulan Ini</span>
+                            <div id="lbSumKumBobot" class="text-base font-black text-sky-300 font-mono mt-1">0.00 %</div>
                         </div>
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Status Bulan</span>
@@ -1448,6 +1456,10 @@
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Export Excel</span>
                         </button>
+                        <button onclick="clearBqEstimasiData()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition" title="Kosongkan seluruh hasil perhitungan estimasi yang sudah tidak digunakan">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Kosongkan Data</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1506,6 +1518,7 @@
                                     </optgroup>
                                 </select>
                             </div>
+
                             <button onclick="processBqImageAnalysis()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                                 <span>Analisis Gambar & Hitung Material Otomatis</span>
@@ -1551,11 +1564,12 @@
                                         <th class="p-3">Volume Terhitung</th>
                                         <th class="p-3">Estimasi Harga Satuan</th>
                                         <th class="p-3">Total Biaya (Rp)</th>
+                                        <th class="p-3 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="bqResultTableBody" class="divide-y divide-slate-800">
                                     <tr>
-                                        <td colspan="6" class="p-6 text-center text-slate-500">Belum ada gambar yang dianalisis. Silakan upload gambar/screenshot di sebelah kiri.</td>
+                                        <td colspan="7" class="p-6 text-center text-slate-500">Belum ada gambar yang dianalisis. Silakan upload gambar/screenshot di sebelah kiri.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1681,7 +1695,6 @@
                 <!-- AREA DETAIL OPNAME UNTUK 1 ITEM PEKERJAAN PADA MINGGU TERPILIH -->
                 <div id="bqOpDetailArea" class="hidden space-y-6">
                     <div id="bqOpJudulInfo" class="text-[11px] text-slate-400"></div>
-
                     <!-- FORM TAMBAH/EDIT BARIS OPNAME -->
                     <div class="navy-card p-5 rounded-2xl space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-700 pb-2">
@@ -1709,16 +1722,31 @@
                             <div>
                                 <label class="block text-slate-400 mb-1">Metode Input Perhitungan</label>
                                 <select id="bqOpMetode" onchange="renderBqOpnameFormFields()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
-                                    <option value="plt">Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume)</option>
-                                    <option value="pl">Jumlah × Panjang × Lebar × Koefisien (Luas)</option>
-                                    <option value="p">Jumlah × Panjang × Koefisien (Panjang / Keliling)</option>
-                                    <option value="jml">Jumlah × Koefisien (Satuan / Unit / Titik)</option>
-                                    <option value="langsung">Volume / Nilai Langsung (Manual) × Koefisien</option>
+                                    <optgroup label="Bentuk Persegi/Balok">
+                                        <option value="plt">Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume Balok/Kotak)</option>
+                                        <option value="pl">Jumlah × Panjang × Lebar × Koefisien (Luas Persegi/Segiempat)</option>
+                                        <option value="p">Jumlah × Panjang × Koefisien (Panjang / Keliling Lurus)</option>
+                                    </optgroup>
+                                    <optgroup label="Bentuk Bulat/Lingkaran (kolom bulat, pipa, bore pile)">
+                                        <option value="bulatLuas">Jumlah × (π/4 × Diameter²) × Koefisien (Luas Penampang Bulat)</option>
+                                        <option value="bulatVolume">Jumlah × (π/4 × Diameter²) × Tinggi × Koefisien (Volume Tabung/Kolom Bulat/Bore Pile)</option>
+                                        <option value="bulatKeliling">Jumlah × (π × Diameter) × Koefisien (Keliling Lingkaran)</option>
+                                        <option value="bulatSelimut">Jumlah × (π × Diameter) × Tinggi × Koefisien (Luas Selimut Tabung/Kolom Bulat)</option>
+                                    </optgroup>
+                                    <optgroup label="Bentuk Trapesium & Segitiga">
+                                        <option value="trapesium">Jumlah × ((Lebar Atas + Lebar Bawah)/2) × Tinggi × Panjang × Koefisien (Volume Trapesium - Galian/Saluran)</option>
+                                        <option value="segitiga">Jumlah × (0.5 × Alas × Tinggi) × Panjang × Koefisien (Volume Segitiga - Atap/Talud)</option>
+                                    </optgroup>
+                                    <optgroup label="Satuan, Berat & Manual">
+                                        <option value="jml">Jumlah × Koefisien (Satuan / Unit / Titik)</option>
+                                        <option value="berat">Jumlah × Panjang × Berat per Meter × Koefisien (Berat - Besi/Pipa/Baja)</option>
+                                        <option value="langsung">Volume / Nilai Langsung (Manual) × Koefisien</option>
+                                    </optgroup>
                                 </select>
                             </div>
 
-                            <div id="bqOpFieldsContainer" class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                <!-- JS populated: Jumlah, Panjang, Lebar, Tinggi, Koefisien -->
+                            <div id="bqOpFieldsContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                                <!-- JS populated: Jumlah, Panjang, Lebar, Tinggi, Diameter, dsb sesuai metode -->
                             </div>
 
                             <div id="bqOpFormulaPreview" class="text-[11px] text-amber-300 font-mono"></div>
@@ -1755,9 +1783,8 @@
                                         <th class="p-3">Sub Pekerjaan</th>
                                         <th class="p-3">Rincian Sub</th>
                                         <th class="p-3">Segmen / Ruangan / Posisi</th>
-                                        <th class="p-3">Tipe</th>
                                         <th class="p-3">Rumus / Detail Hitung</th>
-                                        <th class="p-3">Volume</th>
+                                        <th class="p-3">Volume (Tambah/Kurang)</th>
                                         <th class="p-3">Catatan</th>
                                         <th class="p-3 text-center">Aksi</th>
                                     </tr>
@@ -1898,7 +1925,6 @@
                                 <div class="leading-snug"><i class="fa-solid fa-map-location-dot text-amber-400 mr-1"></i><span id="currentAddressText">Mencari alamat...</span></div>
                             </div>
                         </div>
-
                         <div class="space-y-3 text-xs">
                             <div id="absenEditNotice" class="hidden bg-amber-500/10 border border-amber-500/40 text-amber-300 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
                                 <span class="flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Mode edit: ambil ulang foto untuk record ini</span>
@@ -1940,7 +1966,6 @@
                     </div>
                 </div>
             </section>
-
             <!-- =================================================================== -->
             <!-- SECTION 5.1: DAFTAR HADIR (REKAP BULANAN) -->
             <!-- =================================================================== -->
@@ -2045,7 +2070,6 @@
                     </div>
                 </div>
             </section>
-
             <!-- =================================================================== -->
             <!-- SECTION 6.2: PROFIL KARYAWAN & SETTING AKUN -->
             <!-- =================================================================== -->
@@ -2318,7 +2342,6 @@
                     <label class="block text-slate-300 font-bold">Pilih File Excel:</label>
                     <input type="file" id="rabExcelFileInput" accept=".xlsx, .xls, .csv" onchange="handleExcelFileSelected(event)" class="w-full bg-[#0b132b] border border-slate-700 rounded-xl p-2 text-slate-300">
                 </div>
-
                 <div id="excelSheetSelectorBox" class="hidden space-y-2 p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                     <label class="block text-amber-400 font-bold">Ditemukan Multiple Sheet. Pilih Sheet:</label>
                     <select id="excelSheetSelect" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg p-2 text-white font-semibold">
@@ -2681,6 +2704,7 @@
                 ownerId: 'USR-01' // Pemilik proyek (Admin). Dipakai agar akun baru tidak melihat data akun demo/admin lain.
             }
         ];
+
         let activeProjectId = localStorage.getItem('erp_active_project') || 'PRJ-01';
 
         let users = JSON.parse(localStorage.getItem('erp_users')) || [
@@ -2869,6 +2893,7 @@
             const proj = projects.find(p => p.id === user.projectId);
             return proj ? String(proj.ownerId) : null;
         }
+
         // Gabungkan array JSON dari cloud & lokal berdasarkan 'id' (bukan timpa mentah).
         // Ini mencegah data yang baru dibuat di device ini (tapi belum sempat terkirim ke cloud
         // karena delay/izin/koneksi) hilang tertimpa saat versi lama dari cloud diterima kembali.
@@ -2883,7 +2908,6 @@
             localArr.forEach(item => { if (item && item.id != null && !map.has(item.id)) map.set(item.id, item); });
             return JSON.stringify(Array.from(map.values()));
         }
-
         // Dorong 1 key localStorage GLOBAL (users/projects) ke Firestore (debounced)
         function pushGlobalKeyToCloud(key) {
             if (!cloudDb || !cloudReady || cloudApplyingRemote) return;
@@ -3093,7 +3117,6 @@
         function isAdminUser() {
             return !!(currentUser && currentUser.role === 'Admin');
         }
-
         // Izin edit data operasional proyek (Laporan Harian, Material, Time Schedule, Absensi, dsb) untuk akun User.
         // Admin selalu boleh edit. Akun User hanya boleh edit selama Admin belum menonaktifkan izinnya (canEdit !== false).
         function canUserEdit() {
@@ -3246,6 +3269,7 @@
                 }
             }
         }
+
         function toggleAuthTab(tab) {
             hideLoginError();
             const unverifiedBox = document.getElementById('unverifiedEmailBox');
@@ -3365,7 +3389,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-rotate mr-1"></i> Sudah Verifikasi? Cek Lagi');
             }
         }
-
         async function resendVerificationEmail() {
             const u = firebase.auth().currentUser;
             if (!u) {
@@ -3554,7 +3577,6 @@
             try { await firebase.auth().signInAnonymously(); } catch (e) {}
             checkAuthStatus();
         }
-
         function updateUserHeaderUI() {
             if (!currentUser) return;
             document.getElementById('headerUserName').innerText = currentUser.name;
@@ -3602,6 +3624,7 @@
             if (btnDeleteProject) btnDeleteProject.classList.toggle('hidden', !admin);
             const btnAddProjectLabel = document.getElementById('btnAddProjectLabel');
             if (btnAddProjectLabel) btnAddProjectLabel.innerText = admin ? 'Proyek Baru' : 'Gabung Proyek';
+
             // --- Halaman RAB: User hanya boleh melihat & export, tidak boleh edit ---
             const rabFormCard = document.getElementById('rabFormCard');
             const btnRabImportExcel = document.getElementById('btnRabImportExcel');
@@ -3832,6 +3855,7 @@
             renderActiveTabContent();
             alert(`Berhasil bergabung ke proyek "${matched.nama}".`);
         }
+
         // ===================================================================
         // NAVIGATION & TAB SWITCHING
         // ===================================================================
@@ -3957,6 +3981,7 @@
 
             const btnQuickKaryawan = document.getElementById('homeQuickKaryawan');
             if (btnQuickKaryawan) btnQuickKaryawan.classList.toggle('hidden', !isAdminUser());
+
             if (!proj) {
                 document.getElementById('homeKpiTotalAnggaran').innerText = 'Rp 0';
                 document.getElementById('homeKpiProgress').innerText = '0%';
@@ -3987,12 +4012,18 @@
             document.getElementById('homeKpiTotalAnggaran').innerText = formatRupiah(grandTotal);
             document.getElementById('homeKpiItemRab').innerText = projRAB.length;
 
-            // Progress fisik kumulatif: akumulasi volume Laporan Harian dibanding Volume RAB, ditimbang nilai pekerjaan
+            // Progres Fisik Komulatif: HARUS mengikuti Bobot Komulatif pada Laporan Mingguan (bukan dihitung
+            // ulang terpisah dari Laporan Harian), diambil s/d minggu TERAKHIR yang sudah ada data realisasi
+            // (opname) - dengan begitu bobot terbaru yang ada di Laporan Mingguan selalu langsung terbaca di
+            // sini, walau user belum sempat buka/pilih minggu terakhir itu secara manual di halaman Laporan
+            // Mingguan. bqOpnameNetVolumeCumulative(item.id, undefined) = jumlahkan SELURUH minggu yang
+            // tercatat datanya (tidak dibatasi sampai minggu tertentu) = sama persis dengan Bobot Komulatif
+            // yang akan tampil di Laporan Mingguan pada minggu terakhir yang sudah diisi.
             let bobotKumTotal = 0;
             if (subtotal > 0) {
                 projRAB.forEach(item => {
-                    const volKum = lapHarianData.filter(l => l.pekerjaanId == item.id).reduce((a, c) => a + (parseFloat(c.volume) || 0), 0);
-                    const volKumClamped = Math.min(volKum, item.volume);
+                    const volKum = bqOpnameNetVolumeCumulative(item.id, undefined);
+                    const volKumClamped = Math.min(Math.max(volKum, 0), item.volume);
                     bobotKumTotal += (volKumClamped * item.harga / subtotal) * 100;
                 });
             }
@@ -4091,7 +4122,6 @@
             // Kalau hari ini sebelum Tanggal Mulai proyek (belum mulai), tampilkan posisi Minggu 1 (belum berjalan)
             if (!currentWeek) currentWeek = 1;
             currentWeek = Math.max(1, Math.min(currentWeek, totalWeeks));
-
             const range = getWeekDateRangeDetailed(currentWeek, proj.tglMulai, proj.tglSelesai);
             periodEl.innerText = range ? `Minggu ${currentWeek}: ${range.labelShort}` : `Minggu ${currentWeek}`;
 
@@ -4103,6 +4133,7 @@
             emptyEl.classList.add('hidden');
             document.getElementById('homeWeeklyRencana').innerText = formatAngka(rencanaKumulatif) + '%';
             document.getElementById('homeWeeklyRealisasi').innerText = formatAngka(realisasiKumulatif) + '%';
+
             const deviasiEl = document.getElementById('homeWeeklyDeviasi');
             const deviasiBoxEl = document.getElementById('homeWeeklyDeviasiBox');
             const deviasiLabelEl = document.getElementById('homeWeeklyDeviasiLabel');
@@ -4186,6 +4217,7 @@
             document.getElementById('ppnLabel').innerText = proj.ppn + '%';
             document.getElementById('pphLabel').innerText = proj.pph + '%';
             document.getElementById('tambahanLabel').innerText = totalPersenTambahan.toFixed(2).replace(/\.00$/, '') + '%';
+
             document.getElementById('rabSubtotalSum').innerText = formatRupiah(subtotal);
             document.getElementById('rabPpnSum').innerText = formatRupiah(ppnVal);
             document.getElementById('rabPphSum').innerText = formatRupiah(pphVal);
@@ -4374,6 +4406,7 @@
             }
             renderRAB();
         }
+
         // Isi form RAB dengan data item yang dipilih agar Admin bisa mengedit data rekapitulasi RAB.
         function editRABItem(id) {
             if (!currentUser || currentUser.role !== 'Admin') {
@@ -4382,7 +4415,6 @@
             }
             const item = rabData.find(r => r.id === id);
             if (!item) return;
-
             document.getElementById('rabEditId').value = item.id;
             document.getElementById('rabNoDiv').value = item.noDiv;
             document.getElementById('rabDiv').value = item.div;
@@ -4613,7 +4645,6 @@
         // --- Manajemen baris Item Pekerjaan pada form Laporan Harian ---
         // Bisa lebih dari 1 baris pekerjaan per tanggal, karena 1 tukang/tim tidak selalu hanya mengerjakan 1 pekerjaan per hari.
         let lhRowCounter = 0;
-
         function generateLhRowHtml(rowId) {
             return `
                 <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700 space-y-3 lh-pekerjaan-row" data-row-id="${rowId}">
@@ -4655,7 +4686,6 @@
                     </div>
                 </div>`;
         }
-
         function addLhPekerjaanRow(scrollIntoView) {
             lhRowCounter++;
             const rowId = lhRowCounter;
@@ -4697,7 +4727,6 @@
                 if (btn) btn.classList.toggle('hidden', rows.length <= 1);
             });
         }
-
         // Reset form ke mode "tambah baru": 1 baris pekerjaan kosong, tombol tambah pekerjaan aktif kembali
         function resetLhPekerjaanRows() {
             const container = document.getElementById('lhPekerjaanRowsContainer');
@@ -5012,7 +5041,6 @@
             document.getElementById('lhFormTitle').innerText = 'Buat / Edit Laporan Harian Baru';
             document.getElementById('btnCancelLhEdit').classList.add('hidden');
         }
-
         function deleteLapHarian(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus laporan harian ini?')) {
@@ -5045,6 +5073,7 @@
         function markLhKendalaDirty() {
             lhKendalaDirty = true;
         }
+
         // Saat tanggal pada form Kendala & Notulen diganti, otomatis muat data existing (jika ada) agar bisa diedit.
         // forceOverwrite=true dipakai oleh editLhKendala() supaya tidak perlu konfirmasi (karena user sengaja klik Edit).
         function loadLhKendalaByDate(forceOverwrite) {
@@ -5233,6 +5262,7 @@
             const displayRAB = query
                 ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
                 : projRAB;
+
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="18" class="p-6 text-center text-slate-500">${projRAB.length === 0 ? 'Belum ada data RAB / Pekerjaan.' : 'Tidak ada item yang cocok dengan pencarian.'}</td></tr>`;
             } else {
@@ -5396,10 +5426,15 @@
                 document.getElementById('lmSumRealBobot').innerText = sumBobotMingguIni.toFixed(2) + '%';
                 const dev = sumBobotMingguIni - planBobotMinggu;
                 document.getElementById('lmSumDevBobot').innerText = (dev >= 0 ? '+' : '') + dev.toFixed(2) + '%';
+                // Bobot Komulatif s/d minggu terpilih = grandBobotKum yang sudah dijumlahkan per item
+                // (Bobot Lalu + Bobot Minggu Ini) pada baris "Total Keseluruhan Divisi" di tabel bawah -
+                // ditampilkan juga di kartu ringkasan atas supaya langsung kelihatan tanpa scroll ke bawah.
+                document.getElementById('lmSumKumBobot').innerText = grandBobotKum.toFixed(2) + '%';
                 document.getElementById('lmSumStatus').innerText = dev >= 0 ? 'Sesuai / Ahead' : 'Delay / Lagging';
                 document.getElementById('lmSumStatus').className = dev >= 0 ? 'text-xs font-bold text-emerald-400 mt-1' : 'text-xs font-bold text-red-400 mt-1';
             }
         }
+
         // Simpan/ubah Volume Minggu Ini untuk 1 item RAB pada minggu yang sedang dipilih. 1 entri per
         // (item RAB, minggu) - jika belum ada, dibuat baru; jika sudah ada, ditimpa (upsert).
         function updateLmVolume(rabId, val) {
@@ -5635,7 +5670,6 @@
                     <td class="p-3"></td>
                 `;
                 tbody.appendChild(grandTr);
-
                 // Kartu ringkasan atas: bobot rencana bulan ini diambil dari Time Schedule (jika ada jadwal),
                 // dijumlahkan dari rencana mingguan pada minggu-minggu yang termasuk dalam bulan terpilih,
                 // supaya deviasi rencana vs realisasi lebih akurat dibanding angka tetap.
@@ -5651,11 +5685,13 @@
                         }
                     });
                 } catch (err) { planBobotBulan = 0; }
+
                 document.getElementById('lbSumMoney').innerText = formatRupiah(sumMoneyBulanIni);
                 document.getElementById('lbSumPlanBobot').innerText = planBobotBulan.toFixed(2) + '%';
                 document.getElementById('lbSumRealBobot').innerText = sumBobotBulanIni.toFixed(2) + '%';
                 const dev = sumBobotBulanIni - planBobotBulan;
                 document.getElementById('lbSumDevBobot').innerText = (dev >= 0 ? '+' : '') + dev.toFixed(2) + '%';
+                document.getElementById('lbSumKumBobot').innerText = grandBobotKum.toFixed(2) + '%';
                 document.getElementById('lbSumStatus').innerText = dev >= 0 ? 'Sesuai / Ahead' : 'Delay / Lagging';
                 document.getElementById('lbSumStatus').className = dev >= 0 ? 'text-xs font-bold text-emerald-400 mt-1' : 'text-xs font-bold text-red-400 mt-1';
             }
@@ -5713,6 +5749,7 @@
         function getSubtotalRabProyek() {
             return rabData.filter(r => r.projId === activeProjectId).reduce((a, c) => a + (c.volume * c.harga), 0);
         }
+
         // Info Volume Total RAB, satuan, & harga rata-rata per satuan untuk 1 pekerjaan (kepala sub).
         // Harga rata-rata dipakai untuk mengonversi input "Volume Rencana" (fisik) pada Time Schedule
         // menjadi Bobot% (dasar perhitungan Kurva S), karena 1 kepala sub bisa terdiri dari beberapa
@@ -6076,18 +6113,15 @@
                 // masing2 dgn bobot manual & rentang tanggalnya sendiri)
                 const rencanaMingguan = getSubScheduleWeekly(noDiv, sub, totalWeeks, proj.tglMulai);
 
-                // Realisasi mingguan: diambil dari data Laporan Harian (volume x harga satuan RAB)
+                // Realisasi mingguan: HARUS mengikuti/sama persis dengan Laporan Mingguan - yaitu "Bobot
+                // Minggu Ini" per item RAB (dari hasil opname bersih minggu itu), bukan dihitung ulang secara
+                // terpisah dari Laporan Harian. Supaya Time Schedule selalu konsisten dengan Laporan Mingguan.
                 const realisasiMingguan = Array(totalWeeks).fill(0);
-                const subRabIds = new Set(subItems.map(r => r.id));
-                lapHarianData.forEach(item => {
-                    if (!subRabIds.has(Number(item.pekerjaanId)) && !subRabIds.has(item.pekerjaanId)) return;
-                    const rab = rabData.find(r => r.id == item.pekerjaanId);
-                    if (!rab) return;
-                    const w = getWeekIndexFromProjectStart(item.tanggal, proj.tglMulai, totalWeeks);
-                    if (!w) return;
-                    const nilai = (item.volume || 0) * (rab.harga || 0);
-                    const persen = subtotal > 0 ? (nilai / subtotal) * 100 : 0;
-                    realisasiMingguan[w - 1] += persen;
+                subItems.forEach(rab => {
+                    for (let w = 1; w <= totalWeeks; w++) {
+                        const volIni = bqOpnameNetVolumeForWeek(rab.id, `Minggu ${w}`);
+                        realisasiMingguan[w - 1] += subtotal > 0 ? (volIni * rab.harga / subtotal) * 100 : 0;
+                    }
                 });
 
                 // Komulatif & deviasi
@@ -6111,6 +6145,7 @@
                     { label: 'Komulatif Realisasi', data: kumRealisasi, cls: 'text-emerald-400 font-bold' },
                     { label: 'Deviasi (Kumulatif)', data: deviasi, cls: '' }
                 ];
+
                 rowsMeta.forEach((m, idx) => {
                     let row = '<tr class="hover:bg-slate-800/50 transition">';
                     if (idx === 0) {
@@ -6231,15 +6266,14 @@
                 const rencanaMingguan = getSubScheduleWeekly(noDiv, sub, totalWeeks, proj.tglMulai);
                 for (let w = 0; w < totalWeeks; w++) totalRencanaMingguan[w] += rencanaMingguan[w];
 
-                const subRabIds = new Set(subItems.map(r => r.id));
-                lapHarianData.forEach(item => {
-                    if (!subRabIds.has(Number(item.pekerjaanId)) && !subRabIds.has(item.pekerjaanId)) return;
-                    const rab = rabData.find(r => r.id == item.pekerjaanId);
-                    if (!rab) return;
-                    const w = getWeekIndexFromProjectStart(item.tanggal, proj.tglMulai, totalWeeks);
-                    if (!w) return;
-                    const nilai = (item.volume || 0) * (rab.harga || 0);
-                    totalRealisasiMingguan[w - 1] += subtotal > 0 ? (nilai / subtotal) * 100 : 0;
+                // Realisasi mingguan mengikuti Laporan Mingguan (bobot minggu ini per item dari opname
+                // bersih), bukan dihitung ulang terpisah dari Laporan Harian - supaya Kurva S & widget
+                // Beranda selalu konsisten dengan angka di Laporan Mingguan.
+                subItems.forEach(rab => {
+                    for (let w = 1; w <= totalWeeks; w++) {
+                        const volIni = bqOpnameNetVolumeForWeek(rab.id, `Minggu ${w}`);
+                        totalRealisasiMingguan[w - 1] += subtotal > 0 ? (volIni * rab.harga / subtotal) * 100 : 0;
+                    }
                 });
             });
 
@@ -6257,6 +6291,7 @@
         let scurveChartInstance = null;
         function renderSCurveChart() {
             const totalWeeks = getProjectScheduleWeeks();
+
             // Grafik dibungkus wrapper yang bisa digeser kiri-kanan (overflow-x-auto) dan lebar canvas
             // disesuaikan dengan jumlah minggu, supaya saat minggunya banyak, titik & garis grafik tetap
             // presisi/tidak berhimpitan di layar HP - bukan dipaksa muat ke satu lebar layar.
@@ -6406,18 +6441,17 @@
             const targetMingguIni = itemWeekly[week - 1] || 0;
             const targetKumulatif = itemWeekly.slice(0, week).reduce((a, b) => a + b, 0);
 
-            // Realisasi kumulatif s/d minggu terpilih (dari Laporan Harian)
+            // Realisasi kumulatif s/d minggu terpilih - HARUS mengikuti/sama persis dengan Laporan Mingguan
+            // (bobot minggu ini per item dari hasil opname bersih), bukan dihitung ulang terpisah dari
+            // Laporan Harian, supaya Action Plan selalu konsisten dengan Time Schedule & Laporan Mingguan.
             let realisasiKumulatif = 0;
             let realisasiMingguIni = 0;
-            lapHarianData.forEach(l => {
-                if (Number(l.pekerjaanId) !== Number(item.id)) return;
-                const w = getWeekIndexFromProjectStart(l.tanggal, proj.tglMulai);
-                if (!w) return;
-                const nilai = (l.volume || 0) * (item.harga || 0);
-                const persen = subtotal > 0 ? (nilai / subtotal) * 100 : 0;
-                if (w <= week) realisasiKumulatif += persen;
-                if (w === week) realisasiMingguIni += persen;
-            });
+            for (let w = 1; w <= week; w++) {
+                const volIni = bqOpnameNetVolumeForWeek(item.id, `Minggu ${w}`);
+                const persen = subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0;
+                realisasiKumulatif += persen;
+                if (w === week) realisasiMingguIni = persen;
+            }
 
             let status, statusCls;
             if (!sched) {
@@ -6433,7 +6467,6 @@
 
             return { bobotItem, targetMingguIni, realisasiMingguIni, status, statusCls };
         }
-
         function handleActionPlanWeekChange() {
             const sel = document.getElementById('actionPlanWeekSelect');
             actionPlanSelectedWeek = parseInt(sel.value) || 1;
@@ -6475,7 +6508,6 @@
                 const totalHarga = item.volume * item.harga;
                 const bobot = subtotal > 0 ? ((totalHarga / subtotal) * 100).toFixed(2) : '0.00';
                 const wk = getActionPlanItemWeekly(item, actionPlanSelectedWeek, subtotal);
-
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
@@ -6529,6 +6561,7 @@
             ];
             rows.forEach(r => wsData.push([r['No. Divisi'], r['Nama Divisi'], r['Nama Sub Pekerjaan'], r['Satuan'], r['Volume RAB'], r['Bobot (%)'], r['Target Minggu Ini (%)'], r['Status Action Plan']]));
             if (rows.length === 0) wsData.push(['Belum ada data RAB untuk minggu ini.']);
+
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             ws['!merges'] = [
                 { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
@@ -6633,6 +6666,7 @@
             } else {
                 scanNotaBtn.classList.add('hidden');
             }
+
             if (activeMaterialSub === 'mat-sisa') {
                 formBox.classList.add('hidden');
             } else {
@@ -6800,6 +6834,7 @@
             renderMaterialFormFields();
             document.getElementById('matFormFieldContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
         function cancelMaterialEdit() {
             materialEditContext = null;
             document.getElementById('formMaterial').reset();
@@ -6913,7 +6948,6 @@
                 opt.style.display = hay.includes(query) ? '' : 'none';
             });
         }
-
         // Isi otomatis form Material Masuk dari item Order Material yang dipilih (nama, dimensi, spesifikasi, satuan, supplier)
         function fillMmFromOrder() {
             const id = document.getElementById('mmOrderId').value;
@@ -6955,7 +6989,6 @@
             const excludeId = (materialEditContext && materialEditContext.type === 'masuk') ? materialEditContext.id : null;
             const st = getOrderMasukStatus(o, excludeId);
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
-
             infoBox.innerHTML = `Volume Order: <strong class="text-white">${formatAngka(o.volume)} ${o.satuan}</strong> &nbsp;|&nbsp; Sudah Masuk (nota lain): <strong class="text-sky-300">${formatAngka(st.totalMasuk)} ${o.satuan}</strong> &nbsp;|&nbsp; Sisa Belum Masuk: <strong class="text-emerald-400">${formatAngka(st.sisa)} ${o.satuan}</strong>`;
 
             if (warnBox && warnText) {
@@ -7030,6 +7063,7 @@
         function materialCompositeKey(nama, dimensi, spesifikasi) {
             return [nama, dimensi, spesifikasi].map(x => (x || '').toString().trim().toLowerCase()).join('||');
         }
+
         // Cascade sync: ketika 1 item Kebutuhan Material diedit (nama/dimensi/spesifikasi/satuan/harga/
         // supplier/kontak/kode berubah), seluruh data turunan di halaman Material lain (Order, Masuk, Keluar)
         // yang merujuk ke item ini ikut diperbarui otomatis. Dengan begitu list & inputan (dropdown) pada
@@ -7050,6 +7084,7 @@
                 }
             });
             if (orderChanged) localStorage.setItem('erp_mat_order', JSON.stringify(materialOrderData));
+
             // 2) Material Masuk terhubung lewat orderId ke Order yang baru saja disinkronkan
             let masukChanged = false;
             materialMasukData.forEach(m => {
@@ -7385,6 +7420,7 @@
                     `;
                 });
                 flushDailySubtotal(currentTanggal);
+
                 const activeProj = projects.find(p => p.id === activeProjectId);
                 const rentangProyek = activeProj && activeProj.tglMulai && activeProj.tglSelesai
                     ? `${activeProj.tglMulai} s/d ${activeProj.tglSelesai}`
@@ -7540,7 +7576,6 @@
         function closeScanNotaModal() {
             document.getElementById('scanNotaModal').classList.add('hidden');
         }
-
         function handleNotaImageSelected(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -7617,7 +7652,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const tbody = document.getElementById('bqResultTableBody');
             if (!tbody) return;
             if (!bqResultsData || bqResultsData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada gambar yang dianalisis atau perhitungan manual. Silakan upload gambar atau isi input manual di sebelah kiri.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada gambar yang dianalisis atau perhitungan manual. Silakan upload gambar atau isi input manual di sebelah kiri.</td></tr>';
                 return;
             }
             tbody.innerHTML = '';
@@ -7631,16 +7666,41 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         <td class="p-3 font-mono text-amber-400 font-bold">${formatAngka(item.volume)}</td>
                         <td class="p-3 font-mono">${formatRupiah(item.harga)}</td>
                         <td class="p-3 font-mono font-bold text-emerald-400">${formatRupiah(total)}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteBqEstimasiRow(${idx})" class="text-red-400 hover:text-red-300 transition" title="Hapus baris ini"><i class="fa-solid fa-trash"></i></button>
+                        </td>
                     </tr>
                 `;
             });
+        }
+
+        // Hapus 1 baris hasil estimasi yang sudah tidak diperlukan (mis. salah analisis / item tidak relevan),
+        // tanpa perlu mengosongkan seluruh daftar.
+        function deleteBqEstimasiRow(idx) {
+            if (!confirm('Hapus baris hasil estimasi ini?')) return;
+            bqResultsData.splice(idx, 1);
+            localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
+            renderBqResultsTable();
+        }
+
+        // Kosongkan SELURUH daftar hasil estimasi/material takeoff yang sudah tidak digunakan lagi
+        // (mis. mau mulai analisis gambar baru dari nol, atau daftar lama sudah tidak relevan).
+        function clearBqEstimasiData() {
+            if (!bqResultsData || bqResultsData.length === 0) { alert('Data estimasi memang sudah kosong.'); return; }
+            if (!confirm('Kosongkan SELURUH daftar hasil estimasi/material takeoff ini? Tindakan ini tidak bisa dibatalkan.')) return;
+            bqResultsData = [];
+            localStorage.setItem('erp_bq_results', JSON.stringify(bqResultsData));
+            renderBqResultsTable();
+            document.getElementById('bqImagePreviewBox').innerHTML = `
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-amber-400"></i>
+                <p class="text-slate-300 font-medium">Klik untuk upload gambar denah / potongan / barbending</p>
+                <p class="text-[10px] text-slate-500">Format: PNG, JPG, WEBP (Screenshot didukung)</p>`;
         }
 
         function renderBackupQuantity() {
             renderBqResultsTable();
             renderBqManualFields();
         }
-
         // ===================================================================
         // BACKUP QUANTITY - OPNAME LAPANGAN
         // Setiap item pekerjaan RAB (judul: rincian, satuan, volume) dapat memiliki
@@ -7657,17 +7717,17 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
         const BQ_OPNAME_METODE = {
             plt: {
-                label: 'Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume)',
+                label: 'Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume Balok/Kotak)',
                 fields: ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'],
                 labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', lebar: 'Lebar (m)', tinggi: 'Tinggi/Tebal (m)', koefisien: 'Koefisien' }
             },
             pl: {
-                label: 'Jumlah × Panjang × Lebar × Koefisien (Luas)',
+                label: 'Jumlah × Panjang × Lebar × Koefisien (Luas Persegi/Segiempat)',
                 fields: ['jumlah', 'panjang', 'lebar', 'koefisien'],
                 labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', lebar: 'Lebar (m)', koefisien: 'Koefisien' }
             },
             p: {
-                label: 'Jumlah × Panjang × Koefisien (Panjang / Keliling)',
+                label: 'Jumlah × Panjang × Koefisien (Panjang / Keliling Lurus)',
                 fields: ['jumlah', 'panjang', 'koefisien'],
                 labels: { jumlah: 'Jumlah', panjang: 'Panjang (m)', koefisien: 'Koefisien' }
             },
@@ -7680,10 +7740,67 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 label: 'Volume / Nilai Langsung (Manual) × Koefisien',
                 fields: ['jumlah', 'koefisien'],
                 labels: { jumlah: 'Nilai / Volume Terukur', koefisien: 'Koefisien' }
+            },
+            // ==== Metode bentuk BULAT/LINGKARAN (kolom bulat, pipa, bore pile, dsb) ====
+            bulatLuas: {
+                label: 'Jumlah × (π/4 × Diameter²) × Koefisien (Luas Penampang Bulat)',
+                fields: ['jumlah', 'diameter', 'koefisien'],
+                labels: { jumlah: 'Jumlah', diameter: 'Diameter (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * (Math.PI / 4) * Math.pow(v.diameter || 0, 2) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × (π/4 × ${formatAngka(row.diameter)}²) × ${formatAngka(row.koefisien)}`
+            },
+            bulatVolume: {
+                label: 'Jumlah × (π/4 × Diameter²) × Tinggi × Koefisien (Volume Tabung/Kolom Bulat/Bore Pile)',
+                fields: ['jumlah', 'diameter', 'tinggi', 'koefisien'],
+                labels: { jumlah: 'Jumlah', diameter: 'Diameter (m)', tinggi: 'Tinggi/Kedalaman (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * (Math.PI / 4) * Math.pow(v.diameter || 0, 2) * (v.tinggi || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × (π/4 × ${formatAngka(row.diameter)}²) × ${formatAngka(row.tinggi)} × ${formatAngka(row.koefisien)}`
+            },
+            bulatKeliling: {
+                label: 'Jumlah × (π × Diameter) × Koefisien (Keliling Lingkaran)',
+                fields: ['jumlah', 'diameter', 'koefisien'],
+                labels: { jumlah: 'Jumlah', diameter: 'Diameter (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * Math.PI * (v.diameter || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × (π × ${formatAngka(row.diameter)}) × ${formatAngka(row.koefisien)}`
+            },
+            bulatSelimut: {
+                label: 'Jumlah × (π × Diameter) × Tinggi × Koefisien (Luas Selimut Tabung/Kolom Bulat - mis. cat/plester)',
+                fields: ['jumlah', 'diameter', 'tinggi', 'koefisien'],
+                labels: { jumlah: 'Jumlah', diameter: 'Diameter (m)', tinggi: 'Tinggi (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * Math.PI * (v.diameter || 0) * (v.tinggi || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × (π × ${formatAngka(row.diameter)}) × ${formatAngka(row.tinggi)} × ${formatAngka(row.koefisien)}`
+            },
+            // ==== Metode bentuk TRAPESIUM (galian tanah/saluran/timbunan berkemiringan) ====
+            trapesium: {
+                label: 'Jumlah × ((Lebar Atas + Lebar Bawah)/2) × Tinggi × Panjang × Koefisien (Volume Trapesium - Galian/Saluran)',
+                fields: ['jumlah', 'lebarAtas', 'lebarBawah', 'tinggi', 'panjang', 'koefisien'],
+                labels: { jumlah: 'Jumlah', lebarAtas: 'Lebar Atas (m)', lebarBawah: 'Lebar Bawah (m)', tinggi: 'Tinggi/Kedalaman (m)', panjang: 'Panjang (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * (((v.lebarAtas || 0) + (v.lebarBawah || 0)) / 2) * (v.tinggi || 0) * (v.panjang || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × ((${formatAngka(row.lebarAtas)}+${formatAngka(row.lebarBawah)})/2) × ${formatAngka(row.tinggi)} × ${formatAngka(row.panjang)} × ${formatAngka(row.koefisien)}`
+            },
+            // ==== Metode bentuk SEGITIGA (atap pelana, talud, dsb) ====
+            segitiga: {
+                label: 'Jumlah × (0.5 × Alas × Tinggi) × Panjang × Koefisien (Volume Segitiga - Atap/Talud)',
+                fields: ['jumlah', 'alas', 'tinggi', 'panjang', 'koefisien'],
+                labels: { jumlah: 'Jumlah', alas: 'Alas (m)', tinggi: 'Tinggi (m)', panjang: 'Panjang (m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * 0.5 * (v.alas || 0) * (v.tinggi || 0) * (v.panjang || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × (0.5×${formatAngka(row.alas)}×${formatAngka(row.tinggi)}) × ${formatAngka(row.panjang)} × ${formatAngka(row.koefisien)}`
+            },
+            // ==== Metode BERAT (besi beton, pipa, baja profil - dihitung dari berat per meter) ====
+            berat: {
+                label: 'Jumlah × Panjang × Berat per Meter × Koefisien (Berat - Besi/Pipa/Baja)',
+                fields: ['jumlah', 'panjang', 'beratSatuan', 'koefisien'],
+                labels: { jumlah: 'Jumlah (batang)', panjang: 'Panjang (m)', beratSatuan: 'Berat per Meter (kg/m)', koefisien: 'Koefisien' },
+                calc: v => (v.jumlah || 0) * (v.panjang || 0) * (v.beratSatuan || 0) * (v.koefisien ?? 1),
+                formula: row => `${formatAngka(row.jumlah)} × ${formatAngka(row.panjang)} × ${formatAngka(row.beratSatuan)} kg/m × ${formatAngka(row.koefisien)}`
             }
         };
-        const BQ_OPNAME_ALL_FIELDS = ['jumlah', 'panjang', 'lebar', 'tinggi', 'koefisien'];
-        const BQ_OPNAME_FIELD_ICON = { jumlah: 'fa-hashtag', panjang: 'fa-ruler-horizontal', lebar: 'fa-ruler-vertical', tinggi: 'fa-cube', koefisien: 'fa-percent' };
+        const BQ_OPNAME_ALL_FIELDS = ['jumlah', 'panjang', 'lebar', 'tinggi', 'diameter', 'lebarAtas', 'lebarBawah', 'alas', 'beratSatuan', 'koefisien'];
+        const BQ_OPNAME_FIELD_ICON = {
+            jumlah: 'fa-hashtag', panjang: 'fa-ruler-horizontal', lebar: 'fa-ruler-vertical', tinggi: 'fa-cube',
+            diameter: 'fa-circle-notch', lebarAtas: 'fa-ruler-vertical', lebarBawah: 'fa-ruler-vertical',
+            alas: 'fa-ruler-horizontal', beratSatuan: 'fa-weight-hanging', koefisien: 'fa-percent'
+        };
 
         // Menampilkan input field sesuai metode yang dipilih (field yang tidak relevan disembunyikan, bukan dihapus, agar nilai tidak hilang saat ganti-ganti metode)
         function renderBqOpnameFormFields() {
@@ -7727,10 +7844,13 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             return { metode, cfg, vals };
         }
 
-        // Hitung volume 1 baris opname dari field-field yang relevan sesuai metode (field yang tidak dipakai dianggap 1, tidak mempengaruhi hasil kali)
+        // Hitung volume 1 baris opname sesuai metode. Metode dengan rumus khusus (bukan sekadar perkalian
+        // lurus semua field, mis. bentuk bulat/lingkaran, trapesium, segitiga, berat) memakai cfg.calc();
+        // metode lama (persegi/balok/panjang/satuan/manual) tetap memakai perkalian generik seperti semula.
         function computeBqOpnameVolume(metode, vals) {
             const cfg = BQ_OPNAME_METODE[metode];
             if (!cfg) return 0;
+            if (typeof cfg.calc === 'function') return cfg.calc(vals);
             let result = 1;
             cfg.fields.forEach(f => { result *= (Number(vals[f]) || 0); });
             return result;
@@ -7739,8 +7859,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function bqOpnameFormulaText(row) {
             const cfg = BQ_OPNAME_METODE[row.metode];
             if (!cfg) return '';
-            const parts = cfg.fields.map(f => `${formatAngka(row[f])}`);
-            return `${parts.join(' × ')} = <span class="font-bold text-white">${formatAngka(row.volume)}</span>`;
+            const lhs = typeof cfg.formula === 'function' ? cfg.formula(row) : cfg.fields.map(f => `${formatAngka(row[f])}`).join(' × ');
+            return `${lhs} = <span class="font-bold text-white">${formatAngka(row.volume)}</span>`;
         }
 
         function updateBqOpnameFormulaPreview() {
@@ -7769,7 +7889,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqOpnameMaster();
             detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
         // Tutup area detail & kembali ke daftar rincian per item pekerjaan.
         function closeBqOpnameDetail() {
             bqOpnameSelectedPekerjaanId = null;
@@ -7832,7 +7951,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             return null;
         }
-
         // Kunci penanda 1 kombinasi (item pekerjaan, minggu) di bqOpnameTouchedWeeks.
         function bqOpnameWeekKey(rabId, mingguKe) { return `${rabId}::${mingguKe}`; }
 
@@ -8035,18 +8153,21 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_bq_opname', JSON.stringify(bqOpnameData));
             renderBqOpnameDetail();
         }
+
         function renderBqOpnameTable() {
             const tbody = document.getElementById('bqOpnameTableBody');
             if (!tbody) return;
             const rows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu).sort((a, b) => (a.order || 0) - (b.order || 0));
             const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
             if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini pada ${bqOpnameSelectedMinggu}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada hasil opname untuk item pekerjaan ini pada ${bqOpnameSelectedMinggu}.</td></tr>`;
             } else {
                 tbody.innerHTML = rows.map((row, idx) => {
-                    const tipeBadge = row.tipe === 'kurang'
-                        ? '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">KURANG</span>'
-                        : '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">TAMBAH</span>';
+                    // Kategori Tambah/Kurang digabung langsung ke kolom Volume (tanda +/- & warna), tidak lagi
+                    // jadi kolom terpisah - supaya list lebih ringkas & angkanya langsung terbaca satu kesatuan.
+                    const tipeTag = row.tipe === 'kurang'
+                        ? '<span class="px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold ml-1.5 align-middle">KURANG</span>'
+                        : '<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold ml-1.5 align-middle">TAMBAH</span>';
                     const carriedBadge = row.disalinDariMinggu
                         ? `<div class="mt-1"><span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] font-bold whitespace-nowrap"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Disalin dari Minggu ${row.disalinDariMinggu}</span></div>`
                         : '';
@@ -8069,9 +8190,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                             <td class="p-3">${rab ? rab.sub : '-'}</td>
                             <td class="p-3 text-slate-400">${rab ? (rab.rincian || '') : '-'}</td>
                             <td class="p-3 font-medium text-white">${row.segmen}${carriedBadge}</td>
-                            <td class="p-3">${tipeBadge}</td>
                             <td class="p-3 text-[11px] text-slate-400">${BQ_OPNAME_METODE[row.metode] ? BQ_OPNAME_METODE[row.metode].label : ''}<br>${bqOpnameFormulaText(row)}</td>
-                            <td class="p-3 font-mono font-bold ${row.tipe === 'kurang' ? 'text-red-400' : 'text-emerald-400'}">${row.tipe === 'kurang' ? '-' : ''}${formatAngka(row.volume)} ${rab ? rab.satuan : ''}${kontribusiNote}</td>
+                            <td class="p-3 font-mono font-bold ${row.tipe === 'kurang' ? 'text-red-400' : 'text-emerald-400'}">${row.tipe === 'kurang' ? '-' : '+'}${formatAngka(row.volume)} ${rab ? rab.satuan : ''}${tipeTag}${kontribusiNote}</td>
                             <td class="p-3 text-[11px] text-slate-400">${row.catatan || '-'}</td>
                             <td class="p-3">
                                 <div class="flex items-center justify-center gap-1.5">
@@ -8181,6 +8301,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     ? `<i class="fa-solid fa-calendar-days mr-1"></i>Periode: <span class="text-amber-300 font-semibold">${rangeDetailed.labelFull}</span>`
                     : `<i class="fa-solid fa-calendar-days mr-1"></i>Tanggal Mulai Proyek belum diatur, periode tanggal tidak dapat dihitung.`;
             }
+
             const projRAB = rabData.filter(r => r.projId === activeProjectId);
             const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
             const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
@@ -8285,6 +8406,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // dibutuhkan untuk kategori pekerjaan tersebut beserta kebutuhannya.
         // ===================================================================
         function bqR2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
+
         const BQ_HARGA = {
             semen: 68000, pasirBeton: 250000, split: 300000, besi: 16500, kawat: 28000,
             paku: 25000, minyakBekisting: 38000,
@@ -8941,7 +9063,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Belum ada riwayat absensi.</td></tr>`;
                 return;
             }
-
             // Urutkan berdasarkan waktu absen, terbaru di atas (paling mudah dicari), dan tidak lagi mengandalkan
             // urutan input data mentah (yang bisa acak-acakan setelah sinkronisasi cloud/edit foto)
             const sortedData = data.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
@@ -9025,7 +9146,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         });
                 });
         }
-
         // Tampilkan tombol ganti kamera hanya jika perangkat terdeteksi memiliki lebih dari 1 kamera
         function refreshSwitchCameraButton() {
             const btn = document.getElementById('switchCameraBtn');
@@ -9550,7 +9670,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const mapX = w - pad - mapBoxSize;
                 const mapY = panelY + panelHeight - pad - mapBoxSize;
                 drawSchematicMap(ctx, mapX, mapY, mapBoxSize, mapBoxSize, opts.isMasuk ? '#10b981' : '#f43f5e');
-
                 resolve();
             });
         }
@@ -9628,12 +9747,12 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } catch (err) {
                 console.warn('Web Share API (file) gagal/tidak didukung, memakai fallback:', err);
             }
+
             // Fallback untuk browser yang tidak mendukung share file: unduh dulu fotonya, lalu buka WA dengan teks info
             downloadAbsenPhoto();
             alert('Perangkat/browser ini belum mendukung kirim foto langsung ke WhatsApp. Foto sudah otomatis diunduh ke HP - silakan lampirkan manual di WhatsApp. Jendela WhatsApp dengan teks info akan dibuka sekarang.');
             window.open(`https://wa.me/?text=${encodeURIComponent(caption)}`, '_blank');
         }
-
         function shareAbsenWaById(id, isMasuk) {
             const data = isMasuk ? absenMasukData : absenKeluarData;
             const item = data.find(d => d.id == id);
@@ -9816,6 +9935,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             const tbody = document.getElementById('dhRekapTableBody');
             tbody.innerHTML = '';
+
             if (rekap.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${jumlahHari + 8}" class="p-6 text-center text-slate-500">Belum ada data karyawan pada proyek ini.</td></tr>`;
                 return;
@@ -9983,6 +10103,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data karyawan.</td></tr>`;
                 return;
             }
+
             projEmps.forEach(emp => {
                 const isAdmin = currentUser && currentUser.role === 'Admin';
                 const editBtn = isAdmin ? `<button onclick="editEmployee(${emp.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button>` : '';
@@ -10030,7 +10151,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 if (emp.photo) document.getElementById('empPhotoPreview').innerHTML = `<img src="${emp.photo}" class="w-full h-full object-cover rounded-full">`;
             }
         }
-
         // Hanya Admin yang boleh mengedit data karyawan
         function editEmployee(id) {
             if (!currentUser || currentUser.role !== 'Admin') {
@@ -10135,7 +10255,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             currentUser.phone = document.getElementById('profInputPhone').value.trim();
             const newPass = document.getElementById('profInputPassword').value.trim();
             if (newPass) currentUser.pass = newPass;
-
             sessionStorage.setItem('erp_current_user', JSON.stringify(currentUser));
             const uIdx = users.findIndex(u => u.id === currentUser.id);
             if (uIdx !== -1) {
@@ -10213,6 +10332,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_users', JSON.stringify(users));
             openAdminApprovalModal();
         }
+
         // Hapus akun User dari proyek Admin. Tidak bisa menghapus akun Admin, dan hanya bisa menghapus
         // akun User yang memang tertaut ke salah satu proyek milik Admin yang sedang login.
         function deleteUserAccount(id) {
@@ -10323,7 +10443,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const existingIdx = projects.findIndex(p => p.id === importedProj.id);
                     if (existingIdx !== -1) projects[existingIdx] = importedProj; else projects.push(importedProj);
                     localStorage.setItem('erp_projects', JSON.stringify(projects));
-
                     const pid = importedProj.id;
                     const mergeByProj = (arr, incoming, key) => {
                         const others = arr.filter(x => x[key] !== pid);
@@ -10932,7 +11051,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }
-
             text += `\n_Dibuat otomatis oleh ProConstruct ERP v3.0_\n_by rchmd20_`;
             document.getElementById('waPreviewText').value = text;
         }
@@ -10953,7 +11071,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
         }
-
         // Helper Format Angka umum (volume, sisa, dsb): angka bulat tetap tampil bulat,
         // angka desimal dibulatkan & dibatasi MAKSIMAL 2 angka di belakang koma di semua halaman.
         // Memakai locale id-ID sehingga koma dipakai sbg pemisah desimal & titik sbg pemisah ribuan.
@@ -10989,6 +11106,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const extra = [item.dimensi, item.spesifikasi].filter(Boolean).join(' - ');
             return extra ? `${item.nama} (${extra})` : item.nama;
         }
+
         // Perkirakan jumlah total tenaga kerja (orang) dari teks bebas kolom "Tenaga" pada Laporan Harian,
         // mis. "5 Tukang, 2 Mandor, 1 Kepala Tukang" -> dijumlah jadi 8. Dipakai utk baris "Total Tenaga
         // Kerja Hari Ini" pada list & export WhatsApp. Kalau formatnya tidak diawali angka, segmen tsb dilewati.
