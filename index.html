@@ -11953,140 +11953,403 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             `;
         }
 
-        function triggerExcelExport(type) {
-            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
-            const materialTypes = ['mat-kebutuhan', 'mat-order', 'mat-masuk', 'mat-keluar', 'mat-sisa'];
+        // ===================================================================
+        // MESIN EXPORT PROFESIONAL (dipakai bersama oleh SEMUA export Excel & PDF
+        // di seluruh halaman) - satu sumber data yang sama dipakai baik untuk Excel
+        // maupun PDF, supaya hasil keduanya selalu identik dan sesuai isi halamannya.
+        // ===================================================================
 
+        function getExportProjectMeta() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
+            return {
+                proj,
+                namaProyek: proj.nama || '-',
+                lokasi: proj.lokasi || '-',
+                logo: proj.logo || null,
+                tanggalCetak: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+            };
+        }
+
+        // --------- EXCEL: kop surat + info proyek + tabel bergaya + rumus asli + header berulang ---------
+        // columns: [{ header, key, formula?: (row, excelRowNum, ctx) => 'string formula (tanpa =)' }]
+        // rows: array data polos { key: value, ... }
+        // opts: { totalRow: { label, sumKeys: [...] }, subtitle: 'Periode: ...' }
+        function exportProfessionalExcel(title, columns, rows, filename, opts = {}) {
+            const meta = getExportProjectMeta();
+            const ncol = columns.length;
+            const aoa = [];
+            aoa.push([title.toUpperCase()]);
+            aoa.push([`Proyek: ${meta.namaProyek}`]);
+            aoa.push([`Lokasi: ${meta.lokasi}    |    Tanggal Cetak: ${meta.tanggalCetak}${opts.subtitle ? '    |    ' + opts.subtitle : ''}`]);
+            aoa.push([]);
+            const headerRowIdx = aoa.length; // 0-based
+            aoa.push(columns.map(c => c.header));
+            const dataStartRowIdx = aoa.length; // 0-based
+            rows.forEach(row => aoa.push(columns.map(c => (row[c.key] !== undefined && row[c.key] !== null) ? row[c.key] : '')));
+
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: Math.max(0, ncol - 1) } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: Math.max(0, ncol - 1) } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: Math.max(0, ncol - 1) } }
+            ];
+
+            const colLetter = (key) => XLSX.utils.encode_col(columns.findIndex(c => c.key === key));
+            const ctx = { dataStartExcelRow: dataStartRowIdx + 1, dataEndExcelRow: dataStartRowIdx + rows.length, colLetter };
+
+            // Terapkan rumus Excel ASLI (bukan angka statis) pada kolom yang didefinisikan formula-nya
+            columns.forEach((col, ci) => {
+                if (typeof col.formula !== 'function') return;
+                rows.forEach((row, ri) => {
+                    const excelRowNum = dataStartRowIdx + ri + 1; // 1-based, dipakai di string formula (A1 notation)
+                    const f = col.formula(row, excelRowNum, ctx);
+                    if (f) ws[XLSX.utils.encode_cell({ r: dataStartRowIdx + ri, c: ci })] = { t: 'n', f: f };
+                });
+            });
+
+            let lastRowIdx = dataStartRowIdx + rows.length - 1;
+            if (opts.totalRow && rows.length > 0) {
+                const totalRowIdx = dataStartRowIdx + rows.length;
+                const totalArr = columns.map((c, ci) => ci === 0 ? (opts.totalRow.label || 'TOTAL') : '');
+                XLSX.utils.sheet_add_aoa(ws, [totalArr], { origin: totalRowIdx });
+                columns.forEach((c, ci) => {
+                    if (!opts.totalRow.sumKeys || !opts.totalRow.sumKeys.includes(c.key)) return;
+                    const L = XLSX.utils.encode_col(ci);
+                    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: ci })] = { t: 'n', f: `SUM(${L}${ctx.dataStartExcelRow}:${L}${ctx.dataEndExcelRow})` };
+                });
+                lastRowIdx = totalRowIdx;
+                for (let c = 0; c < ncol; c++) {
+                    const ref = XLSX.utils.encode_cell({ r: totalRowIdx, c });
+                    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+                    ws[ref].s = { font: { bold: true }, fill: { fgColor: { rgb: 'D9E2F3' } }, border: allThinBorder() };
+                }
+            }
+            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: lastRowIdx, c: Math.max(0, ncol - 1) } });
+
+            // Styling: judul tebal besar, header tabel BOLD + BERWARNA + rata tengah, seluruh sel data diberi border tipis
+            const titleRef = XLSX.utils.encode_cell({ r: 0, c: 0 });
+            if (ws[titleRef]) ws[titleRef].s = { font: { bold: true, sz: 14, color: { rgb: '0B132B' } } };
+            for (let c = 0; c < ncol; c++) {
+                const ref = XLSX.utils.encode_cell({ r: headerRowIdx, c });
+                if (ws[ref]) ws[ref].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '1F3864' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: allThinBorder() };
+            }
+            for (let r = dataStartRowIdx; r <= dataStartRowIdx + rows.length - 1; r++) {
+                for (let c = 0; c < ncol; c++) {
+                    const ref = XLSX.utils.encode_cell({ r, c });
+                    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+                    ws[ref].s = { border: allThinBorder(), alignment: { vertical: 'top', wrapText: true } };
+                }
+            }
+
+            // Lebar kolom otomatis menyesuaikan isi terpanjang (supaya rapi, tidak terpotong/terhambur)
+            ws['!cols'] = columns.map(c => {
+                const headerLen = (c.header || '').toString().length;
+                const maxDataLen = rows.reduce((m, r) => Math.max(m, String(r[c.key] ?? '').length), 0);
+                return { wch: Math.max(10, Math.min(45, Math.max(headerLen, maxDataLen) + 3)) };
+            });
+            ws['!rows'] = aoa.map((_, i) => i === headerRowIdx ? { hpt: 26 } : undefined);
+
+            const wb = XLSX.utils.book_new();
+            const sheetName = title.substring(0, 31).replace(/[\\\/\?\*\[\]:]/g, ' ');
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            // Baris header tabel (bukan baris 1-4 kop) diset sebagai "Print Titles" - supaya kalau file Excel
+            // ini dicetak/print langsung dari Excel dan datanya lebih dari 1 halaman, kepala tabelnya ikut
+            // muncul ulang otomatis di setiap halaman cetak berikutnya.
+            wb.Workbook = wb.Workbook || {};
+            wb.Workbook.Names = wb.Workbook.Names || [];
+            wb.Workbook.Names.push({ Sheet: 0, Name: '_xlnm.Print_Titles', Ref: `'${sheetName}'!$1:$${headerRowIdx + 1}` });
+
+            try { XLSX.writeFile(wb, filename, { cellStyles: true }); }
+            catch (e) { XLSX.writeFile(wb, filename); } // fallback kalau versi library tidak dukung styling, data tetap lengkap
+        }
+
+        function allThinBorder() {
+            const b = { style: 'thin', color: { rgb: 'B7C0CE' } };
+            return { top: b, bottom: b, left: b, right: b };
+        }
+
+        // --------- PDF: kop surat + info proyek + tabel bergaya, header tabel berulang tiap halaman cetak ---------
+        function exportProfessionalPdf(title, columns, rows, filename, opts = {}) {
+            const meta = getExportProjectMeta();
+            const container = document.getElementById('printContainer');
+            const orientation = opts.orientation || 'portrait';
+            const rowsPerPage = opts.rowsPerPage || (orientation === 'landscape' ? 24 : 20);
+
+            const kopHtml = `
+                <table style="width:100%; border-collapse:collapse; margin-bottom:8px;">
+                    <tr>
+                        ${meta.logo ? `<td style="width:64px; vertical-align:middle; padding-right:8px;"><img src="${meta.logo}" style="max-width:56px; max-height:56px; object-fit:contain;"></td>` : ''}
+                        <td style="vertical-align:middle; border-bottom:2px solid #1F3864; padding-bottom:6px;">
+                            <div style="font-size:14px; font-weight:bold; color:#0b132b;">${escapeExportHtml(meta.namaProyek)}</div>
+                            <div style="font-size:9px; color:#334155;">Lokasi: ${escapeExportHtml(meta.lokasi)}</div>
+                            <div style="font-size:9px; color:#334155;">Dicetak dari ProConstruct ERP v3.0 &mdash; ${meta.tanggalCetak}${opts.subtitle ? ' &mdash; ' + escapeExportHtml(opts.subtitle) : ''}</div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="font-size:12px; font-weight:bold; text-align:center; background:#1F3864; color:#fff; padding:6px; margin-bottom:8px; border-radius:3px;">${escapeExportHtml(title).toUpperCase()}</div>
+            `;
+            const theadHtml = `<thead><tr>${columns.map(c => `<th style="background:#1F3864; color:#fff; font-weight:bold; border:1px solid #0b132b; padding:4px; font-size:8.5px; text-align:left;">${escapeExportHtml(c.header)}</th>`).join('')}</tr></thead>`;
+
+            let bodyHtml;
+            if (rows.length === 0) {
+                bodyHtml = `<p style="text-align:center; color:#64748b; padding:30px; font-size:11px;">Belum ada data untuk ditampilkan pada laporan ini.</p>`;
+            } else {
+                bodyHtml = '';
+                for (let i = 0; i < rows.length; i += rowsPerPage) {
+                    const chunk = rows.slice(i, i + rowsPerPage);
+                    // Setiap potongan (halaman) tabel diberi <thead> sendiri + kop diulang (kecuali halaman
+                    // pertama, kop-nya sudah ada di atas) - supaya kepala tabel & info proyek tetap kelihatan
+                    // di setiap halaman saat di-print / dijadikan PDF, memudahkan pengecekan data per halaman.
+                    bodyHtml += `
+                        <div style="${i > 0 ? 'page-break-before: always; padding-top:10px;' : ''}">
+                            ${i > 0 ? kopHtml : ''}
+                            <table style="width:100%; border-collapse:collapse; font-size:8.5px;">
+                                ${theadHtml}
+                                <tbody>
+                                    ${chunk.map((row, ri) => `<tr style="background:${(i + ri) % 2 === 1 ? '#f1f5f9' : '#ffffff'};">${columns.map(c => `<td style="border:1px solid #cbd5e1; padding:4px; vertical-align:top;">${escapeExportHtml(row[c.key] ?? '')}</td>`).join('')}</tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>`;
+                }
+                if (opts.totalRow) {
+                    const totalCells = columns.map((c, ci) => {
+                        if (ci === 0) return opts.totalRow.label || 'TOTAL';
+                        if (opts.totalRow.sumKeys && opts.totalRow.sumKeys.includes(c.key)) {
+                            return formatAngka(rows.reduce((a, r) => a + (Number(r[c.key]) || 0), 0));
+                        }
+                        return '';
+                    });
+                    bodyHtml += `
+                        <table style="width:100%; border-collapse:collapse; font-size:8.5px; margin-top:-1px;">
+                            <tr style="background:#D9E2F3; font-weight:bold;">${totalCells.map(v => `<td style="border:1px solid #94a3b8; padding:4px;">${escapeExportHtml(v)}</td>`).join('')}</tr>
+                        </table>`;
+                }
+            }
+
+            container.innerHTML = `<div style="font-family: Arial, sans-serif; color:#000; padding:12px;">${kopHtml}${bodyHtml}</div>`;
+            const opt = {
+                margin: 8,
+                filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation },
+                pagebreak: { mode: ['css'] }
+            };
+            html2pdf().set(opt).from(container).save();
+        }
+
+        // Ubah hasil builder material lama ({headers, rows:[{cells,kind}]}) menjadi format columns/rows generik,
+        // supaya materials JUGA lewat mesin export yang sama persis dengan halaman lain (konsisten di semua halaman).
+        function materialBuilderToGeneric(built) {
+            const columns = built.headers.map((h, idx) => ({ header: h, key: 'c' + idx }));
+            const rows = built.rows.map(r => {
+                const obj = {};
+                built.headers.forEach((h, idx) => { obj['c' + idx] = r.cells[idx] ?? ''; });
+                return obj;
+            });
+            return { columns, rows };
+        }
+
+        // ===================================================================
+        // DATASET PER HALAMAN: satu fungsi ini yang menentukan APA saja isi export-nya untuk
+        // tiap jenis halaman - dipakai SAMA PERSIS oleh Excel & PDF supaya keduanya selalu identik
+        // dan sesuai dengan data yang tampil di layar pada halaman terkait.
+        // ===================================================================
+        function getExportDataset(type) {
+            const materialTypes = ['mat-kebutuhan', 'mat-order', 'mat-masuk', 'mat-keluar', 'mat-sisa'];
             if (materialTypes.includes(type)) {
                 const built = getMaterialExportBuilder(type);
-                const filename = `${type}_${proj.nama}.xlsx`;
-                const aoa = [built.headers, ...built.rows.map(r => r.cells)];
-                const ws = XLSX.utils.aoa_to_sheet(aoa);
-                ws['!cols'] = computeExportColWidths(built.headers, built.rows);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, built.title.substring(0, 31));
-                XLSX.writeFile(wb, filename);
-                return;
+                const generic = materialBuilderToGeneric(built);
+                return { title: built.title, columns: generic.columns, rows: generic.rows, orientation: 'landscape' };
             }
 
-            let dataArr = [];
-            let filename = `${type}_${proj.nama}.xlsx`;
+            if (type === 'rab') {
+                const projRAB = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
+                const columns = [
+                    { header: 'No', key: 'no' },
+                    { header: 'No/Div', key: 'noDiv' },
+                    { header: 'Divisi Pekerjaan', key: 'div' },
+                    { header: 'Sub Pekerjaan', key: 'sub' },
+                    { header: 'Rincian', key: 'rincian' },
+                    { header: 'Satuan', key: 'satuan' },
+                    { header: 'Volume', key: 'volume' },
+                    { header: 'Harga Satuan (Rp)', key: 'harga' },
+                    { header: 'Jumlah Harga (Rp)', key: 'jumlahHarga', formula: (row, r, ctx) => `${ctx.colLetter('volume')}${r}*${ctx.colLetter('harga')}${r}` },
+                    { header: 'Bobot (%)', key: 'bobot', formula: (row, r, ctx) => `IF(SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})=0,0,${ctx.colLetter('jumlahHarga')}${r}/SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})*100)` }
+                ];
+                const rows = projRAB.map((r, i) => ({
+                    no: i + 1, noDiv: r.noDiv || '', div: r.div || '', sub: r.sub || '', rincian: r.rincian || '',
+                    satuan: r.satuan || '', volume: r.volume, harga: r.harga,
+                    jumlahHarga: r.volume * r.harga,
+                    bobot: (() => { const sub = projRAB.reduce((a, c) => a + c.volume * c.harga, 0); return sub > 0 ? (r.volume * r.harga / sub) * 100 : 0; })()
+                }));
+                return { title: 'RAB Kontrak Awal', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobot'] } };
+            }
 
-            if (type === 'rab') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
-            else if (type === 'lap-harian') dataArr = buildLapHarianExportRows();
-            else if (type === 'lap-mingguan') dataArr = lapMingguanData
-                .filter(l => l.projId === activeProjectId)
-                .map(l => {
-                    const rab = rabData.find(r => r.id == l.rabId) || {};
-                    return {
-                        'Minggu Ke': l.mingguKe, 'No/Div': rab.noDiv || '', 'Divisi': rab.div || '',
-                        'Sub Pekerjaan': rab.sub || '', 'Rincian': rab.rincian || '', 'Satuan': rab.satuan || '',
-                        'Volume Minggu Ini': l.volume, 'Keterangan': l.keterangan || ''
-                    };
-                });
-            else if (type === 'lap-bulanan') {
-                const bulanSel = document.getElementById('lbFilterBulanSelect');
-                const selectedBulan = bulanSel ? bulanSel.value : 'Bulan 1';
-                const monthNum = parseInt((selectedBulan || '').replace(/\D/g, ''), 10) || 1;
-                const monthWeekRange = getMonthWeekRange(monthNum);
-                dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv)).map(item => {
-                    const itemLmEntries = lapMingguanData.filter(l => l.rabId == item.id);
-                    // Bulan 1 (mulai dari Minggu 1) tidak punya "bulan sebelumnya", jadi Vol. Bulan Lalu
-                    // WAJIB 0. Baris dengan minggu tidak valid/kosong juga tidak dihitung sebagai "lalu".
-                    const volLalu = monthWeekRange.start <= 1 ? 0 : itemLmEntries
-                        .filter(l => {
-                            const wk = parseInt((l.mingguKe || '').replace(/\D/g, ''), 10);
-                            return wk >= 1 && wk < monthWeekRange.start;
-                        })
-                        .reduce((acc, cur) => acc + (Number(cur.volume) || 0), 0);
-                    const bulanEntries = itemLmEntries.filter(l => {
-                        const wk = parseInt((l.mingguKe || '').replace(/\D/g, ''), 10) || 0;
-                        return wk >= monthWeekRange.start && wk <= monthWeekRange.end;
+            if (type === 'lap-harian') {
+                const rows = buildLapHarianExportRows();
+                const columns = Object.keys(rows[0] || { Tanggal: '', 'Item Pekerjaan': '', Volume: '', Satuan: '', Tenaga: '', 'Jam Aktif': '', 'Jam Lembur': '', 'Cuaca Pagi': '', 'Cuaca Siang': '', 'Cuaca Sore': '', 'Cuaca Malam': '', 'Material Masuk': '', 'Material Keluar': '', Kendala: '', Notulen: '' })
+                    .map(k => ({ header: k, key: k }));
+                return { title: 'Laporan Harian Lapangan', columns, rows, orientation: 'landscape' };
+            }
+
+            if (type === 'lap-mingguan' || type === 'lap-bulanan') {
+                const isMingguan = type === 'lap-mingguan';
+                const selEl = document.getElementById(isMingguan ? 'lmFilterMingguSelect' : 'lbFilterBulanSelect');
+                const proj = projects.find(p => p.id === activeProjectId) || {};
+                const projRAB = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
+                const subtotal = projRAB.reduce((a, c) => a + c.volume * c.harga, 0);
+
+                const columns = [
+                    { header: 'No/Div', key: 'noDiv' }, { header: 'Divisi Pekerjaan', key: 'div' },
+                    { header: 'Sub Pekerjaan', key: 'sub' }, { header: 'Rincian', key: 'rincian' }, { header: 'Satuan', key: 'satuan' },
+                    { header: 'Volume RAB', key: 'volumeRab' }, { header: 'Harga Satuan (Rp)', key: 'harga' },
+                    { header: 'Jumlah Harga (Rp)', key: 'jumlahHarga', formula: (row, r, ctx) => `${ctx.colLetter('volumeRab')}${r}*${ctx.colLetter('harga')}${r}` },
+                    { header: 'Bobot (%)', key: 'bobotItem', formula: (row, r, ctx) => `IF(SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})=0,0,${ctx.colLetter('jumlahHarga')}${r}/SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})*100)` },
+                    { header: `Vol. ${isMingguan ? 'Minggu' : 'Bulan'} Lalu`, key: 'volLalu' },
+                    { header: `Vol. ${isMingguan ? 'Minggu' : 'Bulan'} Ini`, key: 'volIni' },
+                    { header: 'Vol. Komulatif', key: 'volKum' },
+                    { header: 'Bobot Lalu (%)', key: 'bobotLalu', formula: (row, r, ctx) => `${ctx.colLetter('volLalu')}${r}*${ctx.colLetter('harga')}${r}/IF(SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})=0,1,SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow}))*100` },
+                    { header: 'Bobot Ini (%)', key: 'bobotIni', formula: (row, r, ctx) => `${ctx.colLetter('volIni')}${r}*${ctx.colLetter('harga')}${r}/IF(SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})=0,1,SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow}))*100` },
+                    { header: 'Bobot Komulatif (%)', key: 'bobotKum', formula: (row, r, ctx) => `${ctx.colLetter('bobotLalu')}${r}+${ctx.colLetter('bobotIni')}${r}` },
+                    { header: 'Jumlah Uang (Rp)', key: 'jumlahUang', formula: (row, r, ctx) => `${ctx.colLetter('volKum')}${r}*${ctx.colLetter('harga')}${r}` },
+                    { header: 'Keterangan', key: 'keterangan' }
+                ];
+
+                let rows = [], reportTitle, subtitle, selectedLabel;
+                if (isMingguan) {
+                    selectedLabel = selEl ? selEl.value : 'Minggu 1';
+                    const weekNum = parseInt((selectedLabel || '').replace(/\D/g, ''), 10) || 1;
+                    rows = projRAB.map(item => {
+                        const volLalu = bqOpnameNetVolumeCumulative(item.id, weekNum);
+                        const volIni = bqOpnameNetVolumeForWeek(item.id, selectedLabel);
+                        const volKum = volLalu + volIni;
+                        const entry = lapMingguanData.find(l => l.rabId == item.id && l.mingguKe === selectedLabel);
+                        return {
+                            noDiv: item.noDiv || '', div: item.div || '', sub: item.sub || '', rincian: item.rincian || '', satuan: item.satuan || '',
+                            volumeRab: item.volume, harga: item.harga, jumlahHarga: item.volume * item.harga,
+                            bobotItem: subtotal > 0 ? (item.volume * item.harga / subtotal) * 100 : 0,
+                            volLalu, volIni, volKum,
+                            bobotLalu: subtotal > 0 ? (volLalu * item.harga / subtotal) * 100 : 0,
+                            bobotIni: subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0,
+                            bobotKum: subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0,
+                            jumlahUang: volKum * item.harga,
+                            keterangan: entry ? (entry.keterangan || '') : ''
+                        };
                     });
-                    const volIni = bulanEntries.reduce((acc, cur) => acc + (Number(cur.volume) || 0), 0);
-                    const volKum = volLalu + volIni;
-                    const keterangan = bulanEntries.map(l => l.keterangan).filter(k => (k || '').trim() !== '').join('; ');
-                    return {
-                        'Bulan Ke': selectedBulan, 'No/Div': item.noDiv || '', 'Divisi': item.div || '',
-                        'Sub Pekerjaan': item.sub || '', 'Rincian': item.rincian || '', 'Satuan': item.satuan || '',
-                        'Volume RAB': item.volume, 'Vol. Bulan Lalu': volLalu, 'Vol. Bulan Ini': volIni,
-                        'Vol. Komulatif': volKum, 'Jumlah Uang (Rp)': volKum * item.harga, 'Keterangan': keterangan
-                    };
-                });
+                    reportTitle = `Laporan Mingguan - ${selectedLabel}`;
+                    subtitle = `Periode: ${selectedLabel}`;
+                } else {
+                    selectedLabel = selEl ? selEl.value : 'Bulan 1';
+                    const monthNum = parseInt((selectedLabel || '').replace(/\D/g, ''), 10) || 1;
+                    const monthWeekRange = getMonthWeekRange(monthNum);
+                    rows = projRAB.map(item => {
+                        const itemLmEntries = lapMingguanData.filter(l => l.rabId == item.id);
+                        const volLalu = monthWeekRange.start <= 1 ? 0 : itemLmEntries.filter(l => { const wk = parseInt((l.mingguKe || '').replace(/\D/g, ''), 10); return wk >= 1 && wk < monthWeekRange.start; }).reduce((a, c) => a + (Number(c.volume) || 0), 0);
+                        const bulanEntries = itemLmEntries.filter(l => { const wk = parseInt((l.mingguKe || '').replace(/\D/g, ''), 10) || 0; return wk >= monthWeekRange.start && wk <= monthWeekRange.end; });
+                        const volIni = bulanEntries.reduce((a, c) => a + (Number(c.volume) || 0), 0);
+                        const volKum = volLalu + volIni;
+                        const keterangan = bulanEntries.map(l => l.keterangan).filter(k => (k || '').trim() !== '').join('; ');
+                        return {
+                            noDiv: item.noDiv || '', div: item.div || '', sub: item.sub || '', rincian: item.rincian || '', satuan: item.satuan || '',
+                            volumeRab: item.volume, harga: item.harga, jumlahHarga: item.volume * item.harga,
+                            bobotItem: subtotal > 0 ? (item.volume * item.harga / subtotal) * 100 : 0,
+                            volLalu, volIni, volKum,
+                            bobotLalu: subtotal > 0 ? (volLalu * item.harga / subtotal) * 100 : 0,
+                            bobotIni: subtotal > 0 ? (volIni * item.harga / subtotal) * 100 : 0,
+                            bobotKum: subtotal > 0 ? (volKum * item.harga / subtotal) * 100 : 0,
+                            jumlahUang: volKum * item.harga,
+                            keterangan
+                        };
+                    });
+                    reportTitle = `Laporan Bulanan - ${selectedLabel}`;
+                    subtitle = `Periode: ${selectedLabel}`;
+                }
+                return { title: reportTitle, columns, rows, orientation: 'landscape', subtitle, totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobotItem', 'jumlahUang'] } };
             }
-            else if (type === 'time-schedule' || type === 'action-plan') dataArr = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
-            else if (type === 'bq-estimasi') dataArr = bqResultsData;
-            else if (type === 'bq-opname') dataArr = buildBqOpnameExportRows();
-            else if (type === 'absen-daftar-hadir') {
+
+            if (type === 'time-schedule') {
+                const projRAB = rabData.filter(r => r.projId === activeProjectId).sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
+                const subtotal = projRAB.reduce((a, c) => a + c.volume * c.harga, 0);
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'No/Div', key: 'noDiv' }, { header: 'Divisi Pekerjaan', key: 'div' },
+                    { header: 'Sub Pekerjaan', key: 'sub' }, { header: 'Rincian', key: 'rincian' }, { header: 'Satuan', key: 'satuan' },
+                    { header: 'Volume', key: 'volume' }, { header: 'Harga Satuan (Rp)', key: 'harga' },
+                    { header: 'Jumlah Harga (Rp)', key: 'jumlahHarga', formula: (row, r, ctx) => `${ctx.colLetter('volume')}${r}*${ctx.colLetter('harga')}${r}` },
+                    { header: 'Bobot Rencana (%)', key: 'bobot', formula: (row, r, ctx) => `IF(SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})=0,0,${ctx.colLetter('jumlahHarga')}${r}/SUM(${ctx.colLetter('jumlahHarga')}${ctx.dataStartExcelRow}:${ctx.colLetter('jumlahHarga')}${ctx.dataEndExcelRow})*100)` }
+                ];
+                const rows = projRAB.map((r, i) => ({
+                    no: i + 1, noDiv: r.noDiv || '', div: r.div || '', sub: r.sub || '', rincian: r.rincian || '',
+                    satuan: r.satuan || '', volume: r.volume, harga: r.harga, jumlahHarga: r.volume * r.harga,
+                    bobot: subtotal > 0 ? (r.volume * r.harga / subtotal) * 100 : 0
+                }));
+                return { title: 'Time Schedule - Bobot Item Pekerjaan (Dasar Kurva S)', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobot'] } };
+            }
+
+            if (type === 'bq-estimasi') {
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Nama Material', key: 'nama' }, { header: 'Satuan', key: 'satuan' },
+                    { header: 'Volume Terhitung', key: 'volume' }, { header: 'Estimasi Harga Satuan (Rp)', key: 'harga' },
+                    { header: 'Total Biaya (Rp)', key: 'total', formula: (row, r, ctx) => `${ctx.colLetter('volume')}${r}*${ctx.colLetter('harga')}${r}` }
+                ];
+                const rows = (bqResultsData || []).map((item, i) => ({ no: i + 1, nama: item.nama, satuan: item.satuan, volume: item.volume, harga: item.harga, total: item.volume * item.harga }));
+                return { title: 'Backup Quantity - Estimasi Material', columns, rows, orientation: 'portrait', totalRow: { label: 'TOTAL', sumKeys: ['total'] } };
+            }
+
+            if (type === 'vol-cco') {
+                const ccoNomor = volCcoSelectedNomor || (rabCcoList.filter(c => c.projId === activeProjectId).sort((a, b) => b.nomor - a.nomor)[0] || {}).nomor;
+                const baseline = ccoNomor ? getRabCcoBaselineList(activeProjectId, ccoNomor) : [];
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'No/Div', key: 'noDiv' }, { header: 'Divisi', key: 'div' },
+                    { header: 'Sub Pekerjaan', key: 'sub' }, { header: 'Rincian', key: 'rincian' }, { header: 'Satuan', key: 'satuan' },
+                    { header: 'Volume Acuan', key: 'volAcuan' }, { header: 'Volume Terukur', key: 'volTerukur' },
+                    { header: 'Selisih', key: 'selisih', formula: (row, r, ctx) => `${ctx.colLetter('volTerukur')}${r}-${ctx.colLetter('volAcuan')}${r}` },
+                    { header: 'Status', key: 'status' }
+                ];
+                const rows = baseline.map((item, i) => {
+                    const sudah = ccoNomor ? volCcoHasMeasurement(item.id, ccoNomor) : false;
+                    const volTerukur = ccoNomor ? volCcoEffectiveVolume(item, ccoNomor) : item.volume;
+                    return { no: i + 1, noDiv: item.noDiv || '', div: item.div || '', sub: item.sub || '', rincian: item.rincian || '', satuan: item.satuan || '', volAcuan: item.volume, volTerukur, selisih: volTerukur - item.volume, status: sudah ? 'Sudah Diukur' : 'Belum Diukur' };
+                });
+                return { title: `Volume CCO - CCO ${ccoNomor || '-'}`, columns, rows, orientation: 'landscape', subtitle: `CCO ${ccoNomor || '-'}` };
+            }
+
+            if (type === 'bq-opname') {
+                const rows = buildBqOpnameExportRows();
+                const columns = Object.keys(rows[0] || {}).map(k => ({ header: k, key: k }));
+                if (columns.length === 0) {
+                    ['No/Div', 'Divisi', 'Sub Pekerjaan', 'Rincian', 'Satuan', 'Volume RAB', 'Minggu Ke', 'Segmen/Ruangan/Posisi', 'Tipe', 'Metode', 'Jumlah', 'Panjang', 'Lebar', 'Tinggi/Tebal', 'Koefisien', 'Volume Hasil', 'Catatan'].forEach(h => columns.push({ header: h, key: h }));
+                }
+                return { title: 'Backup Quantity - Opname Lapangan', columns, rows, orientation: 'landscape' };
+            }
+
+            if (type === 'absen-daftar-hadir') {
                 const bulanInput = document.getElementById('dhFilterBulan');
                 const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
-                dataArr = buildDaftarHadirRekap(bulanStr).map(r => ({
-                    'Nama Karyawan': r.nama, 'Hari Hadir': r.hariHadir, 'Jam Hadir': r.jamHadir,
-                    'Hari Lembur': r.hariLembur, 'Jam Lembur': r.jamLembur, 'Izin': r.izin, 'Sakit': r.sakit, 'Cuti': r.cuti
-                }));
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Nama Karyawan', key: 'nama' }, { header: 'Hari Hadir', key: 'hariHadir' },
+                    { header: 'Jam Hadir', key: 'jamHadir' }, { header: 'Hari Lembur', key: 'hariLembur' }, { header: 'Jam Lembur', key: 'jamLembur' },
+                    { header: 'Izin', key: 'izin' }, { header: 'Sakit', key: 'sakit' }, { header: 'Cuti', key: 'cuti' }
+                ];
+                const rows = buildDaftarHadirRekap(bulanStr).map((r, i) => ({ no: i + 1, ...r }));
+                return { title: `Daftar Hadir - ${bulanStr}`, columns, rows, orientation: 'landscape' };
             }
 
-            const ws = XLSX.utils.json_to_sheet(dataArr);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "DataExport");
-            XLSX.writeFile(wb, filename);
+            return { title: type, columns: [], rows: [] };
+        }
+
+        function triggerExcelExport(type) {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const dataset = getExportDataset(type);
+            const filename = `${dataset.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`;
+            exportProfessionalExcel(dataset.title, dataset.columns, dataset.rows, filename, { subtitle: dataset.subtitle, totalRow: dataset.totalRow });
         }
 
         function triggerPdfExport(type) {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
-            const container = document.getElementById('printContainer');
-            const materialTypes = ['mat-kebutuhan', 'mat-order', 'mat-masuk', 'mat-keluar', 'mat-sisa'];
-
-            let extraTableHtml = '';
-            let reportTitle = type.toUpperCase();
-
-            if (materialTypes.includes(type)) {
-                const built = getMaterialExportBuilder(type);
-                reportTitle = built.title;
-                extraTableHtml = renderMaterialExportTableHtml(built.headers, built.rows);
-            } else if (type === 'lap-harian') {
-                const rows = buildLapHarianExportRows();
-                extraTableHtml = `
-                    <table border="1" cellspacing="0" cellpadding="4" style="width:100%; border-collapse:collapse; font-size:10px; margin-top:10px;">
-                        <thead>
-                            <tr style="background:#eee;">
-                                <th>Tanggal</th><th>Item Pekerjaan</th><th>Volume</th><th>Satuan</th><th>Tenaga</th>
-                                <th>Jam Aktif</th><th>Jam Lembur</th><th>Cuaca Pagi</th><th>Cuaca Siang</th><th>Cuaca Sore</th><th>Cuaca Malam</th>
-                                <th>Material Masuk</th><th>Material Keluar</th><th>Kendala</th><th>Notulen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map(r => `
-                                <tr>
-                                    <td>${r.Tanggal}</td><td>${r['Item Pekerjaan']}</td><td>${r.Volume}</td><td>${r.Satuan}</td><td>${r.Tenaga}</td>
-                                    <td>${r['Jam Aktif']}</td><td>${r['Jam Lembur']}</td><td>${r['Cuaca Pagi']}</td><td>${r['Cuaca Siang']}</td><td>${r['Cuaca Sore']}</td><td>${r['Cuaca Malam']}</td>
-                                    <td>${r['Material Masuk']}</td><td>${r['Material Keluar']}</td><td>${r.Kendala}</td><td>${r.Notulen}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            container.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 20px; color: #000;">
-                    <h2>KOP SURAT RESMI PROYEK</h2>
-                    <h3>${proj.nama} (${proj.lokasi})</h3>
-                    <hr>
-                    <h4>LAPORAN RESMI: ${reportTitle}</h4>
-                    <p>Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}</p>
-                    <p>Data lengkap diexport dari ProConstruct ERP v3.0.</p>
-                    ${extraTableHtml}
-                </div>
-            `;
-            const opt = {
-                margin: 10,
-                filename: `${type}_${proj.nama}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: materialTypes.includes(type) ? 'landscape' : 'portrait' }
-            };
-            html2pdf().set(opt).from(container).save();
+            const dataset = getExportDataset(type);
+            const filename = `${dataset.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`;
+            exportProfessionalPdf(dataset.title, dataset.columns, dataset.rows, filename, { orientation: dataset.orientation, subtitle: dataset.subtitle, totalRow: dataset.totalRow });
         }
 
         let currentWaType = '';
