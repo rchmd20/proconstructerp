@@ -9050,7 +9050,21 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             // 1) Perbarui baris salinan yang belum diedit, atau salin baris baru dari sumber yang belum ada di sini
             sourceRows.forEach((src, idx) => {
-                const mirrorIdx = bqOpnameData.findIndex(o => o.pekerjaanId == rabId && o.mingguKe === mingguKe && o.sourceRowId === src.id);
+                let mirrorIdx = bqOpnameData.findIndex(o => o.pekerjaanId == rabId && o.mingguKe === mingguKe && o.sourceRowId === src.id);
+                // PENTING (perbaikan bug duplikat): baris hasil salinan dari versi sebelum fitur sinkronisasi
+                // berantai ini ada, belum punya penanda `sourceRowId` sama sekali. Kalau hanya dicocokkan
+                // lewat sourceRowId, baris lama itu tidak akan pernah "ketemu" sebagai salinan yang sudah ada
+                // - akibatnya baris baru terus dibuat lagi di atasnya setiap kali halaman dibuka, jadi
+                // dobel/tergandakan. Jadi kalau pencocokan by sourceRowId gagal, dicoba lagi dicocokkan lewat
+                // kombinasi "berasal dari minggu yang sama" + "nama segmen sama persis" (case-insensitive) -
+                // begitu ketemu, baris lama itu langsung diberi sourceRowId supaya ke depannya stabil & tidak
+                // pernah dobel lagi.
+                if (mirrorIdx === -1) {
+                    mirrorIdx = bqOpnameData.findIndex(o => o.pekerjaanId == rabId && o.mingguKe === mingguKe && !o.sourceRowId
+                        && o.disalinDariMinggu === prevWeekNum
+                        && (o.segmen || '').toString().trim().toLowerCase() === (src.segmen || '').toString().trim().toLowerCase());
+                    if (mirrorIdx !== -1) { bqOpnameData[mirrorIdx].sourceRowId = src.id; changed = true; }
+                }
                 if (mirrorIdx !== -1) {
                     const mirror = bqOpnameData[mirrorIdx];
                     const belumDiedit = Math.abs(bqOpnameRowNetContribution(mirror)) < 0.0001;
@@ -9085,6 +9099,28 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     changed = true;
                 }
             });
+
+            // 1.5) Bersihkan duplikat LAMA (peninggalan dari sebelum fitur sourceRowId ada): kalau di minggu
+            // ini ternyata ada LEBIH DARI SATU baris untuk minggu-sumber & nama segmen yang sama persis, dan
+            // semuanya masih pristine/belum diedit, cuma SATU yang dipertahankan (diutamakan yang sudah resmi
+            // ditandai sourceRowId dari langkah di atas) - sisanya dihapus supaya tidak dobel.
+            const dupGroups = {};
+            bqOpnameData.forEach(o => {
+                if (o.pekerjaanId != rabId || o.mingguKe !== mingguKe || o.disalinDariMinggu !== prevWeekNum) return;
+                if (Math.abs(bqOpnameRowNetContribution(o)) >= 0.0001) return; // sudah diedit -> jangan disentuh
+                const key = (o.segmen || '').toString().trim().toLowerCase();
+                (dupGroups[key] = dupGroups[key] || []).push(o);
+            });
+            const idsToRemove = new Set();
+            Object.values(dupGroups).forEach(group => {
+                if (group.length <= 1) return;
+                const keep = group.find(o => o.sourceRowId) || group[0];
+                group.forEach(o => { if (o !== keep) idsToRemove.add(o.id); });
+            });
+            if (idsToRemove.size > 0) {
+                bqOpnameData = bqOpnameData.filter(o => !idsToRemove.has(o.id));
+                changed = true;
+            }
 
             // 2) Hapus baris salinan yang sumbernya sudah tidak ada lagi di minggu sebelumnya,
             //    TAPI hanya kalau baris itu sendiri belum pernah diedit sama sekali di minggu ini.
@@ -9482,7 +9518,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('bqOpSumBobotKum').innerText = sumBobotKum.toFixed(2) + ' %';
             }
         }
-
         // Entry point render halaman Opname: render daftar master, lalu render detail jika sedang terbuka.
         function renderBqOpname() {
             renderBqOpnameMaster();
@@ -10154,7 +10189,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             alert('Semua hasil Backup Quantity berhasil dimasukkan ke halaman Kebutuhan Material!');
             switchTab('mat-kebutuhan');
         }
-
         // ===================================================================
         // 5. ABSENSI & KARYAWAN
         // ===================================================================
@@ -10358,6 +10392,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.drawImage(video, 0, 0, canvasW, canvasH);
             ctx.restore();
         }
+
         // Konteks mode EDIT foto absensi (retake foto pada record yang sudah ada, tanpa mengubah data
         // nama/waktu/lokasi aslinya). null jika sedang tidak dalam mode edit.
         let editingAbsenContext = null;
@@ -10510,7 +10545,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     logoImg,
                     jamKerjaText
                 });
-
                 const photoUrl = compressCanvasToDataUrl(canvas, 900, 0.72);
                 // 'ts' & 'tanggal' ditambahkan agar rekap Daftar Hadir bulanan bisa dihitung akurat
                 const newRecord = {
@@ -10546,6 +10580,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 img.src = src;
             });
         }
+
         // Perkecil ukuran foto (resize dimensi + kompres JPEG) sebelum disimpan/dikirim ke cloud.
         // Foto kamera asli (apalagi ber-watermark PNG) bisa 1-3 MB per foto - jauh melebihi batas dokumen
         // Firestore (1 MiB), dan juga memberatkan localStorage & kuota data HP. Dengan resize ke maksimal
@@ -10629,6 +10664,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.bezierCurveTo(x + w * 0.3, y + h * 0.5, x + w * 0.6, y + h * 0.85, x + w, y + h * 0.55);
             ctx.stroke();
             ctx.restore();
+
             const cx = x + w / 2, cy = y + h / 2 - h * 0.06;
             ctx.fillStyle = pinColor;
             ctx.beginPath();
@@ -10649,6 +10685,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.lineWidth = 1;
             roundRectPath(ctx, x, y, w, h, 6);
             ctx.stroke();
+
             ctx.fillStyle = 'rgba(15,23,42,0.85)';
             ctx.fillRect(x, y + h - 12, w, 12);
             ctx.fillStyle = '#e2e8f0';
@@ -10669,6 +10706,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const fontSizeBase = 12.5 * scale;
                 const fontSizeTitle = 15 * scale;
                 const lineHeight = fontSizeBase * 1.5;
+
                 const hariList = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 const bulanList = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 const d = opts.waktuFoto;
@@ -10779,7 +10817,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 resolve();
             });
         }
-
         // Konteks foto yang sedang dibuka di modal viewer: { id, isMasuk }
         let absenPhotoModalContext = null;
 
@@ -10800,7 +10837,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 infoHtml += `<div><i class="fa-solid fa-business-time text-emerald-400 mr-1.5 w-3.5 text-center"></i>${item.jamKerja}</div>`;
             }
             document.getElementById('absenPhotoModalInfo').innerHTML = infoHtml;
-
             document.getElementById('absenPhotoModal').classList.remove('hidden');
         }
 
@@ -10920,6 +10956,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const masukList = projMasuk.filter(a => a.nama === k.nama);
                 const keluarList = projKeluar.filter(a => a.nama === k.nama);
                 const leaveList = projLeave.filter(l => l.nama === k.nama);
+
                 let jamHadir = 0, jamLembur = 0, hariLembur = 0;
                 const days = [];
                 for (let d = 1; d <= jumlahHari; d++) {
@@ -11114,7 +11151,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             for (let d = 1; d <= jumlahHari; d++) cols.push({ wch: 6 });
             cols.push({ wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 6 }, { wch: 6 }, { wch: 6 });
             ws['!cols'] = cols;
-
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, `Daftar Hadir ${bulanStr}`);
             XLSX.writeFile(wb, `DaftarHadir_${bulanStr}_${proj.nama}.xlsx`);
@@ -11198,7 +11234,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             html2pdfFromContainer(container, opt, 'landscape');
         }
-
         // Karyawan Management
         function renderEmployeeTable() {
             const tbody = document.getElementById('employeeTableBody');
@@ -11282,7 +11317,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             };
             reader.readAsDataURL(file);
         }
-
         function removeEmployeePhoto() {
             tempEmpPhoto = '';
             document.getElementById('empPhotoPreview').innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`;
@@ -11387,7 +11421,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     (u.projectId && myProjectIds.includes(u.projectId))
                 )
             );
-
             if (relevantUsers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500">Belum ada permintaan/akun User untuk proyek Anda.</td></tr>`;
                 return;
@@ -11654,6 +11687,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.download = `backup_semua_proyek_${acc}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
+
         function importAllProjectsDataBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -11701,7 +11735,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     rabCcoList = mergeAllByProj(rabCcoList, backup.data.rabCcoList);
                     rabCcoItems = mergeAllByProj(rabCcoItems, backup.data.rabCcoItems);
                     volCcoData = mergeAllByProj(volCcoData, backup.data.volCco);
-
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
                     localStorage.setItem('erp_lap_harian_kendala', JSON.stringify(lapHarianKendalaData));
@@ -11737,6 +11770,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             reader.readAsText(file);
             e.target.value = '';
         }
+
         // ===================================================================
         // EXPORT FUNCTIONS (EXCEL, PDF, WA TEXT) - COMPLETE & DETAILED
         // ===================================================================
@@ -11820,6 +11854,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 dailyVolumeMap = {};
                 dailyNilai = 0;
             };
+
             sortedData.forEach(item => {
                 if (currentTanggal !== null && item.tanggal !== currentTanggal) flushDaily(currentTanggal);
                 currentTanggal = item.tanggal;
@@ -11930,7 +11965,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 return { wch: Math.min(Math.max(maxLen + 2, 10), 42) };
             });
         }
-
         // Escape teks agar aman ditampilkan di dalam tabel HTML (untuk PDF)
         function escapeExportHtml(str) {
             return (str ?? '').toString()
@@ -11967,17 +12001,34 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
         // Helper BERSAMA dipakai semua fungsi export PDF di aplikasi ini (bukan cuma mesin export baru).
         // html2canvas TIDAK BISA memotret elemen yang display:none (class "hidden" bawaan container ini) -
-        // kalau dipaksa, hasilnya PDF kosong/blank. Jadi container ditampilkan dulu SECARA NYATA tapi
-        // diposisikan jauh di luar layar (position:fixed, left:-99999px) supaya tetap tidak terlihat oleh
-        // user namun tetap "punya ukuran/tata letak" sehingga bisa benar-benar difoto, lalu disembunyikan
-        // lagi setelah PDF selesai dibuat (baik berhasil maupun gagal).
+        // kalau dipaksa, hasilnya PDF kosong/blank persis seperti yang dilaporkan. Percobaan sebelumnya
+        // (menggeser container asli ke luar layar dgn position:fixed) TERNYATA MASIH TIDAK CUKUP di sebagian
+        // browser/versi html2canvas. Sekarang dipakai cara yang benar-benar resmi direkomendasikan
+        // html2canvas: callback `onclone` - html2canvas selalu membuat SALINAN (clone) dokumen di balik layar
+        // sebelum memotretnya; container ASLI di halaman TIDAK disentuh/diubah sama sekali (tetap hidden
+        // seperti biasa, tidak ada elemen nyasar/flash sekejap di layar), tapi KHUSUS PADA SALINANNYA itu
+        // container dipaksa terlihat & diberi ukuran nyata sebelum difoto - jadi hasil fotonya pasti terisi.
         function html2pdfFromContainer(container, opt, orientation) {
-            container.classList.remove('hidden');
-            container.style.cssText = `position:fixed; top:0; left:-99999px; z-index:-1; background:#fff; width:${orientation === 'landscape' ? '1400px' : '950px'};`;
-            const cleanup = () => { container.classList.add('hidden'); container.removeAttribute('style'); };
-            return html2pdf().set(opt).from(container).save()
-                .then(cleanup)
-                .catch(err => { cleanup(); alert('Gagal membuat PDF: ' + (err && err.message ? err.message : 'Terjadi kesalahan tak terduga.')); });
+            const targetWidth = orientation === 'landscape' ? 1400 : 950;
+            const finalOpt = {
+                ...opt,
+                html2canvas: {
+                    ...opt.html2canvas,
+                    onclone: (clonedDoc) => {
+                        const el = clonedDoc.getElementById('printContainer');
+                        if (el) {
+                            el.classList.remove('hidden');
+                            el.style.display = 'block';
+                            el.style.position = 'static';
+                            el.style.left = '0';
+                            el.style.width = targetWidth + 'px';
+                            el.style.background = '#ffffff';
+                        }
+                    }
+                }
+            };
+            return html2pdf().set(finalOpt).from(container).save()
+                .catch(err => { alert('Gagal membuat PDF: ' + (err && err.message ? err.message : 'Terjadi kesalahan tak terduga.')); });
         }
 
         function getExportProjectMeta() {
@@ -12207,7 +12258,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }));
                 return { title: 'RAB Kontrak Awal', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobot'] } };
             }
-
             if (type === 'lap-harian') {
                 const rows = buildLapHarianExportRows();
                 const columns = Object.keys(rows[0] || { Tanggal: '', 'Item Pekerjaan': '', Volume: '', Satuan: '', Tenaga: '', 'Jam Aktif': '', 'Jam Lembur': '', 'Cuaca Pagi': '', 'Cuaca Siang': '', 'Cuaca Sore': '', 'Cuaca Malam': '', 'Material Masuk': '', 'Material Keluar': '', Kendala: '', Notulen: '' })
@@ -12344,6 +12394,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return { title: 'Backup Quantity - Opname Lapangan', columns, rows, orientation: 'landscape' };
             }
+
             if (type === 'absen-daftar-hadir') {
                 const bulanInput = document.getElementById('dhFilterBulan');
                 const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
@@ -12395,7 +12446,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             generateWaTextContent();
         }
-
         function closeWaModal() {
             document.getElementById('waModal').classList.add('hidden');
         }
@@ -12469,6 +12519,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
+
         // Helper Format Rupiah (dibatasi maksimal 2 angka di belakang koma)
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
@@ -12489,6 +12540,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
         }
+
         // Helper Format Angka umum (volume, sisa, dsb): angka bulat tetap tampil bulat,
         // angka desimal dibulatkan & dibatasi MAKSIMAL 2 angka di belakang koma di semua halaman.
         // Memakai locale id-ID sehingga koma dipakai sbg pemisah desimal & titik sbg pemisah ribuan.
