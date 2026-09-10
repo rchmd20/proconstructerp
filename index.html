@@ -10,8 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for S-Curve -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS for Real Excel (.xlsx) Exports & Imports -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS for Real Excel (.xlsx) Exports & Imports (fork "xlsx-js-style": API identik dgn SheetJS,
+         tapi TAMBAH dukungan menulis style sel - warna, bold, border - yang tidak ada di versi community biasa) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <!-- html2pdf for Real PDF Exports with Headers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
@@ -59,7 +60,6 @@
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
         }
-
         .navy-card {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid #334155;
@@ -185,7 +185,6 @@
                 padding: 20px;
             }
         }
-
         /* ============================ */
         /* INPUT TANGGAL - SERAGAM DI SELURUH HALAMAN */
         /* Klik di mana saja pada kotak input akan membuka kalender (lihat JS showPicker di bawah),
@@ -290,7 +289,6 @@
                     <i class="fa-solid fa-right-from-bracket text-xs"></i>
                 </button>
             </div>
-
         </div>
     </header>
 
@@ -311,7 +309,6 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
             <nav class="space-y-1.5 custom-scroll overflow-y-auto flex-1 min-h-0 text-xs">
 
                 <!-- 0. BERANDA -->
@@ -501,6 +498,7 @@
             <div class="text-center text-[10px] text-slate-500 shrink-0 pb-1">
                 &copy; <span id="copyrightYearSidebar"></span> ProConstruct ERP. All Rights Reserved.<br>Developed by rchmd20.
             </div>
+
         </aside>
 
         <!-- MAIN CONTENT CONTAINER -->
@@ -668,6 +666,7 @@
                 </div>
 
             </section>
+
             <!-- =================================================================== -->
             <!-- SECTION 1: RAB PROYEK -->
             <!-- =================================================================== -->
@@ -855,7 +854,6 @@
                         </table>
                     </div>
                 </div>
-
             </section>
 
             <!-- =================================================================== -->
@@ -877,6 +875,7 @@
                     <i class="fa-solid fa-lock text-amber-400"></i>
                     <span>Halaman RAB CCO bersifat lihat-saja (read-only) untuk akun User. Hanya Admin yang dapat menambah, mengubah, atau menghapus CCO.</span>
                 </div>
+
                 <!-- SELEKTOR CCO -->
                 <div class="navy-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                     <div class="flex items-center gap-2">
@@ -897,6 +896,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div id="rabCcoEmptyState" class="hidden navy-card rounded-2xl p-10 text-center text-slate-500">
                     <i class="fa-solid fa-file-circle-plus text-3xl mb-3"></i>
                     <p>Belum ada CCO untuk proyek ini. Klik "Tambah CCO Baru" untuk membuat CCO 1.</p>
@@ -979,7 +979,6 @@
                             </table>
                         </div>
                     </div>
-
                     <div class="flex justify-end">
                         <button id="btnSaveRabCco" onclick="saveRabCcoChanges()" class="bg-amber-500 hover:bg-amber-400 text-[#0b132b] text-sm px-5 py-2.5 rounded-xl font-bold flex items-center space-x-2 transition">
                             <i class="fa-solid fa-floppy-disk"></i>
@@ -1042,7 +1041,6 @@
                                 <span>Tambah Pekerjaan Lain di Tanggal Ini</span>
                             </button>
                         </div>
-
                         <!-- INPUT CUACA PER WAKTU -->
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700 space-y-2">
                             <span class="font-bold text-amber-400 text-xs flex items-center space-x-1">
@@ -1106,6 +1104,7 @@
                         </div>
                     </form>
                 </div>
+
                 <!-- FORM INPUT KENDALA & NOTULEN (TERPISAH, 1X PER TANGGAL, BISA DIEDIT) -->
                 <div class="navy-card p-5 rounded-2xl space-y-4">
                     <h3 id="lhKendalaFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 flex items-center space-x-2">
@@ -1482,7 +1481,6 @@
                         </table>
                     </div>
                 </div>
-
                 <!-- KURVA S CANVAS CHART -->
                 <div class="navy-card p-5 rounded-2xl space-y-3">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center text-xs border-b border-slate-700 pb-2 gap-2">
@@ -1545,7 +1543,6 @@
                         </button>
                     </div>
                 </div>
-
                 <!-- PILIH MINGGU ACTION PLAN -->
                 <div class="navy-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3">
                     <label class="text-xs font-bold text-slate-300 uppercase tracking-wider shrink-0">Pilih Minggu:</label>
@@ -1672,6 +1669,7 @@
                                 <span class="text-[10px] text-slate-500 font-bold uppercase">Atau</span>
                                 <div class="flex-1 h-px bg-slate-700"></div>
                             </div>
+
                             <div class="pt-1 space-y-3">
                                 <h4 class="text-[11px] font-bold text-sky-400 uppercase tracking-wider flex items-center space-x-1.5">
                                     <i class="fa-solid fa-ruler-combined"></i>
@@ -1754,7 +1752,6 @@
                         <i class="fa-solid fa-file-circle-plus text-2xl mb-2"></i>
                         <p class="text-xs">Belum ada CCO untuk proyek ini. Buat CCO terlebih dahulu di halaman RAB CCO.</p>
                     </div>
-
                     <div id="volCcoStatsWrap" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                         <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700">
                             <span class="text-slate-400 text-[10px]">Total Item Pekerjaan CCO Ini</span>
@@ -1839,6 +1836,7 @@
                                     </select>
                                 </div>
                             </div>
+
                             <div>
                                 <label class="block text-slate-400 mb-1">Metode Input Perhitungan</label>
                                 <select id="volCcoMetode" onchange="renderVolCcoFormFields()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
@@ -2089,7 +2087,6 @@
                             </div>
                         </form>
                     </div>
-
                     <!-- TABEL HASIL OPNAME -->
                     <div class="navy-card rounded-2xl overflow-hidden">
                         <div class="p-3 bg-[#0b132b] border-b border-slate-700">
@@ -2174,6 +2171,7 @@
                         </div>
                     </form>
                 </div>
+
                 <!-- TABEL DATA MATERIAL -->
                 <div class="navy-card rounded-2xl overflow-hidden">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
@@ -2235,7 +2233,6 @@
                             <button id="switchCameraBtn" onclick="switchCamera()" type="button" class="hidden absolute top-2 right-2 bg-slate-900/80 hover:bg-slate-800 backdrop-blur text-white w-9 h-9 rounded-full border border-slate-700 flex items-center justify-center transition" title="Ganti Kamera Depan/Belakang">
                                 <i class="fa-solid fa-camera-rotate text-sm"></i>
                             </button>
-
                             <div id="webcamErrorOverlay" class="hidden absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center text-center p-4 space-y-2">
                                 <i class="fa-solid fa-camera-slash text-rose-400 text-2xl"></i>
                                 <p class="text-[11px] text-slate-300">Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan di browser/Android, lalu coba lagi.</p>
@@ -2487,7 +2484,6 @@
                             <input type="file" accept="application/json" onchange="importProjectDataBackup(event)" class="hidden">
                         </label>
                     </div>
-
                     <hr class="border-slate-700">
                     <h4 class="font-bold text-amber-400 text-xs flex items-center space-x-1.5">
                         <i class="fa-solid fa-cubes-stacked"></i>
@@ -2760,7 +2756,6 @@
             </div>
         </div>
     </div>
-
     <!-- =================================================================== -->
     <!-- MODAL WHATSAPP TEXT GENERATOR (WITH SELECTOR) -->
     <!-- =================================================================== -->
@@ -2782,6 +2777,7 @@
                         <!-- JS Inserted Controls -->
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-slate-400 mb-1">Preview Teks Laporan WhatsApp:</label>
                     <textarea id="waPreviewText" rows="10" readonly class="w-full bg-[#0b132b] border border-slate-700 rounded-xl p-3 text-slate-200 font-mono text-[11px] custom-scroll"></textarea>
@@ -2844,6 +2840,7 @@
             </div>
         </div>
     </div>
+
     <!-- =================================================================== -->
     <!-- MODAL EDIT / ADD KARYAWAN -->
     <!-- =================================================================== -->
@@ -3178,7 +3175,6 @@
         let cloudGlobalUnsub = null;
         let cloudApplyingRemote = false; // true selagi menerapkan data dari cloud, agar tidak ter-push balik (loop)
         let cloudPushTimers = {};
-
         // Tulis ulang variabel-variabel data di memori dari localStorage (dipanggil setelah menerima update dari cloud)
         function reloadAppDataFromLocalStorage(keys) {
             keys.forEach(k => {
@@ -3220,7 +3216,6 @@
                 } catch (err) { /* halaman tertentu mungkin belum siap render, aman diabaikan */ }
             }
         }
-
         function workspaceIdForUser(user) {
             if (!user) return null;
             if (user.role === 'Admin') return String(user.id);
@@ -3242,6 +3237,7 @@
             localArr.forEach(item => { if (item && item.id != null && !map.has(item.id)) map.set(item.id, item); });
             return JSON.stringify(Array.from(map.values()));
         }
+
         // Dorong 1 key localStorage GLOBAL (users/projects) ke Firestore (debounced)
         function pushGlobalKeyToCloud(key) {
             if (!cloudDb || !cloudReady || cloudApplyingRemote) return;
@@ -3534,7 +3530,6 @@
             }
             localStorage.setItem('erp_active_project', activeProjectId || '');
         }
-
         // ===================================================================
         // INITIALIZATION ON LOAD
         // ===================================================================
@@ -3556,6 +3551,7 @@
                 if (el) el.textContent = thisYear;
             });
         });
+
         // ===================================================================
         // INPUT TANGGAL SERAGAM: klik di mana saja pada kotak input tanggal (bukan hanya ikon
         // kalender kecil di kanan) langsung membuka popup kalender bawaan browser, di SELURUH
@@ -3596,7 +3592,6 @@
                 if (backdrop) backdrop.classList.toggle('active', nowOpen);
             }
         }
-
         function closeSidebarMobile() {
             const aside = document.getElementById('mainSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
@@ -3638,7 +3633,6 @@
                 document.getElementById('btnTabLogin').className = 'flex-1 py-3 text-center text-slate-400 hover:text-white';
             }
         }
-
         // Terjemahkan kode error Firebase Auth menjadi pesan Bahasa Indonesia yang mudah dipahami.
         function mapFirebaseAuthError(err) {
             const code = err && err.code;
@@ -3849,6 +3843,7 @@
                 // agar Firebase bisa mengirim email verifikasi asli via sendEmailVerification().
                 const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
                 await cred.user.sendEmailVerification();
+
                 const newUser = {
                     id: 'USR-' + Date.now(),
                     uid: cred.user.uid,
@@ -3889,7 +3884,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-user-plus mr-1"></i> Daftar Akun Baru');
             }
         }
-
         // Admin: import file "Permintaan Akun" yang dikirim oleh User baru, lalu masukkan ke daftar Pending
         function handleImportJoinRequest(e) {
             const file = e.target.files[0];
@@ -3973,7 +3967,6 @@
             if (btnDeleteProject) btnDeleteProject.classList.toggle('hidden', !admin);
             const btnAddProjectLabel = document.getElementById('btnAddProjectLabel');
             if (btnAddProjectLabel) btnAddProjectLabel.innerText = admin ? 'Proyek Baru' : 'Gabung Proyek';
-
             // --- Halaman RAB: User hanya boleh melihat & export, tidak boleh edit ---
             const rabFormCard = document.getElementById('rabFormCard');
             const btnRabImportExcel = document.getElementById('btnRabImportExcel');
@@ -4141,7 +4134,6 @@
             updateSidebarProjectInfo();
             renderActiveTabContent();
         }
-
         function confirmDeleteProject() {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus proyek.');
@@ -4163,6 +4155,7 @@
                 renderActiveTabContent();
             }
         }
+
         // ===================================================================
         // GABUNG PROYEK (khusus akun User) — hanya input Kode Proyek dari Admin
         // ===================================================================
@@ -4287,7 +4280,6 @@
                 renderActiveTabContent();
             }
         }
-
         function renderActiveTabContent() {
             if (currentTab === 'home') renderHomeDashboard();
             else if (currentTab === 'rab') renderRAB();
@@ -4393,6 +4385,7 @@
             document.getElementById('homeKpiProgress').innerText = bobotKumTotal.toFixed(1) + '%';
             document.getElementById('homeProgressBar').style.width = bobotKumTotal.toFixed(1) + '%';
             document.getElementById('homeProgressLabel').innerText = bobotKumTotal.toFixed(1) + '%';
+
             // Karyawan
             const projKaryawan = karyawanData.filter(k => k.projId === activeProjectId);
             document.getElementById('homeKpiKaryawan').innerText = projKaryawan.length;
@@ -4560,6 +4553,7 @@
             const tbody = document.getElementById('rabTableBody');
             tbody.innerHTML = '';
             const projRAB = rabData.filter(r => r.projId === activeProjectId);
+
             const subtotal = projRAB.reduce((acc, cur) => acc + (cur.volume * cur.harga), 0);
             const proj = projects.find(p => p.id === activeProjectId) || { ppn: 11, pph: 2, biayaTambahan: [] };
             const biayaTambahan = Array.isArray(proj.biayaTambahan) ? proj.biayaTambahan : [];
@@ -4643,6 +4637,7 @@
                 }
                 divGroupMap.get(key).items.push(item);
             });
+
             // Urutkan kelompok Divisi sesuai nilai nomor divisinya (mendukung angka Romawi bertingkat
             // seperti V.01, V.02, VI.01, VI.02), supaya urutan tampil di list selalu rapi berurutan
             // dan tidak loncat-loncat, terlepas dari urutan input/drag data aslinya.
@@ -4705,6 +4700,7 @@
 
                 grandDisplayedHarga += divHarga;
                 grandDisplayedBobot += divBobot;
+
                 const subtotalTr = document.createElement('tr');
                 subtotalTr.className = 'bg-[#15203c] border-t border-b border-slate-700';
                 subtotalTr.innerHTML = `
@@ -4725,6 +4721,7 @@
                 <td class="p-3"></td>
             `;
             tbody.appendChild(grandTr);
+
             applyRoleBasedUI();
             initDropdowns();
         }
@@ -4871,6 +4868,7 @@
             const persenEl = document.getElementById('rabTambahanPersen');
             const label = labelEl.value.trim();
             const persen = parseFloat(persenEl.value);
+
             if (!label) {
                 alert('Nama biaya tambahan wajib diisi.');
                 return;
@@ -4890,7 +4888,6 @@
             persenEl.value = '';
             renderRAB();
         }
-
         function removeBiayaTambahan(id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus biaya tambahan.');
@@ -4974,7 +4971,6 @@
                 const satuan = row['Satuan'] || row['satuan'] || 'ls';
                 const volume = parseFloat(row['Volume'] || row['volume'] || 1);
                 const harga = parseFloat(row['HargaSatuan'] || row['hargasatuan'] || row['Harga'] || 0);
-
                 if (sub) {
                     rabData.push({
                         id: Date.now() + Math.random(),
@@ -4996,6 +4992,7 @@
             renderRAB();
             alert(`Berhasil mengimport ${importedCount} item RAB dari sheet "${selectedSheetName}"!`);
         }
+
         // ===================================================================
         // 2.1 LAPORAN HARIAN (GROUPED PER DATE: WEATHER & MATERIALS COMBINED)
         // ===================================================================
@@ -5078,7 +5075,6 @@
                 if (numEl) numEl.innerText = idx + 1;
             });
         }
-
         function updateLhRemoveButtonsState() {
             const rows = document.querySelectorAll('#lhPekerjaanRowsContainer .lh-pekerjaan-row');
             rows.forEach(row => {
@@ -5204,7 +5200,6 @@
         }
 
         let rabCcoSelectedNomor = null; // nomor CCO yang sedang dibuka di halaman RAB CCO
-
         function renderRabCcoPage() {
             const notice = document.getElementById('rabCcoReadOnlyNotice');
             if (notice) applyRoleBasedUI();
@@ -5225,7 +5220,6 @@
                 rabCcoSelectedNomor = ccoList[ccoList.length - 1].nomor; // default ke CCO terbaru
             }
             select.innerHTML = ccoList.map(c => `<option value="${c.nomor}" ${c.nomor === rabCcoSelectedNomor ? 'selected' : ''}>CCO ${c.nomor}${c.tanggal ? ' - ' + c.tanggal : ''}</option>`).join('');
-
             renderRabCcoDetail();
         }
 
@@ -5730,6 +5724,7 @@
             document.getElementById('volCcoCancelBtn').classList.remove('hidden');
             document.getElementById('formVolCco').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
         function cancelVolCcoEdit() {
             volCcoEditRowId = null;
             const form = document.getElementById('formVolCco');
@@ -5897,6 +5892,7 @@
             // Urutkan berdasarkan tanggal (lama -> baru) supaya list selalu rapi & tidak acak-acakan
             const sortedGroups = Object.values(groupedByDate).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
             let currentMonthKey = null;
+
             sortedGroups.forEach(group => {
                 // Sisipkan baris pemisah setiap kali data berpindah bulan
                 const monthKey = (group.tanggal || '').slice(0, 7); // "YYYY-MM"
@@ -6084,7 +6080,6 @@
             document.getElementById('lhFormTitle').innerText = 'Buat / Edit Laporan Harian Baru';
             document.getElementById('btnCancelLhEdit').classList.add('hidden');
         }
-
         function deleteLapHarian(id) {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (confirm('Hapus laporan harian ini?')) {
@@ -6106,6 +6101,7 @@
         function findLhKendalaByDate(tanggal) {
             return lapHarianKendalaData.find(k => k.tanggal === tanggal && k.projId === activeProjectId);
         }
+
         // ------------------------------------------------------------------
         // Anti-kehilangan teks: melacak apakah user sudah mengetik sesuatu di
         // Kendala/Notulen SEBELUM tanggal dipilih/diganti. Jika sudah ada teks
@@ -6126,6 +6122,7 @@
             const kendalaEl = document.getElementById('lhKendala');
             const notulenEl = document.getElementById('lhNotulen');
             const adaTeksBelumTersimpan = !forceOverwrite && lhKendalaDirty && (kendalaEl.value.trim() !== '' || notulenEl.value.trim() !== '');
+
             if (adaTeksBelumTersimpan) {
                 const lanjut = confirm('Anda sudah mengetik Kendala/Notulen sebelum memilih tanggal. Jika dilanjutkan, isian ini akan diganti dengan data pada tanggal yang dipilih (jika ada).\n\nKlik "OK" untuk memuat data tanggal tersebut (isian saat ini akan hilang), atau "Batal" untuk TETAP menyimpan teks yang sudah diketik.');
                 if (!lanjut) {
@@ -6545,6 +6542,7 @@
                     bulanSel.appendChild(opt);
                 }
             }
+
             const selectedBulan = bulanSel ? bulanSel.value : 'Bulan 1';
             const selectedMonthNum = parseInt((selectedBulan || '').replace(/\D/g, ''), 10) || 1;
             const monthWeekRange = getMonthWeekRange(selectedMonthNum);
@@ -6565,6 +6563,7 @@
             const displayRAB = query
                 ? projRAB.filter(r => [r.noDiv, r.div, r.sub, r.rincian, r.satuan].some(v => (v || '').toString().toLowerCase().includes(query)))
                 : projRAB;
+
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="18" class="p-6 text-center text-slate-500">${projRAB.length === 0 ? 'Belum ada data RAB / Pekerjaan.' : 'Tidak ada item yang cocok dengan pencarian.'}</td></tr>`;
             } else {
@@ -6710,7 +6709,6 @@
                     <td class="p-3"></td>
                 `;
                 tbody.appendChild(grandTr);
-
                 // Kartu ringkasan atas: bobot rencana bulan ini diambil dari Time Schedule (jika ada jadwal),
                 // dijumlahkan dari rencana mingguan pada minggu-minggu yang termasuk dalam bulan terpilih,
                 // supaya deviasi rencana vs realisasi lebih akurat dibanding angka tetap.
@@ -6774,6 +6772,7 @@
             });
             return Math.min(weeks, 104);
         }
+
         // ---- Helper Bobot Time Schedule (per Pekerjaan / Kepala Sub RAB) ----
 
         // Bobot total 1 pekerjaan (kepala sub) berdasarkan proporsi nilai RAB-nya thd subtotal seluruh RAB proyek
@@ -7235,6 +7234,7 @@
 
             renderSCurveChart();
         }
+
         function handleDivScheduleSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -7297,6 +7297,7 @@
 
             const totalRencanaMingguan = Array(totalWeeks).fill(0);
             const totalRealisasiMingguan = Array(totalWeeks).fill(0);
+
             subKeys.forEach(key => {
                 const [noDiv, sub] = key.split('|||');
                 const subItems = projRab.filter(r => r.sub === sub && (r.noDiv || '-') === noDiv);
@@ -7631,7 +7632,6 @@
             const range = getWeekDateRange(week, proj.tglMulai, proj.tglSelesai);
             const rows = buildActionPlanExportRows(week);
             const container = document.getElementById('printContainer');
-
             const statusColor = (s) => {
                 if (s === 'Ahead of Schedule') return '#059669';
                 if (s === 'On Schedule') return '#0284c7';
@@ -7686,10 +7686,10 @@
                 margin: 10,
                 filename: `ActionPlan_Minggu${week}_${proj.nama}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, windowWidth: 1400 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(container).save();
+            html2pdfFromContainer(container, opt, 'landscape');
         }
 
         // ===================================================================
@@ -7967,7 +7967,6 @@
 
             const k = kebutuhanMatData.find(x => x.id == kebId);
             if (!k) return true;
-
             const excludeId = (materialEditContext && materialEditContext.type === 'order') ? materialEditContext.id : null;
             const sudahDipesan = getKebutuhanOrderedTotal(k.id, excludeId);
             const sisaBisaDipesan = Math.max(0, k.volume - sudahDipesan);
@@ -8031,6 +8030,7 @@
             const warnBox = document.getElementById('mmVolumeWarning');
             const warnText = document.getElementById('mmVolumeWarningText');
             if (!orderId || !infoBox) return true;
+
             const o = materialOrderData.find(x => x.id == orderId);
             if (!o) return true;
 
@@ -8324,6 +8324,7 @@
         function getHargaSatuanByNama(nama, dimensi, spesifikasi) {
             return getHargaSatuan(nama, dimensi, spesifikasi);
         }
+
         // Helper: ambil Dimensi & Spesifikasi suatu material berdasarkan nama (dicari dari data Masuk, lalu Order, lalu Kebutuhan)
         function getMaterialInfoByNama(nama) {
             if (!nama) return { dimensi: '', spesifikasi: '' };
@@ -8391,9 +8392,9 @@
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-order') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal PO</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Keterangan PO (Tahap)</th><th class="p-3">Volume Order</th><th class="p-3">Total Nilai</th><th class="p-3">Estimasi Tiba</th><th class="p-3">Supplier</th><th class="p-3">Sudah Masuk</th><th class="p-3">Sisa Belum Masuk</th><th class="p-3">% Sudah Masuk</th><th class="p-3">Status</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
+                head.innerHTML = `<tr><th class="p-3">Tanggal PO</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Keterangan PO (Tahap)</th><th class="p-3">Volume Order</th><th class="p-3">Total Nilai</th><th class="p-3">Estimasi Tiba</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3">Sudah Masuk</th><th class="p-3">Sisa Belum Masuk</th><th class="p-3">% Sudah Masuk</th><th class="p-3">Status</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
                 const data = materialOrderData.filter(d => d.projId === activeProjectId && (d.nama.toLowerCase().includes(search) || (d.supplier || '').toLowerCase().includes(search)));
-                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-500">Belum ada data Material Order.</td></tr>`; return; }
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="15" class="p-6 text-center text-slate-500">Belum ada data Material Order.</td></tr>`; return; }
 
                 // Urutkan berdasarkan tanggal PO agar bisa dikelompokkan per hari
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
@@ -8412,7 +8413,7 @@
                             <td colspan="5" class="p-3 text-right font-bold text-slate-300 uppercase text-[10px]">Total Diorder Tanggal ${tgl || '-'}</td>
                             <td class="p-3 font-mono font-bold text-sky-300">${volText}</td>
                             <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(dailyNilai)}</td>
-                            <td colspan="7"></td>
+                            <td colspan="8"></td>
                         </tr>
                     `;
                     dailyVolumeMap = {};
@@ -8426,7 +8427,7 @@
                     // Sisipkan baris pemisah setiap kali data berpindah bulan (dicek sebelum baris tanggal baru dimulai)
                     const monthKey = (item.tanggal || '').slice(0, 7);
                     if (monthKey && monthKey !== currentMonthKeyOrder) {
-                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 14);
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 15);
                         currentMonthKeyOrder = monthKey;
                     }
                     currentTanggal = item.tanggal;
@@ -8456,6 +8457,7 @@
                             <td class="p-3 font-mono font-bold text-emerald-400">${formatRupiah(totalItem)}</td>
                             <td class="p-3 font-mono text-sky-300">${item.estimasiTiba || '-'}</td>
                             <td class="p-3 text-slate-300">${item.supplier}</td>
+                            <td class="p-3 text-slate-300 font-mono">${item.kontak || '-'}</td>
                             <td class="p-3 font-mono font-bold text-sky-300">${formatAngka(st.totalMasuk)} ${item.satuan}</td>
                             <td class="p-3 font-mono text-rose-400">${formatAngka(st.sisa)} ${item.satuan}</td>
                             <td class="p-3 font-mono font-bold text-emerald-400">${st.persen.toFixed(1)}%</td>
@@ -8468,7 +8470,6 @@
                     `;
                 });
                 flushDailySubtotal(currentTanggal);
-
                 const activeProj = projects.find(p => p.id === activeProjectId);
                 const rentangProyek = activeProj && activeProj.tglMulai && activeProj.tglSelesai
                     ? `${activeProj.tglMulai} s/d ${activeProj.tglSelesai}`
@@ -8477,13 +8478,13 @@
                     <tr class="bg-[#0b132b] border-t-2 border-slate-700">
                         <td colspan="6" class="p-3 text-right font-bold text-white uppercase text-[11px]">Total Keseluruhan Order Material (Hari Pertama - Hari Akhir Proyek: ${rentangProyek})</td>
                         <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(totalNilaiOrder)}</td>
-                        <td colspan="7"></td>
+                        <td colspan="8"></td>
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-masuk') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">No. Nota / SJ</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Volume Masuk</th><th class="p-3">Total Nilai</th><th class="p-3">Supplier</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
+                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">No. Nota / SJ</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Volume Masuk</th><th class="p-3">Total Nilai</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
                 const data = materialMasukData.filter(d => d.projId === activeProjectId && (d.nama.toLowerCase().includes(search) || d.supplier.toLowerCase().includes(search) || (d.nota || '').toLowerCase().includes(search)));
-                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">Belum ada data Material Masuk.</td></tr>`; return; }
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada data Material Masuk.</td></tr>`; return; }
                 // Urutkan berdasarkan Tanggal Terima
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
                 let totalNilaiMasuk = 0;
@@ -8491,12 +8492,16 @@
                 sortedData.forEach(item => {
                     const monthKey = (item.tanggal || '').slice(0, 7);
                     if (monthKey && monthKey !== currentMonthKeyMasuk) {
-                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 9);
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 10);
                         currentMonthKeyMasuk = monthKey;
                     }
                     const hargaSatuan = getHargaSatuan(item.nama, item.dimensi, item.spesifikasi);
                     const totalItem = (item.volume || 0) * hargaSatuan;
                     totalNilaiMasuk += totalItem;
+                    // Kontak toko di-JOIN LANGSUNG dari Order terkait (bukan disalin/disimpan sendiri di baris
+                    // Masuk) - supaya selalu ikut sinkron otomatis kalau data Order/Kebutuhan Material diedit,
+                    // tanpa perlu proses sinkronisasi tambahan.
+                    const relatedOrder = materialOrderData.find(o => o.id == item.orderId);
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-800/50 transition">
                             <td class="p-3 font-mono text-amber-400">${item.tanggal}</td>
@@ -8507,6 +8512,7 @@
                             <td class="p-3 font-mono font-bold text-emerald-400">${formatAngka(item.volume)} ${item.satuan}</td>
                             <td class="p-3 font-mono font-bold text-emerald-400">${hargaSatuan ? formatRupiah(totalItem) : '-'}</td>
                             <td class="p-3 text-slate-300">${item.supplier}</td>
+                            <td class="p-3 text-slate-300 font-mono">${(relatedOrder && relatedOrder.kontak) || '-'}</td>
                             <td class="p-3 text-center">
                                 <button onclick="editMaterialItem('masuk', ${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
                                 <button onclick="deleteMaterialItem('masuk', ${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>
@@ -8518,7 +8524,7 @@
                     <tr class="bg-[#0b132b] border-t-2 border-slate-700">
                         <td colspan="6" class="p-3 text-right font-bold text-white uppercase text-[11px]">Total Nilai Material Masuk</td>
                         <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(totalNilaiMasuk)}</td>
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-keluar') {
@@ -8722,6 +8728,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 `;
             });
         }
+
         // Hapus 1 baris hasil estimasi yang sudah tidak diperlukan (mis. salah analisis / item tidak relevan),
         // tanpa perlu mengosongkan seluruh daftar.
         function deleteBqEstimasiRow(idx) {
@@ -8763,6 +8770,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         let bqOpnameSelectedPekerjaanId = null; // item RAB yang sedang dibuka detail opname-nya (null = daftar saja)
         let bqOpnameSelectedMinggu = 'Minggu 1';
         let bqOpEditRowId = null;
+
         const BQ_OPNAME_METODE = {
             plt: {
                 label: 'Jumlah × Panjang × Lebar × Tinggi/Tebal × Koefisien (Volume Balok/Kotak)',
@@ -8944,7 +8952,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             bqOpEditRowId = null;
             document.getElementById('bqOpDetailArea').classList.add('hidden');
         }
-
         // Kontribusi bersih 1 baris opname terhadap "Opname Minggu Ini". Untuk baris yang DIKETIK MANUAL
         // minggu ini (bukan hasil salin), kontribusinya = nilai baris itu sendiri (Tambah positif, Kurang
         // negatif) - seperti biasa. Untuk baris hasil SALINAN OTOMATIS dari minggu lalu, kontribusinya HANYA
@@ -9161,6 +9168,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const segmen = document.getElementById('bqOpSegmen').value.trim();
             const tipe = document.getElementById('bqOpTipe').value;
             const catatan = document.getElementById('bqOpCatatan').value.trim();
+
             // Simpan volume hasil hitungan APA ADANYA (presisi penuh, tidak dibulatkan ke 2 desimal),
             // supaya rumus lain yang mengambil nilai ini (kumulatif, Laporan Mingguan, Bobot, Kurva S,
             // dll) memakai angka yang benar-benar sesuai input, bukan angka yang sudah terpotong jadi
@@ -9349,6 +9357,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 document.getElementById('bqOpDetailArea').classList.add('hidden');
             }
         }
+
         // Ketika minggu opname diganti dari dropdown filter: render ulang daftar master, dan jika sedang
         // ada item yang dibuka detailnya, ikut render ulang detail-nya sesuai minggu baru.
         function handleBqOpMingguChange() {
@@ -10335,6 +10344,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     if (typeof callback === 'function') callback();
                 });
         }
+
         // Menggambar frame video ke canvas TANPA efek cermin (mirror), meski beberapa perangkat Android
         // mengirimkan stream kamera depan yang sudah ter-mirror secara bawaan dari getUserMedia. Ini
         // memastikan foto absensi yang tersimpan selalu sesuai orientasi asli (teks/tulisan di latar
@@ -10348,7 +10358,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.drawImage(video, 0, 0, canvasW, canvasH);
             ctx.restore();
         }
-
         // Konteks mode EDIT foto absensi (retake foto pada record yang sudah ada, tanpa mengubah data
         // nama/waktu/lokasi aslinya). null jika sedang tidak dalam mode edit.
         let editingAbsenContext = null;
@@ -10397,6 +10406,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const canvas = document.getElementById('snapshotCanvas');
 
             const snapBtn = document.getElementById('btnTakeSnapshot');
+
             // ================= MODE EDIT: ganti foto pada record absensi yang sudah ada =================
             if (editingAbsenContext) {
                 const { id, isMasuk } = editingAbsenContext;
@@ -10417,6 +10427,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     if (proj.logo) {
                         try { logoImg = await loadImage(proj.logo); } catch (e) { logoImg = null; }
                     }
+
                     await drawAbsenWatermark(ctx, canvas.width, canvas.height, {
                         isMasuk,
                         namaKaryawan: existing.nama,
@@ -10535,7 +10546,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 img.src = src;
             });
         }
-
         // Perkecil ukuran foto (resize dimensi + kompres JPEG) sebelum disimpan/dikirim ke cloud.
         // Foto kamera asli (apalagi ber-watermark PNG) bisa 1-3 MB per foto - jauh melebihi batas dokumen
         // Firestore (1 MiB), dan juga memberatkan localStorage & kuota data HP. Dengan resize ke maksimal
@@ -10619,7 +10629,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.bezierCurveTo(x + w * 0.3, y + h * 0.5, x + w * 0.6, y + h * 0.85, x + w, y + h * 0.55);
             ctx.stroke();
             ctx.restore();
-
             const cx = x + w / 2, cy = y + h / 2 - h * 0.06;
             ctx.fillStyle = pinColor;
             ctx.beginPath();
@@ -10640,7 +10649,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             ctx.lineWidth = 1;
             roundRectPath(ctx, x, y, w, h, 6);
             ctx.stroke();
-
             ctx.fillStyle = 'rgba(15,23,42,0.85)';
             ctx.fillRect(x, y + h - 12, w, 12);
             ctx.fillStyle = '#e2e8f0';
@@ -10661,7 +10669,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const fontSizeBase = 12.5 * scale;
                 const fontSizeTitle = 15 * scale;
                 const lineHeight = fontSizeBase * 1.5;
-
                 const hariList = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
                 const bulanList = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 const d = opts.waktuFoto;
@@ -10913,7 +10920,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const masukList = projMasuk.filter(a => a.nama === k.nama);
                 const keluarList = projKeluar.filter(a => a.nama === k.nama);
                 const leaveList = projLeave.filter(l => l.nama === k.nama);
-
                 let jamHadir = 0, jamLembur = 0, hariLembur = 0;
                 const days = [];
                 for (let d = 1; d <= jumlahHari; d++) {
@@ -10983,6 +10989,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             return `<div class="text-slate-600">-</div>`;
         }
+
         // Karyawan yang boleh dilihat pada halaman Daftar Hadir: Admin melihat seluruh karyawan proyek,
         // akun User hanya melihat data dirinya sendiri (dicocokkan dari nama akun dengan nama karyawan).
         function getVisibleKaryawanForDaftarHadir() {
@@ -11186,10 +11193,10 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 margin: 8,
                 filename: `DaftarHadir_${bulanStr}_${proj.nama}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, windowWidth: 1400 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
-            html2pdf().set(opt).from(container).save();
+            html2pdfFromContainer(container, opt, 'landscape');
         }
 
         // Karyawan Management
@@ -11234,6 +11241,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             tempEmpPhoto = '';
             document.getElementById('empEditId').value = '';
             document.getElementById('empModalTitle').innerText = 'Tambah Karyawan Baru';
+
             if (isEdit && id) {
                 const emp = karyawanData.find(e => e.id == id);
                 if (!emp) return;
@@ -11646,7 +11654,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             a.download = `backup_semua_proyek_${acc}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
-
         function importAllProjectsDataBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -11730,7 +11737,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             reader.readAsText(file);
             e.target.value = '';
         }
-
         // ===================================================================
         // EXPORT FUNCTIONS (EXCEL, PDF, WA TEXT) - COMPLETE & DETAILED
         // ===================================================================
@@ -11814,7 +11820,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 dailyVolumeMap = {};
                 dailyNilai = 0;
             };
-
             sortedData.forEach(item => {
                 if (currentTanggal !== null && item.tanggal !== currentTanggal) flushDaily(currentTanggal);
                 currentTanggal = item.tanggal;
@@ -11884,6 +11889,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             rows.push({ kind: 'total', cells: ['TOTAL NILAI MATERIAL KELUAR', '', '', '', '', formatRupiah(totalNilaiKeluar), '', ''] });
             return { title: 'Pengeluaran Material Lapangan', headers, rows };
         }
+
         function buildSisaExportRows() {
             const headers = ['Nama Material', 'Dimensi', 'Spesifikasi', 'Satuan', 'Total Masuk', 'Total Keluar', 'Stok Sisa', 'Nilai Stok Sisa', 'Status Stok'];
             const sisaList = [...getMaterialSisaList()].sort((a, b) => (a.tanggalAwal || '').localeCompare(b.tanggalAwal || '') || a.nama.localeCompare(b.nama));
@@ -11958,6 +11964,21 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // di seluruh halaman) - satu sumber data yang sama dipakai baik untuk Excel
         // maupun PDF, supaya hasil keduanya selalu identik dan sesuai isi halamannya.
         // ===================================================================
+
+        // Helper BERSAMA dipakai semua fungsi export PDF di aplikasi ini (bukan cuma mesin export baru).
+        // html2canvas TIDAK BISA memotret elemen yang display:none (class "hidden" bawaan container ini) -
+        // kalau dipaksa, hasilnya PDF kosong/blank. Jadi container ditampilkan dulu SECARA NYATA tapi
+        // diposisikan jauh di luar layar (position:fixed, left:-99999px) supaya tetap tidak terlihat oleh
+        // user namun tetap "punya ukuran/tata letak" sehingga bisa benar-benar difoto, lalu disembunyikan
+        // lagi setelah PDF selesai dibuat (baik berhasil maupun gagal).
+        function html2pdfFromContainer(container, opt, orientation) {
+            container.classList.remove('hidden');
+            container.style.cssText = `position:fixed; top:0; left:-99999px; z-index:-1; background:#fff; width:${orientation === 'landscape' ? '1400px' : '950px'};`;
+            const cleanup = () => { container.classList.add('hidden'); container.removeAttribute('style'); };
+            return html2pdf().set(opt).from(container).save()
+                .then(cleanup)
+                .catch(err => { cleanup(); alert('Gagal membuat PDF: ' + (err && err.message ? err.message : 'Terjadi kesalahan tak terduga.')); });
+        }
 
         function getExportProjectMeta() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
@@ -12127,15 +12148,16 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
 
             container.innerHTML = `<div style="font-family: Arial, sans-serif; color:#000; padding:12px;">${kopHtml}${bodyHtml}</div>`;
+
             const opt = {
                 margin: 8,
                 filename,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, windowWidth: orientation === 'landscape' ? 1400 : 950 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation },
                 pagebreak: { mode: ['css'] }
             };
-            html2pdf().set(opt).from(container).save();
+            html2pdfFromContainer(container, opt, orientation);
         }
 
         // Ubah hasil builder material lama ({headers, rows:[{cells,kind}]}) menjadi format columns/rows generik,
@@ -12322,7 +12344,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return { title: 'Backup Quantity - Opname Lapangan', columns, rows, orientation: 'landscape' };
             }
-
             if (type === 'absen-daftar-hadir') {
                 const bulanInput = document.getElementById('dhFilterBulan');
                 const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
@@ -12448,7 +12469,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const txt = document.getElementById('waPreviewText').value;
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
         }
-
         // Helper Format Rupiah (dibatasi maksimal 2 angka di belakang koma)
         function formatRupiah(num) {
             return 'Rp ' + Number(num).toLocaleString('id-ID', { maximumFractionDigits: 2 });
@@ -12469,7 +12489,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
         }
-
         // Helper Format Angka umum (volume, sisa, dsb): angka bulat tetap tampil bulat,
         // angka desimal dibulatkan & dibatasi MAKSIMAL 2 angka di belakang koma di semua halaman.
         // Memakai locale id-ID sehingga koma dipakai sbg pemisah desimal & titik sbg pemisah ribuan.
