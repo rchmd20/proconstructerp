@@ -13,8 +13,10 @@
     <!-- SheetJS for Real Excel (.xlsx) Exports & Imports (fork "xlsx-js-style": API identik dgn SheetJS,
          tapi TAMBAH dukungan menulis style sel - warna, bold, border - yang tidak ada di versi community biasa) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-    <!-- html2pdf for Real PDF Exports with Headers -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- jsPDF + AutoTable: PDF DIBANGUN LANGSUNG DARI DATA (teks asli, bisa di-select/search, ukuran file
+         kecil, header tabel berulang otomatis di tiap halaman) - dipakai SEMUA export PDF di aplikasi ini. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Firebase (Firestore + Auth) - untuk sinkronisasi data lintas perangkat/pengguna -->
@@ -60,6 +62,7 @@
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
         }
+
         .navy-card {
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 1px solid #334155;
@@ -167,45 +170,6 @@
         /* Printable Kop Surat Area */
         #printableHeader {
             display: none;
-        }
-
-        /* Wadah untuk export PDF (dipakai html2canvas/html2pdf). SENGAJA TIDAK dibuat display:none, karena
-           html2canvas tidak bisa memotret elemen display:none sama sekali (hasilnya PDF kosong) - dan opsi
-           "onclone" yang biasanya jadi solusi resmi html2canvas ternyata TERBUKTI TIDAK diteruskan dengan
-           benar oleh library pembungkus html2pdf.js yang dipakai di sini (bug yang sudah dilaporkan banyak
-           orang lain juga di proyek library tersebut). Jadi solusinya: wadah ini dibuat SELALU "hidup"/
-           ter-render secara nyata (supaya kapan pun bisa difoto html2canvas dgn andal), tapi disembunyikan
-           dari pengguna hanya lewat opacity mendekati nol + diletakkan di lapisan paling belakang (z-index
-           negatif) + tidak bisa diklik - BUKAN lewat display:none/visibility:hidden yang bikin html2canvas gagal.
-           Lebar diatur lewat JS sesaat sebelum export (lihat html2pdfFromContainer). */
-        #printContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -9999;
-            opacity: 0.001;
-            pointer-events: none;
-            background: #ffffff;
-            overflow: visible;
-        }
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            #printContainer, #printContainer * {
-                visibility: visible;
-            }
-            #printContainer {
-                opacity: 1;
-                z-index: 999999;
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                color: #000;
-                background: #fff;
-                padding: 20px;
-            }
         }
 
         /* ============================ */
@@ -642,7 +606,6 @@
                         <p class="text-[11px] text-slate-500 mt-3">Rencana &amp; Realisasi dihitung kumulatif dari Minggu ke-1 sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal pada halaman Time Schedule.</p>
                     </div>
                 </div>
-
                 <!-- Quick Access Grid -->
                 <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-bolt text-amber-400"></i> Akses Cepat Modul</h3>
@@ -689,6 +652,7 @@
                         </button>
                     </div>
                 </div>
+
             </section>
 
             <!-- =================================================================== -->
@@ -704,7 +668,6 @@
                         </h2>
                         <p class="text-xs text-slate-400 mt-0.5">Input Divisi, Sub Pekerjaan, Volume, Harga Satuan, PPN, PPH & Perhitungan Bobot Otomatis. Ini adalah RAB kontrak awal - semua halaman lain (Laporan, Time Schedule, Opname, dsb) mengambil data dari sini. Untuk perubahan kontrak (adendum), gunakan halaman <span class="text-amber-300 font-semibold">RAB CCO</span>.</p>
                     </div>
-
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="openExcelImportModal()" id="btnRabImportExcel" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-file-arrow-down"></i>
@@ -1838,7 +1801,6 @@
                         </table>
                     </div>
                 </div>
-
                 <!-- AREA DETAIL PERHITUNGAN UNTUK 1 ITEM PEKERJAAN PADA CCO TERPILIH -->
                 <div id="volCcoDetailArea" class="hidden space-y-6">
                     <div id="volCcoJudulInfo" class="text-[11px] text-slate-400"></div>
@@ -2006,7 +1968,6 @@
                         Hasil opname bersih (Tambah &ndash; Kurang) tiap item pada minggu terpilih akan otomatis masuk sebagai "Volume Minggu Ini" pada halaman Laporan Mingguan.
                     </div>
                 </div>
-
                 <!-- TABEL RINCIAN HASIL OPNAME PER ITEM PEKERJAAN RAB -->
                 <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -2069,7 +2030,6 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div>
                                 <label class="block text-slate-400 mb-1">Metode Input Perhitungan</label>
                                 <select id="bqOpMetode" onchange="renderBqOpnameFormFields()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
@@ -2095,6 +2055,7 @@
                                     </optgroup>
                                 </select>
                             </div>
+
                             <div id="bqOpFieldsContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                                 <!-- JS populated: Jumlah, Panjang, Lebar, Tinggi, Diameter, dsb sesuai metode -->
                             </div>
@@ -2446,7 +2407,6 @@
                             </label>
                             <input type="file" id="userPhotoInput" accept="image/*" onchange="handleUserPhotoUpload(event)" class="hidden">
                         </div>
-
                         <div>
                             <h3 id="profNameTitle" class="font-bold text-base text-white">Name</h3>
                             <p id="profRoleTitle" class="text-xs text-sky-400 font-semibold">Position</p>
@@ -2488,7 +2448,6 @@
                                     <input type="password" id="profInputPassword" placeholder="Biarkan kosong jika tidak diganti" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
                                 </div>
                             </div>
-
                             <div class="pt-2 flex justify-end">
                                 <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-6 rounded-xl transition">
                                     <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan Profil
@@ -2535,6 +2494,7 @@
                     </div>
                 </div>
             </section>
+
         </main>
     </div>
 
@@ -2660,6 +2620,7 @@
                     <p class="text-[10px] text-slate-500 text-center">Setelah daftar, link verifikasi akan dikirim ke email Anda dan wajib dibuka sebelum bisa login.</p>
                 </form>
             </div>
+
         </div>
     </div>
 
@@ -2701,6 +2662,7 @@
                     </select>
                 </div>
             </div>
+
             <div class="p-4 bg-[#0b132b] border-t border-[#334155] flex justify-end space-x-2 shrink-0">
                 <button onclick="closeExcelImportModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-bold">Batal</button>
                 <button onclick="executeExcelImport()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center space-x-1.5">
@@ -2826,6 +2788,7 @@
             </div>
         </div>
     </div>
+
     <!-- =================================================================== -->
     <!-- MODAL ADMIN USER APPROVAL -->
     <!-- =================================================================== -->
@@ -3029,9 +2992,6 @@
         </div>
     </div>
 
-    <!-- HIDDEN CONTAINER FOR PRINTING / PDF GENERATION -->
-    <div id="printContainer"></div>
-
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
         // ===================================================================
@@ -3054,8 +3014,8 @@
                 ownerId: 'USR-01' // Pemilik proyek (Admin). Dipakai agar akun baru tidak melihat data akun demo/admin lain.
             }
         ];
-
         let activeProjectId = localStorage.getItem('erp_active_project') || 'PRJ-01';
+
         let users = JSON.parse(localStorage.getItem('erp_users')) || [
             {
                 id: 'USR-01',
@@ -3139,6 +3099,7 @@
         };
         let cloudDb = null;
         let cloudReady = false;
+
         // Tampilkan pesan error sinkronisasi cloud langsung di layar (bukan cuma di console),
         // supaya masalah "akun tidak sinkron lintas device" bisa langsung diketahui akar penyebabnya.
         function showCloudSyncError(context, err) {
@@ -3304,7 +3265,6 @@
 
         let cloudAbsenUnsubs = [];
         const _migratedAbsenWorkspaces = new Set();
-
         // Dengarkan perubahan sub-collection Absen Masuk/Keluar secara realtime, & lakukan migrasi 1x untuk
         // membersihkan field lama (absenMasuk/absenKeluar) yang mungkin masih tersimpan sebagai field raksasa
         // di dokumen workspace utama dari versi aplikasi sebelumnya, serta memastikan data lokal saat ini juga
@@ -3514,7 +3474,6 @@
             }
             return projects.filter(p => p.id === currentUser.projectId);
         }
-
         // Membuat 1 proyek kosong (tanpa data RAB/karyawan/laporan) untuk Admin yang baru pertama kali login
         // dan belum memiliki proyek sama sekali, supaya aplikasi tetap bisa berjalan tanpa mewarisi data demo.
         function createStarterProjectFor(user) {
@@ -3766,7 +3725,6 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-rotate mr-1"></i> Sudah Verifikasi? Cek Lagi');
             }
         }
-
         async function resendVerificationEmail() {
             const u = firebase.auth().currentUser;
             if (!u) {
@@ -3810,6 +3768,7 @@
                 if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
             }
         }
+
         function hideRegPasswordError() {
             const box = document.getElementById('regPasswordError');
             if (box) box.classList.add('hidden');
@@ -3851,6 +3810,7 @@
             const pass = document.getElementById('regPassword').value.trim();
             const passConfirm = document.getElementById('regPasswordConfirm').value.trim();
             const adminKode = document.getElementById('regAdminKode').value.trim();
+
             if (pass !== passConfirm) {
                 const box = document.getElementById('regPasswordError');
                 if (box) box.classList.remove('hidden');
@@ -4142,7 +4102,6 @@
             const nilai = parseFloat(document.getElementById('pmNilai').value) || 0;
             const tglMulai = document.getElementById('pmTglMulai').value;
             const tglSelesai = document.getElementById('pmTglSelesai').value;
-
             const existingIdx = projects.findIndex(p => p.id === activeProjectId && p.ownerId === currentUser.id);
             if (existingIdx !== -1 && document.getElementById('projModalTitle').innerText.includes('Edit')) {
                 projects[existingIdx] = {
@@ -4354,6 +4313,7 @@
             else sapaan = 'Selamat Malam';
             document.getElementById('homeGreetingText').innerHTML = `<i class="fa-solid fa-helmet-safety text-amber-400"></i> <span>${sapaan}, ${namaUser}</span>`;
             document.getElementById('homeGreetingSub').innerText = `${currentUser.position || currentUser.role || ''} — berikut ringkasan kondisi proyek Anda hari ini.`;
+
             // Info Proyek Aktif
             document.getElementById('homeProjectName').innerText = proj ? proj.nama : 'Belum ada proyek aktif';
             document.getElementById('homeProjectLoc').innerText = proj ? (proj.lokasi || '-') : '-';
@@ -4435,7 +4395,6 @@
             // Progress Minggu Ini (Kumulatif): Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
             // dihitung sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal (Time Schedule)
             renderHomeWeeklyProgress(proj);
-
             // Chart Komposisi Anggaran per Divisi
             const chartCanvas = document.getElementById('homeBudgetChart');
             const emptyStateEl = document.getElementById('homeChartEmptyState');
@@ -4521,6 +4480,7 @@
             emptyEl.classList.add('hidden');
             document.getElementById('homeWeeklyRencana').innerText = formatAngka(rencanaKumulatif) + '%';
             document.getElementById('homeWeeklyRealisasi').innerText = formatAngka(realisasiKumulatif) + '%';
+
             const deviasiEl = document.getElementById('homeWeeklyDeviasi');
             const deviasiBoxEl = document.getElementById('homeWeeklyDeviasiBox');
             const deviasiLabelEl = document.getElementById('homeWeeklyDeviasiLabel');
@@ -4604,6 +4564,7 @@
             document.getElementById('ppnLabel').innerText = proj.ppn + '%';
             document.getElementById('pphLabel').innerText = proj.pph + '%';
             document.getElementById('tambahanLabel').innerText = totalPersenTambahan.toFixed(2).replace(/\.00$/, '') + '%';
+
             document.getElementById('rabSubtotalSum').innerText = formatRupiah(subtotal);
             document.getElementById('rabPpnSum').innerText = formatRupiah(ppnVal);
             document.getElementById('rabPphSum').innerText = formatRupiah(pphVal);
@@ -4643,7 +4604,6 @@
             const displayRAB = rabSearchQuery
                 ? projRAB.filter(r => `${r.noDiv} ${r.div} ${r.sub} ${r.rincian} ${r.satuan}`.toLowerCase().includes(rabSearchQuery))
                 : projRAB;
-
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Tidak ada item RAB yang cocok dengan pencarian "${rabSearchEl ? rabSearchEl.value : ''}".</td></tr>`;
                 applyRoleBasedUI();
@@ -4792,6 +4752,7 @@
             }
             renderRAB();
         }
+
         // Isi form RAB dengan data item yang dipilih agar Admin bisa mengedit data rekapitulasi RAB.
         function editRABItem(id) {
             if (!currentUser || currentUser.role !== 'Admin') {
@@ -5125,7 +5086,6 @@
             const btnTambah = document.getElementById('btnTambahLhPekerjaan');
             if (btnTambah) btnTambah.classList.remove('hidden');
         }
-
         function filterLhPekerjaanOptions(rowId) {
             const row = document.querySelector(`.lh-pekerjaan-row[data-row-id="${rowId}"]`);
             if (!row) return;
@@ -5188,7 +5148,6 @@
                 select.appendChild(opt);
             });
         }
-
         // ===================================================================
         // 1.1 RAB CCO MODULE (Contract Change Order / Adendum)
         // ===================================================================
@@ -5314,8 +5273,8 @@
             const changes = rabCcoItems.filter(c => c.ccoId === cco.id);
             const changeByRef = new Map(changes.filter(c => c.refId !== null && c.refId !== undefined).map(c => [String(c.refId), c]));
             rabCcoBaruDraft = changes.filter(c => c.tipe === 'baru').map(c => ({ ...c }));
-
             document.getElementById('ccoBaselineLabel').innerText = rabCcoSelectedNomor <= 1 ? 'RAB Kontrak Awal' : `hasil CCO ${rabCcoSelectedNomor - 1}`;
+
             // ---- Tabel pekerjaan acuan (existing) ----
             const tbody = document.getElementById('rabCcoBaselineTableBody');
             if (baseline.length === 0) {
@@ -5418,7 +5377,6 @@
             rabCcoBaruDraft.splice(idx, 1);
             renderRabCcoBaruTable();
         }
-
         function renderRabCcoSummary(baseline, cco) {
             const nilaiSebelum = baseline.reduce((a, c) => a + (c.volume * c.harga), 0);
             const hasilSesudah = computeRabCcoResult(activeProjectId, rabCcoSelectedNomor);
@@ -5735,6 +5693,7 @@
             renderVolCcoDetail();
             renderVolCcoMaster();
         }
+
         function editVolCcoRow(id) {
             const row = volCcoData.find(o => o.id === id);
             if (!row) return;
@@ -5797,6 +5756,7 @@
             localStorage.setItem('erp_vol_cco', JSON.stringify(volCcoData));
             renderVolCcoDetail();
         }
+
         function renderVolCcoTable() {
             const tbody = document.getElementById('volCcoTableBody');
             if (!tbody) return;
@@ -5920,7 +5880,6 @@
             // Get material masuk & keluar for project
             const projMatMasuk = materialMasukData.filter(m => m.projId === activeProjectId);
             const projMatKeluar = materialKeluarData.filter(m => m.projId === activeProjectId);
-
             // Urutkan berdasarkan tanggal (lama -> baru) supaya list selalu rapi & tidak acak-acakan
             const sortedGroups = Object.values(groupedByDate).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
             let currentMonthKey = null;
@@ -6046,7 +6005,6 @@
                 alert('Setiap item pekerjaan wajib dipilih dari daftar RAB terlebih dahulu.');
                 return;
             }
-
             if (editId) {
                 // Mode Edit: hanya 1 item laporan harian (baris pertama pada form) yang diperbarui
                 const idx = lapHarianData.findIndex(l => l.id == editId);
@@ -6151,7 +6109,6 @@
         function loadLhKendalaByDate(forceOverwrite) {
             const tanggal = document.getElementById('lhkTanggal').value;
             if (!tanggal) return;
-
             const kendalaEl = document.getElementById('lhKendala');
             const notulenEl = document.getElementById('lhNotulen');
             const adaTeksBelumTersimpan = !forceOverwrite && lhKendalaDirty && (kendalaEl.value.trim() !== '' || notulenEl.value.trim() !== '');
@@ -6361,7 +6318,6 @@
                 divGroups.forEach(group => {
                     let divJumlahHargaRab = 0, divBobotRab = 0;
                     let divBobotLalu = 0, divBobotIni = 0, divBobotKum = 0, divUang = 0;
-
                     group.items.forEach(item => {
                         // Jumlah Harga & Bobot (%) di sini PERSIS sama dengan kolom di list RAB (nilai & bobot
                         // penuh/rencana item ini terhadap keseluruhan proyek) - dipakai juga sbg pembagi progress.
@@ -6699,6 +6655,7 @@
                         `;
                         tbody.appendChild(tr);
                     });
+
                     // Baris total per divisi: kolom "% Bobot Item" (progress per-item) TIDAK dijumlahkan karena
                     // itu murni rasio milik masing2 item sendiri, begitu juga kolom Volume (satuan berbeda2).
                     const subtotalTr = document.createElement('tr');
@@ -6845,6 +6802,7 @@
                 .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub && d.id != excludeId)
                 .reduce((a, c) => a + ((parseFloat(c.volume) || 0) * ((c.weeks || []).length)), 0);
         }
+
         // Total bobot yang sudah dimasukkan (dijadwalkan) utk 1 pekerjaan, dikonversi dari total volume terjadwal
         function getTsScheduledBobot(noDiv, sub, excludeId) {
             const volInfo = getSubVolumeInfo(noDiv, sub);
@@ -6970,6 +6928,7 @@
             const volInfo = getSubVolumeInfo(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
+
             const volInputVal = parseFloat(volInput.value) || 0;
             const jumlahMinggu = tsSelectedWeeks.length;
             const totalKomitmenBaru = volInputVal * jumlahMinggu;
@@ -7368,6 +7327,7 @@
             const wrapper = document.getElementById('scurveChartWrapper');
             const inner = document.getElementById('scurveChartInner');
             const canvasEl = document.getElementById('scurveCanvas');
+
             const ctx = canvasEl.getContext('2d');
             if (scurveChartInstance) scurveChartInstance.destroy();
 
@@ -7388,6 +7348,7 @@
                 const minWidth = Math.max(wrapper.clientWidth || 0, (totalWeeks + 1) * pxPerWeek);
                 inner.style.width = minWidth + 'px';
             }
+
             scurveChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -7427,7 +7388,6 @@
         // 3.2 ACTION PLAN
         // ===================================================================
         let actionPlanSelectedWeek = 1;
-
         // Kembalikan rentang tanggal (mulai - selesai) untuk minggu ke-N dihitung dari tanggal mulai proyek
         function getWeekDateRange(week, projStartStr, projEndStr) {
             if (!projStartStr) return null;
@@ -7513,6 +7473,7 @@
                     wEnd = Math.max(...allWeeks);
                 }
             }
+
             const targetMingguIni = itemWeekly[week - 1] || 0;
             const targetKumulatif = itemWeekly.slice(0, week).reduce((a, b) => a + b, 0);
 
@@ -7622,102 +7583,33 @@
             });
         }
 
-        function exportActionPlanExcel() {
-            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
+        function getActionPlanExportDataset() {
             const week = actionPlanSelectedWeek;
+            const proj = projects.find(p => p.id === activeProjectId) || {};
             const range = getWeekDateRange(week, proj.tglMulai, proj.tglSelesai);
-            const rows = buildActionPlanExportRows(week);
+            const rows = buildActionPlanExportRows(week).map(r => ({
+                noDiv: r['No. Divisi'], div: r['Nama Divisi'], sub: r['Nama Sub Pekerjaan'], satuan: r['Satuan'],
+                volume: r['Volume RAB'], bobot: r['Bobot (%)'], bobotTarget: r['Target Minggu Ini (%)'], status: r['Status Action Plan']
+            }));
+            const columns = [
+                { header: 'No. Divisi', key: 'noDiv' }, { header: 'Nama Divisi', key: 'div' },
+                { header: 'Nama Sub Pekerjaan', key: 'sub' }, { header: 'Satuan', key: 'satuan' },
+                { header: 'Volume RAB', key: 'volume' }, { header: 'Bobot (%)', key: 'bobot' },
+                { header: 'Target Minggu Ini (%)', key: 'bobotTarget' }, { header: 'Status', key: 'status' }
+            ];
+            return { title: `Action Plan - Minggu ${week}`, columns, rows, orientation: 'landscape', subtitle: range ? `Minggu ${week} (${range.label})` : `Minggu ${week}` };
+        }
 
-            const wsData = [
-                ['PROCONSTRUCT ERP v3.0 - ACTION PLAN LAPANGAN'],
-                [`Proyek: ${proj.nama}    Lokasi: ${proj.lokasi || '-'}`],
-                [`Minggu ke-${week}${range ? '    Periode: ' + range.label : ''}`],
-                [`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`],
-                [],
-                ['No. Divisi', 'Nama Divisi', 'Nama Sub Pekerjaan', 'Satuan', 'Volume RAB', 'Bobot (%)', 'Target Minggu Ini (%)', 'Status Action Plan']
-            ];
-            rows.forEach(r => wsData.push([r['No. Divisi'], r['Nama Divisi'], r['Nama Sub Pekerjaan'], r['Satuan'], r['Volume RAB'], r['Bobot (%)'], r['Target Minggu Ini (%)'], r['Status Action Plan']]));
-            if (rows.length === 0) wsData.push(['Belum ada data RAB untuk minggu ini.']);
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
-                { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } }
-            ];
-            ws['!cols'] = [
-                { wch: 10 }, { wch: 18 }, { wch: 40 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 18 }
-            ];
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, `Action Plan M${week}`);
-            XLSX.writeFile(wb, `ActionPlan_Minggu${week}_${proj.nama}.xlsx`);
+        function exportActionPlanExcel() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getActionPlanExportDataset();
+            exportProfessionalExcel(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`, { subtitle: ds.subtitle });
         }
 
         function exportActionPlanPdf() {
-            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
-            const week = actionPlanSelectedWeek;
-            const range = getWeekDateRange(week, proj.tglMulai, proj.tglSelesai);
-            const rows = buildActionPlanExportRows(week);
-            const container = document.getElementById('printContainer');
-
-            const statusColor = (s) => {
-                if (s === 'Ahead of Schedule') return '#059669';
-                if (s === 'On Schedule') return '#0284c7';
-                if (s === 'Behind Schedule') return '#dc2626';
-                return '#64748b';
-            };
-
-            container.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #1c2541; padding-bottom: 12px; margin-bottom: 16px;">
-                        <div>
-                            <h2 style="margin:0; color:#1c2541;">ProConstruct ERP v3.0</h2>
-                            <div style="font-size:11px; color:#64748b;">Laporan Action Plan Pekerjaan Lapangan</div>
-                        </div>
-                        <div style="text-align:right; font-size:11px;">
-                            <div><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
-                        </div>
-                    </div>
-                    <table style="width:100%; margin-bottom:14px; font-size:12px;">
-                        <tr><td style="width:120px; color:#64748b;">Nama Proyek</td><td style="font-weight:bold;">: ${proj.nama}</td></tr>
-                        <tr><td style="color:#64748b;">Lokasi</td><td>: ${proj.lokasi || '-'}</td></tr>
-                        <tr><td style="color:#64748b;">Minggu ke-</td><td style="font-weight:bold; color:#b45309;">: Minggu ${week}${range ? ' (' + range.label + ')' : ''}</td></tr>
-                    </table>
-                    <table border="0" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:10.5px;">
-                        <thead>
-                            <tr style="background:#1c2541; color:#fff;">
-                                <th style="text-align:left;">No. Divisi</th><th style="text-align:left;">Nama Divisi</th><th style="text-align:left;">Sub Pekerjaan</th>
-                                <th style="text-align:center;">Satuan</th><th style="text-align:right;">Volume RAB</th><th style="text-align:right;">Bobot (%)</th>
-                                <th style="text-align:right;">Target Minggu Ini (%)</th><th style="text-align:center;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map((r, i) => `
-                                <tr style="background:${i % 2 === 0 ? '#f8fafc' : '#ffffff'}; border-bottom: 1px solid #e2e8f0;">
-                                    <td style="font-weight:bold;">${r['No. Divisi']}</td>
-                                    <td>${r['Nama Divisi']}</td>
-                                    <td>${r['Nama Sub Pekerjaan']}</td>
-                                    <td style="text-align:center;">${r['Satuan']}</td>
-                                    <td style="text-align:right;">${r['Volume RAB']}</td>
-                                    <td style="text-align:right;">${r['Bobot (%)']}%</td>
-                                    <td style="text-align:right; font-weight:bold; color:#b45309;">${r['Target Minggu Ini (%)']}%</td>
-                                    <td style="text-align:center;"><span style="color:${statusColor(r['Status Action Plan'])}; font-weight:bold;">${r['Status Action Plan']}</span></td>
-                                </tr>
-                            `).join('')}
-                            ${rows.length === 0 ? '<tr><td colspan="8" style="text-align:center; padding:16px; color:#94a3b8;">Belum ada data RAB.</td></tr>' : ''}
-                        </tbody>
-                    </table>
-                    <div style="margin-top:24px; font-size:10px; color:#94a3b8;">Dokumen ini dibuat otomatis oleh ProConstruct ERP v3.0.</div>
-                </div>
-            `;
-            const opt = {
-                margin: 10,
-                filename: `ActionPlan_Minggu${week}_${proj.nama}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, windowWidth: 1400 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdfFromContainer(container, opt, 'landscape');
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getActionPlanExportDataset();
+            exportProfessionalPdf(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`, { orientation: ds.orientation, subtitle: ds.subtitle });
         }
 
         // ===================================================================
@@ -7742,6 +7634,7 @@
             } else {
                 scanNotaBtn.classList.add('hidden');
             }
+
             if (activeMaterialSub === 'mat-sisa') {
                 formBox.classList.add('hidden');
             } else {
@@ -7909,6 +7802,7 @@
             renderMaterialFormFields();
             document.getElementById('matFormFieldContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
         function cancelMaterialEdit() {
             materialEditContext = null;
             document.getElementById('formMaterial').reset();
@@ -8060,7 +7954,6 @@
 
             const o = materialOrderData.find(x => x.id == orderId);
             if (!o) return true;
-
             const excludeId = (materialEditContext && materialEditContext.type === 'masuk') ? materialEditContext.id : null;
             const st = getOrderMasukStatus(o, excludeId);
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
@@ -8139,6 +8032,7 @@
         function materialCompositeKey(nama, dimensi, spesifikasi) {
             return [nama, dimensi, spesifikasi].map(x => (x || '').toString().trim().toLowerCase()).join('||');
         }
+
         // Cascade sync: ketika 1 item Kebutuhan Material diedit (nama/dimensi/spesifikasi/satuan/harga/
         // supplier/kontak/kode berubah), seluruh data turunan di halaman Material lain (Order, Masuk, Keluar)
         // yang merujuk ke item ini ikut diperbarui otomatis. Dengan begitu list & inputan (dropdown) pada
@@ -8159,6 +8053,7 @@
                 }
             });
             if (orderChanged) localStorage.setItem('erp_mat_order', JSON.stringify(materialOrderData));
+
             // 2) Material Masuk terhubung lewat orderId ke Order yang baru saja disinkronkan
             let masukChanged = false;
             materialMasukData.forEach(m => {
@@ -8646,7 +8541,6 @@
                 renderMaterialSection();
             }
         }
-
         // Scan Nota Modal Functions (Full Extraction)
         function openScanNotaModal() {
             document.getElementById('scanNotaModal').classList.remove('hidden');
@@ -8914,6 +8808,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             });
             updateBqOpnameFormulaPreview();
         }
+
         function bqOpnameReadFormValues() {
             const metode = document.getElementById('bqOpMetode').value;
             const cfg = BQ_OPNAME_METODE[metode];
@@ -9023,7 +8918,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             weekNumsWithData.forEach(wk => { total += bqOpnameNetVolumeForWeek(rabId, `Minggu ${wk}`); });
             return total;
         }
-
         // Cari minggu TERDEKAT sebelum `weekNum` (tidak harus persis weekNum-1, bisa lompat kalau ada minggu
         // yang dilewati) yang SUDAH punya baris opname untuk 1 item pekerjaan RAB tertentu. Dipakai untuk fitur
         // "lanjutkan dari minggu lalu" supaya tetap bisa menemukan data terakhir walau user melompati minggu.
@@ -9165,6 +9059,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             return changed;
         }
+
         // Jalankan sinkronisasi berantai dari Minggu 2 s/d minggu yang sedang dituju, secara berurutan -
         // supaya perubahan di Minggu 1 ikut merambat ke Minggu 2, lalu hasil Minggu 2 yang sudah ter-update
         // ikut merambat ke Minggu 3, dan seterusnya, sampai minggu yang sedang dibuka benar-benar mengikuti
@@ -9274,7 +9169,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             document.getElementById('bqOpCancelBtn').classList.remove('hidden');
             document.getElementById('formBqOpname').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-
         function cancelBqOpnameEdit() {
             bqOpEditRowId = null;
             const form = document.getElementById('formBqOpname');
@@ -9290,6 +9184,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const cancelBtn = document.getElementById('bqOpCancelBtn');
             if (cancelBtn) cancelBtn.classList.add('hidden');
         }
+
         function deleteBqOpnameRow(id) {
             if (!confirm('Hapus baris hasil opname ini?')) return;
             const row = bqOpnameData.find(o => o.id === id);
@@ -9462,7 +9357,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             const selectedMinggu = bqOpnameSelectedMinggu;
             const selectedWeekNum = parseInt((selectedMinggu || '').replace(/\D/g, ''), 10) || 1;
-
             if (periodeLabelEl) {
                 const rangeDetailed = getWeekDateRangeDetailed(selectedWeekNum, proj.tglMulai, proj.tglSelesai);
                 periodeLabelEl.innerHTML = rangeDetailed
@@ -10192,6 +10086,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqResultsTable();
             alert(`Perhitungan manual untuk kategori "${kategori}" berhasil! ${materials.length} jenis material beserta kebutuhannya berhasil ditampilkan.`);
         }
+
         function importBqToKebutuhanMaterial() {
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
             if (bqResultsData.length === 0) {
@@ -10280,7 +10175,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const errorOverlay = document.getElementById('webcamErrorOverlay');
             if (!video) return;
             if (errorOverlay) errorOverlay.classList.add('hidden');
-
             if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
                 console.warn('Kamera tidak didukung di browser/perangkat ini.');
                 if (errorOverlay) errorOverlay.classList.remove('hidden');
@@ -10464,6 +10358,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             // bisa melakukan absensi kapan pun, meskipun Admin menonaktifkan izin edit data proyek lainnya.
             const video = document.getElementById('webcamVideo');
             const canvas = document.getElementById('snapshotCanvas');
+
             const snapBtn = document.getElementById('btnTakeSnapshot');
 
             // ================= MODE EDIT: ganti foto pada record absensi yang sudah ada =================
@@ -10510,7 +10405,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return;
             }
-
             // ================= MODE NORMAL: rekam absensi baru =================
             const nama = document.getElementById('absenNamaSelect').value;
             if (!nama) { alert('Pilih nama karyawan terlebih dahulu.'); return; }
@@ -10526,6 +10420,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const now = new Date();
                 const waktu = now.toLocaleString('id-ID');
                 const isMasuk = activeAbsenType === 'absen-masuk';
+
                 // Refresh GPS & alamat sesaat sebelum foto diambil, supaya data pada watermark akurat & terkini
                 await new Promise(resolve => refreshGpsAndAddress(resolve));
 
@@ -10756,6 +10651,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 if (opts.jamKerjaText) {
                     lines.push({ text: 'Jam Kerja: ' + opts.jamKerjaText, size: fontSizeSmall, bold: true, color: '#34d399' });
                 }
+
                 const panelHeight = Math.max(pad * 2 + logoSize + 6 * scale, pad * 2 + fontSizeSmall + (10 * scale) + (lines.length * lineHeight));
                 const panelY = h - panelHeight;
 
@@ -10949,7 +10845,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 opt.style.display = opt.textContent.toLowerCase().includes(query) ? '' : 'none';
             });
         }
-
         function handleDhLeaveSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -11033,7 +10928,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 };
             });
         }
-
         // Badge singkat untuk 1 sel hari pada tabel rekap kehadiran
         function dhDayCellHtml(dayInfo) {
             if (dayInfo.jenis === 'Hadir') {
@@ -11070,6 +10964,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             const searchInput = document.getElementById('dhLeaveKaryawanSearch');
             if (searchInput) searchInput.value = '';
+
             const bulanInput = document.getElementById('dhFilterBulan');
             if (bulanInput && !bulanInput.value) {
                 bulanInput.value = new Date().toISOString().slice(0, 7);
@@ -11127,9 +11022,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             });
         }
 
-        // Export Excel Daftar Hadir - isinya sama persis dengan tabel di halaman (breakdown per tanggal + total)
-        function exportDaftarHadirExcel() {
-            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
+        // Export Excel & PDF Daftar Hadir - lihat getDaftarHadirExportDataset() di bawah (mesin export bersama)
+        function getDaftarHadirExportDataset() {
             const bulanInput = document.getElementById('dhFilterBulan');
             const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
             const [y, m] = bulanStr.split('-').map(Number);
@@ -11137,127 +11031,38 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             const rekap = buildDaftarHadirRekap(bulanStr);
 
+            // Kode singkat per hari: H = Hadir, H½ = Hadir setengah hari (lupa absen pulang), I/S/C = Izin/Sakit/Cuti
             const dayCellText = (d) => {
-                if (d.jenis === 'Hadir') return d.setengahHari ? `H½ ${d.jamKerja.toFixed(1)}j` : `H ${d.jamKerja.toFixed(1)}j${d.jamLembur > 0 ? ' +' + d.jamLembur.toFixed(1) + 'j' : ''}`;
+                if (d.jenis === 'Hadir') return d.setengahHari ? 'H½' : 'H';
                 if (d.jenis) return d.jenis.charAt(0);
                 return '-';
             };
 
-            const headerRow1 = ['Nama Karyawan'];
-            for (let d = 1; d <= jumlahHari; d++) headerRow1.push(d);
-            headerRow1.push('Hari Hadir', 'Jam Hadir', 'Hari Lembur', 'Jam Lembur', 'Izin', 'Sakit', 'Cuti');
-
-            const wsData = [
-                ['PROCONSTRUCT ERP v3.0 - REKAP DAFTAR HADIR KARYAWAN'],
-                [`Proyek: ${proj.nama}    Lokasi: ${proj.lokasi || '-'}`],
-                [`Periode: ${bulanLabel}`],
-                [`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`],
-                [],
-                headerRow1
-            ];
-            rekap.forEach(r => {
-                const row = [r.nama];
-                r.days.forEach(d => row.push(dayCellText(d)));
-                row.push(r.hariHadir, r.jamHadir, r.hariLembur, r.jamLembur, r.izin, r.sakit, r.cuti);
-                wsData.push(row);
+            const columns = [{ header: 'Nama Karyawan', key: 'nama', width: 20 }];
+            for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 4 });
+            columns.push(
+                { header: 'Hari Hadir', key: 'hariHadir' }, { header: 'Jam Hadir', key: 'jamHadir' },
+                { header: 'Hari Lembur', key: 'hariLembur' }, { header: 'Jam Lembur', key: 'jamLembur' },
+                { header: 'Izin', key: 'izin', width: 6 }, { header: 'Sakit', key: 'sakit', width: 6 }, { header: 'Cuti', key: 'cuti', width: 6 }
+            );
+            const rows = rekap.map(r => {
+                const obj = { nama: r.nama, hariHadir: r.hariHadir, jamHadir: r.jamHadir, hariLembur: r.hariLembur, jamLembur: r.jamLembur, izin: r.izin, sakit: r.sakit, cuti: r.cuti };
+                r.days.forEach((d, idx) => { obj['d' + (idx + 1)] = dayCellText(d); });
+                return obj;
             });
-            if (rekap.length === 0) wsData.push(['Belum ada data karyawan pada proyek ini.']);
-
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-            const lastCol = headerRow1.length - 1;
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: lastCol } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: lastCol } },
-                { s: { r: 3, c: 0 }, e: { r: 3, c: lastCol } }
-            ];
-            const cols = [{ wch: 22 }];
-            for (let d = 1; d <= jumlahHari; d++) cols.push({ wch: 6 });
-            cols.push({ wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 11 }, { wch: 6 }, { wch: 6 }, { wch: 6 });
-            ws['!cols'] = cols;
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, `Daftar Hadir ${bulanStr}`);
-            XLSX.writeFile(wb, `DaftarHadir_${bulanStr}_${proj.nama}.xlsx`);
+            return { title: `Daftar Hadir - ${bulanLabel}`, columns, rows, orientation: 'landscape', subtitle: `Periode: ${bulanLabel}  |  H=Hadir, H½=Hadir 1/2 hari, I=Izin, S=Sakit, C=Cuti` };
         }
 
-        // Export PDF Daftar Hadir - tampilan profesional, isinya sama persis dengan tabel di halaman
+        function exportDaftarHadirExcel() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getDaftarHadirExportDataset();
+            exportProfessionalExcel(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`, { subtitle: ds.subtitle });
+        }
+
         function exportDaftarHadirPdf() {
-            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
-            const bulanInput = document.getElementById('dhFilterBulan');
-            const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
-            const [y, m] = bulanStr.split('-').map(Number);
-            const jumlahHari = new Date(y, m, 0).getDate();
-            const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-            const rekap = buildDaftarHadirRekap(bulanStr);
-            const container = document.getElementById('printContainer');
-
-            const dayCellText = (d) => {
-                if (d.jenis === 'Hadir') {
-                    if (d.setengahHari) return `<span style="color:#d97706; font-weight:bold;">H½</span><br><span style="font-size:7px; color:#64748b;">${d.jamKerja.toFixed(1)}j</span>`;
-                    return `<span style="color:#059669; font-weight:bold;">H</span><br><span style="font-size:7px; color:#64748b;">${d.jamKerja.toFixed(1)}j${d.jamLembur > 0 ? '+' + d.jamLembur.toFixed(1) : ''}</span>`;
-                }
-                if (d.jenis === 'Izin') return `<span style="color:#0284c7; font-weight:bold;">I</span>`;
-                if (d.jenis === 'Sakit') return `<span style="color:#e11d48; font-weight:bold;">S</span>`;
-                if (d.jenis === 'Cuti') return `<span style="color:#7c3aed; font-weight:bold;">C</span>`;
-                return `<span style="color:#cbd5e1;">-</span>`;
-            };
-
-            let dayHeaders = '';
-            for (let d = 1; d <= jumlahHari; d++) dayHeaders += `<th style="text-align:center;">${d}</th>`;
-
-            container.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 3px solid #1c2541; padding-bottom: 12px; margin-bottom: 16px;">
-                        <div>
-                            <h2 style="margin:0; color:#1c2541;">ProConstruct ERP v3.0</h2>
-                            <div style="font-size:11px; color:#64748b;">Rekap Daftar Hadir Karyawan Bulanan</div>
-                        </div>
-                        <div style="text-align:right; font-size:11px;">
-                            <div><strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID')}</div>
-                        </div>
-                    </div>
-                    <table style="width:100%; margin-bottom:14px; font-size:12px;">
-                        <tr><td style="width:120px; color:#64748b;">Nama Proyek</td><td style="font-weight:bold;">: ${proj.nama}</td></tr>
-                        <tr><td style="color:#64748b;">Lokasi</td><td>: ${proj.lokasi || '-'}</td></tr>
-                        <tr><td style="color:#64748b;">Periode</td><td style="font-weight:bold; color:#b45309;">: ${bulanLabel}</td></tr>
-                    </table>
-                    <table border="0" cellspacing="0" cellpadding="4" style="width:100%; border-collapse:collapse; font-size:9px;">
-                        <thead>
-                            <tr style="background:#1c2541; color:#fff;">
-                                <th style="text-align:left; min-width:90px;">Nama Karyawan</th>
-                                ${dayHeaders}
-                                <th>Hr Hadir</th><th>Jam Hadir</th><th>Hr Lembur</th><th>Jam Lembur</th><th>Izin</th><th>Sakit</th><th>Cuti</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rekap.map((r, i) => `
-                                <tr style="background:${i % 2 === 0 ? '#f8fafc' : '#ffffff'}; border-bottom: 1px solid #e2e8f0;">
-                                    <td style="font-weight:bold; text-align:left;">${r.nama}</td>
-                                    ${r.days.map(d => `<td style="text-align:center;">${dayCellText(d)}</td>`).join('')}
-                                    <td style="text-align:center; font-weight:bold; color:#059669;">${r.hariHadir}</td>
-                                    <td style="text-align:center;">${r.jamHadir}</td>
-                                    <td style="text-align:center; color:#b45309;">${r.hariLembur}</td>
-                                    <td style="text-align:center;">${r.jamLembur}</td>
-                                    <td style="text-align:center; color:#0284c7;">${r.izin}</td>
-                                    <td style="text-align:center; color:#e11d48;">${r.sakit}</td>
-                                    <td style="text-align:center; color:#7c3aed;">${r.cuti}</td>
-                                </tr>
-                            `).join('')}
-                            ${rekap.length === 0 ? `<tr><td colspan="${jumlahHari + 8}" style="text-align:center; padding:16px; color:#94a3b8;">Belum ada data karyawan pada proyek ini.</td></tr>` : ''}
-                        </tbody>
-                    </table>
-                    <div style="margin-top:24px; font-size:10px; color:#94a3b8;">Dokumen ini dibuat otomatis oleh ProConstruct ERP v3.0.</div>
-                </div>
-            `;
-            const opt = {
-                margin: 8,
-                filename: `DaftarHadir_${bulanStr}_${proj.nama}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, windowWidth: 1400 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdfFromContainer(container, opt, 'landscape');
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getDaftarHadirExportDataset();
+            exportProfessionalPdf(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`, { orientation: ds.orientation, subtitle: ds.subtitle });
         }
 
         // Karyawan Management
@@ -11290,7 +11095,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 `;
             });
         }
-
         function openEmployeeModal(isEdit, id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang memiliki akses ke Data Karyawan.');
@@ -11395,7 +11199,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 initDropdowns();
             }
         }
-
         function handleUserPhotoUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -11615,6 +11418,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const existingIdx = projects.findIndex(p => p.id === importedProj.id);
                     if (existingIdx !== -1) projects[existingIdx] = importedProj; else projects.push(importedProj);
                     localStorage.setItem('erp_projects', JSON.stringify(projects));
+
                     const pid = importedProj.id;
                     const mergeByProj = (arr, incoming, key) => {
                         const others = arr.filter(x => x[key] !== pid);
@@ -12028,19 +11832,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // maupun PDF, supaya hasil keduanya selalu identik dan sesuai isi halamannya.
         // ===================================================================
 
-        // Helper BERSAMA dipakai semua fungsi export PDF di aplikasi ini (bukan cuma mesin export baru).
-        // Percobaan sebelumnya pakai opsi "onclone" (solusi resmi html2canvas utk elemen tersembunyi) TERNYATA
-        // TIDAK diteruskan dengan benar oleh library pembungkus html2pdf.js yang dipakai di sini - ini bug
-        // yang sudah dilaporkan banyak orang lain juga di proyek library tersebut, bukan salah logika kita.
-        // Jadi sekarang wadah #printContainer dibuat SELALU "hidup"/ter-render secara permanen lewat CSS
-        // (lihat aturan #printContainer di bagian <style>, BUKAN display:none lagi) - di sini JS-nya cuma
-        // perlu mengatur lebarnya sesuai orientasi kertas sebelum difoto.
-        function html2pdfFromContainer(container, opt, orientation) {
-            container.style.width = (orientation === 'landscape' ? '1400px' : '950px');
-            return html2pdf().set(opt).from(container).save()
-                .catch(err => { alert('Gagal membuat PDF: ' + (err && err.message ? err.message : 'Terjadi kesalahan tak terduga.')); });
-        }
-
         function getExportProjectMeta() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek', lokasi: '-' };
             return {
@@ -12123,8 +11914,11 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
             }
 
-            // Lebar kolom otomatis menyesuaikan isi terpanjang (supaya rapi, tidak terpotong/terhambur)
+            // Lebar kolom otomatis menyesuaikan isi terpanjang (supaya rapi, tidak terpotong/terhambur),
+            // kecuali kolom itu sendiri sudah menentukan lebar tetapnya sendiri (col.width) - dipakai utk
+            // kolom sempit seperti tanggal 1-31 pada rekap Daftar Hadir.
             ws['!cols'] = columns.map(c => {
+                if (c.width) return { wch: c.width };
                 const headerLen = (c.header || '').toString().length;
                 const maxDataLen = rows.reduce((m, r) => Math.max(m, String(r[c.key] ?? '').length), 0);
                 return { wch: Math.max(10, Math.min(45, Math.max(headerLen, maxDataLen) + 3)) };
@@ -12151,74 +11945,96 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         }
 
         // --------- PDF: kop surat + info proyek + tabel bergaya, header tabel berulang tiap halaman cetak ---------
+        // Format 1 nilai sel untuk ditampilkan di PDF - dibaca dari NAMA KOLOM (key) supaya format angkanya
+        // masuk akal (uang pakai "Rp", bobot/persen pakai "%", angka lain dirapikan) tanpa perlu menulis
+        // ulang aturan format di setiap dataset.
+        function formatPdfCellValue(key, value) {
+            if (value === undefined || value === null || value === '') return '-';
+            if (typeof value !== 'number') return String(value);
+            const k = (key || '').toLowerCase();
+            if (k.includes('harga') || k.includes('uang') || k.includes('nilai') || k === 'total') return formatRupiah(value);
+            if (k.includes('bobot') || k.includes('persen')) return (value >= 0 ? '' : '') + value.toFixed(2) + '%';
+            return formatAngka(value);
+        }
+
+        // Gambar KOP surat (logo + nama proyek + lokasi + tanggal cetak + judul laporan) di bagian atas
+        // halaman PDF yang sedang aktif. Dipanggil lewat callback didDrawPage AutoTable, sehingga OTOMATIS
+        // digambar ulang di SETIAP halaman baru yang dibuat AutoTable - inilah yang membuat kepala laporan
+        // & (bersama opsi "head" di bawah) kepala tabel selalu muncul lagi tiap ganti halaman saat dicetak,
+        // tanpa perlu memotong-motong tabel secara manual seperti pendekatan screenshot sebelumnya.
+        function drawPdfKop(doc, meta, title, opts) {
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const marginX = 10;
+            let y = 12;
+            const textX = meta.logo ? marginX + 20 : marginX;
+            if (meta.logo) {
+                try {
+                    let fmt = 'JPEG';
+                    if (meta.logo.includes('image/png')) fmt = 'PNG';
+                    else if (meta.logo.includes('image/webp')) fmt = 'WEBP';
+                    doc.addImage(meta.logo, fmt, marginX, y - 8, 16, 16);
+                } catch (e) { /* format logo tidak didukung, lewati saja */ }
+            }
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(11, 19, 43);
+            doc.text(meta.namaProyek, textX, y);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(71, 85, 105);
+            doc.text(`Lokasi: ${meta.lokasi}`, textX, y + 5);
+            doc.text(`Dicetak dari ProConstruct ERP v3.0  -  ${meta.tanggalCetak}${opts.subtitle ? '  -  ' + opts.subtitle : ''}`, textX, y + 9.5);
+            doc.setDrawColor(31, 54, 100); doc.setLineWidth(0.4);
+            doc.line(marginX, y + 12.5, pageWidth - marginX, y + 12.5);
+            doc.setFillColor(31, 54, 100);
+            doc.rect(marginX, y + 15.5, pageWidth - marginX * 2, 7, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+            doc.text(title.toUpperCase(), pageWidth / 2, y + 20.2, { align: 'center' });
+            return y + 27; // tinggi total kop (mm) - dipakai sbg jarak mulai tabel di halaman pertama
+        }
+
+        // PDF dibangun LANGSUNG DARI DATA (columns/rows - sumber yang SAMA PERSIS dengan export Excel),
+        // memakai jsPDF + AutoTable - BUKAN screenshot html2canvas seperti sebelumnya. Keuntungannya: teks di
+        // PDF adalah teks ASLI (bisa di-select/copy/cari), ukuran file jauh lebih kecil, tata letak tabel
+        // dihitung presisi oleh AutoTable (bukan hasil potong-gambar), dan kepala tabel otomatis berulang di
+        // setiap halaman baru bawaan AutoTable sendiri - jadi tidak mungkin lagi hasilnya blank/kosong seperti
+        // masalah screenshot kemarin, karena tidak ada proses "memotret" apapun di sini.
         function exportProfessionalPdf(title, columns, rows, filename, opts = {}) {
             const meta = getExportProjectMeta();
-            const container = document.getElementById('printContainer');
             const orientation = opts.orientation || 'portrait';
-            const rowsPerPage = opts.rowsPerPage || (orientation === 'landscape' ? 24 : 20);
+            const doc = new jspdf.jsPDF({ orientation, unit: 'mm', format: 'a4' });
 
-            const kopHtml = `
-                <table style="width:100%; border-collapse:collapse; margin-bottom:8px;">
-                    <tr>
-                        ${meta.logo ? `<td style="width:64px; vertical-align:middle; padding-right:8px;"><img src="${meta.logo}" style="max-width:56px; max-height:56px; object-fit:contain;"></td>` : ''}
-                        <td style="vertical-align:middle; border-bottom:2px solid #1F3864; padding-bottom:6px;">
-                            <div style="font-size:14px; font-weight:bold; color:#0b132b;">${escapeExportHtml(meta.namaProyek)}</div>
-                            <div style="font-size:9px; color:#334155;">Lokasi: ${escapeExportHtml(meta.lokasi)}</div>
-                            <div style="font-size:9px; color:#334155;">Dicetak dari ProConstruct ERP v3.0 &mdash; ${meta.tanggalCetak}${opts.subtitle ? ' &mdash; ' + escapeExportHtml(opts.subtitle) : ''}</div>
-                        </td>
-                    </tr>
-                </table>
-                <div style="font-size:12px; font-weight:bold; text-align:center; background:#1F3864; color:#fff; padding:6px; margin-bottom:8px; border-radius:3px;">${escapeExportHtml(title).toUpperCase()}</div>
-            `;
-            const theadHtml = `<thead><tr>${columns.map(c => `<th style="background:#1F3864; color:#fff; font-weight:bold; border:1px solid #0b132b; padding:4px; font-size:8.5px; text-align:left;">${escapeExportHtml(c.header)}</th>`).join('')}</tr></thead>`;
-
-            let bodyHtml;
-            if (rows.length === 0) {
-                bodyHtml = `<p style="text-align:center; color:#64748b; padding:30px; font-size:11px;">Belum ada data untuk ditampilkan pada laporan ini.</p>`;
-            } else {
-                bodyHtml = '';
-                for (let i = 0; i < rows.length; i += rowsPerPage) {
-                    const chunk = rows.slice(i, i + rowsPerPage);
-                    // Setiap potongan (halaman) tabel diberi <thead> sendiri + kop diulang (kecuali halaman
-                    // pertama, kop-nya sudah ada di atas) - supaya kepala tabel & info proyek tetap kelihatan
-                    // di setiap halaman saat di-print / dijadikan PDF, memudahkan pengecekan data per halaman.
-                    bodyHtml += `
-                        <div style="${i > 0 ? 'page-break-before: always; padding-top:10px;' : ''}">
-                            ${i > 0 ? kopHtml : ''}
-                            <table style="width:100%; border-collapse:collapse; font-size:8.5px;">
-                                ${theadHtml}
-                                <tbody>
-                                    ${chunk.map((row, ri) => `<tr style="background:${(i + ri) % 2 === 1 ? '#f1f5f9' : '#ffffff'};">${columns.map(c => `<td style="border:1px solid #cbd5e1; padding:4px; vertical-align:top;">${escapeExportHtml(row[c.key] ?? '')}</td>`).join('')}</tr>`).join('')}
-                                </tbody>
-                            </table>
-                        </div>`;
-                }
-                if (opts.totalRow) {
-                    const totalCells = columns.map((c, ci) => {
-                        if (ci === 0) return opts.totalRow.label || 'TOTAL';
-                        if (opts.totalRow.sumKeys && opts.totalRow.sumKeys.includes(c.key)) {
-                            return formatAngka(rows.reduce((a, r) => a + (Number(r[c.key]) || 0), 0));
-                        }
-                        return '';
-                    });
-                    bodyHtml += `
-                        <table style="width:100%; border-collapse:collapse; font-size:8.5px; margin-top:-1px;">
-                            <tr style="background:#D9E2F3; font-weight:bold;">${totalCells.map(v => `<td style="border:1px solid #94a3b8; padding:4px;">${escapeExportHtml(v)}</td>`).join('')}</tr>
-                        </table>`;
-                }
+            const startY = drawPdfKop(doc, meta, title, opts);
+            const body = rows.map(row => columns.map(c => formatPdfCellValue(c.key, row[c.key])));
+            let foot;
+            if (opts.totalRow && rows.length > 0) {
+                foot = [columns.map((c, ci) => {
+                    if (ci === 0) return opts.totalRow.label || 'TOTAL';
+                    if (opts.totalRow.sumKeys && opts.totalRow.sumKeys.includes(c.key)) {
+                        return formatPdfCellValue(c.key, rows.reduce((a, r) => a + (Number(r[c.key]) || 0), 0));
+                    }
+                    return '';
+                })];
             }
 
-            container.innerHTML = `<div style="font-family: Arial, sans-serif; color:#000; padding:12px;">${kopHtml}${bodyHtml}</div>`;
+            const columnStyles = {};
+            columns.forEach((c, idx) => { if (c.width) columnStyles[idx] = { cellWidth: Math.max(5, c.width * 1.7), halign: 'center' }; });
 
-            const opt = {
-                margin: 8,
-                filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, windowWidth: orientation === 'landscape' ? 1400 : 950 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation },
-                pagebreak: { mode: ['css'] }
-            };
-            html2pdfFromContainer(container, opt, orientation);
+            doc.autoTable({
+                head: [columns.map(c => c.header)],
+                body: rows.length > 0 ? body : [[{ content: 'Belum ada data untuk ditampilkan pada laporan ini.', colSpan: columns.length, styles: { halign: 'center', textColor: [100, 116, 139] } }]],
+                foot,
+                startY,
+                margin: { top: 26, left: 10, right: 10, bottom: 12 },
+                styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.6, overflow: 'linebreak', valign: 'middle', lineColor: [183, 192, 206], lineWidth: 0.1 },
+                headStyles: { fillColor: [31, 54, 100], textColor: 255, fontStyle: 'bold', halign: 'center', valign: 'middle' },
+                footStyles: { fillColor: [217, 226, 243], textColor: [11, 19, 43], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [244, 247, 251] },
+                columnStyles,
+                // Kepala tabel (head) OTOMATIS digambar ulang AutoTable di setiap halaman baru - dan lewat
+                // didDrawPage, kop surat proyek juga ikut digambar ulang, jadi setiap halaman cetak selalu
+                // punya identitas lengkap (logo, nama proyek, judul laporan, kepala tabel) tanpa perlu
+                // dicek manual sedang di halaman berapa.
+                didDrawPage: () => { drawPdfKop(doc, meta, title, opts); }
+            });
+
+            doc.save(filename);
         }
 
         // Ubah hasil builder material lama ({headers, rows:[{cells,kind}]}) menjadi format columns/rows generik,
@@ -12454,6 +12270,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 container.innerHTML = `<p class="text-slate-300 text-[11px]">Export seluruh data lengkap ${type} proyek.</p>`;
             }
+
             generateWaTextContent();
         }
 
@@ -12579,6 +12396,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 <i class="fa-regular fa-calendar mr-1.5"></i>${formatMonthYearLabel(dateStr)}
             </td></tr>`;
         }
+
         // Helper Format Label Material: Nama + Dimensi + Spesifikasi (dipakai supaya identitas material
         // selalu jelas di mana pun ditampilkan, termasuk pada Data Laporan Harian & Export WA-nya)
         function formatMaterialLabel(item) {
