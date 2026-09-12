@@ -11847,6 +11847,20 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // columns: [{ header, key, formula?: (row, excelRowNum, ctx) => 'string formula (tanpa =)' }]
         // rows: array data polos { key: value, ... }
         // opts: { totalRow: { label, sumKeys: [...] }, subtitle: 'Periode: ...' }
+        // Kelompokkan rows berdasarkan field tertentu (mis. 'div'), urut sesuai kemunculan pertama tiap
+        // kelompok - dipakai utk laporan yang perlu subtotal per divisi (RAB, Laporan Mingguan/Bulanan,
+        // Time Schedule) sebelum baris TOTAL BESAR di paling akhir.
+        function groupRowsByKey(rows, key) {
+            const groups = [];
+            const map = new Map();
+            rows.forEach((r, i) => {
+                const k = (r[key] || '(Tanpa Divisi)').toString();
+                if (!map.has(k)) { const g = { key: k, indices: [] }; map.set(k, g); groups.push(g); }
+                map.get(k).indices.push(i);
+            });
+            return groups;
+        }
+
         function exportProfessionalExcel(title, columns, rows, filename, opts = {}) {
             const meta = getExportProjectMeta();
             const ncol = columns.length;
@@ -11858,7 +11872,39 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const headerRowIdx = aoa.length; // 0-based
             aoa.push(columns.map(c => c.header));
             const dataStartRowIdx = aoa.length; // 0-based
-            rows.forEach(row => aoa.push(columns.map(c => (row[c.key] !== undefined && row[c.key] !== null) ? row[c.key] : '')));
+
+            const colLetter = (key) => XLSX.utils.encode_col(columns.findIndex(c => c.key === key));
+            // ctx.dataStartExcelRow/dataEndExcelRow SENGAJA dihitung dari SELURUH baris data sebelum baris
+            // subtotal disisipkan - supaya rumus seperti Bobot(%) tetap merujuk ke total KESELURUHAN proyek
+            // (bukan cuma satu divisi), walau nanti posisi barisnya bergeser oleh baris subtotal per divisi.
+            const ctx = { dataStartExcelRow: dataStartRowIdx + 1, dataEndExcelRow: dataStartRowIdx + rows.length, colLetter };
+
+            // Susun baris: kalau opts.groupByDivision aktif, sisipkan baris SUBTOTAL setiap kali kelompok
+            // (mis. Divisi) berganti; rowExcelIndex melacak baris ke berapa (0-based) tiap item rows[i]
+            // berakhir ditulis, dan subtotalPlans menyimpan rentang baris yg perlu dijumlah utk tiap subtotal.
+            const rowExcelIndex = [];
+            const subtotalPlans = []; // { rowIdx, label, firstDataRow, lastDataRow }
+            if (opts.groupByDivision && rows.length > 0) {
+                const groups = groupRowsByKey(rows, opts.groupKey || 'div');
+                groups.forEach(g => {
+                    g.indices.forEach(i => {
+                        rowExcelIndex[i] = aoa.length;
+                        aoa.push(columns.map(c => (rows[i][c.key] !== undefined && rows[i][c.key] !== null) ? rows[i][c.key] : ''));
+                    });
+                    const subRowIdx = aoa.length;
+                    aoa.push(columns.map((c, ci) => ci === 0 ? `Subtotal: ${g.key}` : ''));
+                    subtotalPlans.push({
+                        rowIdx: subRowIdx, label: `Subtotal: ${g.key}`,
+                        firstDataRow: rowExcelIndex[g.indices[0]] + 1,
+                        lastDataRow: rowExcelIndex[g.indices[g.indices.length - 1]] + 1
+                    });
+                });
+            } else {
+                rows.forEach((row, i) => {
+                    rowExcelIndex[i] = aoa.length;
+                    aoa.push(columns.map(c => (row[c.key] !== undefined && row[c.key] !== null) ? row[c.key] : ''));
+                });
+            }
 
             const ws = XLSX.utils.aoa_to_sheet(aoa);
             ws['!merges'] = [
@@ -11866,29 +11912,45 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 { s: { r: 1, c: 0 }, e: { r: 1, c: Math.max(0, ncol - 1) } },
                 { s: { r: 2, c: 0 }, e: { r: 2, c: Math.max(0, ncol - 1) } }
             ];
-
-            const colLetter = (key) => XLSX.utils.encode_col(columns.findIndex(c => c.key === key));
-            const ctx = { dataStartExcelRow: dataStartRowIdx + 1, dataEndExcelRow: dataStartRowIdx + rows.length, colLetter };
-
-            // Terapkan rumus Excel ASLI (bukan angka statis) pada kolom yang didefinisikan formula-nya
+            // Terapkan rumus Excel ASLI (bukan angka statis) pada kolom yang didefinisikan formula-nya -
+            // memakai rowExcelIndex supaya tetap tepat sasaran meski posisinya bergeser oleh baris subtotal.
             columns.forEach((col, ci) => {
                 if (typeof col.formula !== 'function') return;
                 rows.forEach((row, ri) => {
-                    const excelRowNum = dataStartRowIdx + ri + 1; // 1-based, dipakai di string formula (A1 notation)
+                    const excelRowNum = rowExcelIndex[ri] + 1; // 1-based, dipakai di string formula (A1 notation)
                     const f = col.formula(row, excelRowNum, ctx);
-                    if (f) ws[XLSX.utils.encode_cell({ r: dataStartRowIdx + ri, c: ci })] = { t: 'n', f: f };
+                    if (f) ws[XLSX.utils.encode_cell({ r: rowExcelIndex[ri], c: ci })] = { t: 'n', f: f };
                 });
             });
 
-            let lastRowIdx = dataStartRowIdx + rows.length - 1;
+            // Rumus SUM utk tiap baris subtotal per divisi (hanya menjumlah rentang baris divisi itu sendiri)
+            subtotalPlans.forEach(sp => {
+                columns.forEach((c, ci) => {
+                    if (!opts.totalRow || !opts.totalRow.sumKeys || !opts.totalRow.sumKeys.includes(c.key)) return;
+                    const L = XLSX.utils.encode_col(ci);
+                    ws[XLSX.utils.encode_cell({ r: sp.rowIdx, c: ci })] = { t: 'n', f: `SUM(${L}${sp.firstDataRow}:${L}${sp.lastDataRow})` };
+                });
+                for (let c = 0; c < ncol; c++) {
+                    const ref = XLSX.utils.encode_cell({ r: sp.rowIdx, c });
+                    if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+                    ws[ref].s = { font: { bold: true, italic: true }, fill: { fgColor: { rgb: 'E2E8F0' } }, border: allThinBorder() };
+                }
+            });
+
+            // Baris TOTAL BESAR - SELALU di baris PALING TERAKHIR tabel (bukan diulang-ulang), menjumlah
+            // seluruh baris data asli (rowExcelIndex), bukan menjumlah subtotal-subtotal (menghindari dobel).
+            let lastRowIdx = aoa.length - 1;
             if (opts.totalRow && rows.length > 0) {
-                const totalRowIdx = dataStartRowIdx + rows.length;
-                const totalArr = columns.map((c, ci) => ci === 0 ? (opts.totalRow.label || 'TOTAL') : '');
-                XLSX.utils.sheet_add_aoa(ws, [totalArr], { origin: totalRowIdx });
+                const totalRowIdx = aoa.length;
+                aoa.push(columns.map((c, ci) => ci === 0 ? (opts.totalRow.label || 'TOTAL') : ''));
+                XLSX.utils.sheet_add_aoa(ws, [aoa[totalRowIdx]], { origin: totalRowIdx });
                 columns.forEach((c, ci) => {
                     if (!opts.totalRow.sumKeys || !opts.totalRow.sumKeys.includes(c.key)) return;
                     const L = XLSX.utils.encode_col(ci);
-                    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: ci })] = { t: 'n', f: `SUM(${L}${ctx.dataStartExcelRow}:${L}${ctx.dataEndExcelRow})` };
+                    // Jumlahkan tiap baris data satu-satu (bukan 1 rentang utuh), karena posisi baris data bisa
+                    // tidak berurutan sempurna kalau ada baris subtotal di sela-selanya.
+                    const terms = rows.map((r, ri) => `${L}${rowExcelIndex[ri] + 1}`).join('+');
+                    ws[XLSX.utils.encode_cell({ r: totalRowIdx, c: ci })] = { t: 'n', f: terms || '0' };
                 });
                 lastRowIdx = totalRowIdx;
                 for (let c = 0; c < ncol; c++) {
@@ -11906,13 +11968,13 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const ref = XLSX.utils.encode_cell({ r: headerRowIdx, c });
                 if (ws[ref]) ws[ref].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '1F3864' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: allThinBorder() };
             }
-            for (let r = dataStartRowIdx; r <= dataStartRowIdx + rows.length - 1; r++) {
+            rows.forEach((row, ri) => {
                 for (let c = 0; c < ncol; c++) {
-                    const ref = XLSX.utils.encode_cell({ r, c });
+                    const ref = XLSX.utils.encode_cell({ r: rowExcelIndex[ri], c });
                     if (!ws[ref]) ws[ref] = { t: 's', v: '' };
                     ws[ref].s = { border: allThinBorder(), alignment: { vertical: 'top', wrapText: true } };
                 }
-            }
+            });
 
             // Lebar kolom otomatis menyesuaikan isi terpanjang (supaya rapi, tidak terpotong/terhambur),
             // kecuali kolom itu sendiri sudah menentukan lebar tetapnya sendiri (col.width) - dipakai utk
@@ -11958,10 +12020,9 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         }
 
         // Gambar KOP surat (logo + nama proyek + lokasi + tanggal cetak + judul laporan) di bagian atas
-        // halaman PDF yang sedang aktif. Dipanggil lewat callback didDrawPage AutoTable, sehingga OTOMATIS
-        // digambar ulang di SETIAP halaman baru yang dibuat AutoTable - inilah yang membuat kepala laporan
-        // & (bersama opsi "head" di bawah) kepala tabel selalu muncul lagi tiap ganti halaman saat dicetak,
-        // tanpa perlu memotong-motong tabel secara manual seperti pendekatan screenshot sebelumnya.
+        // halaman PERTAMA saja - TIDAK diulang di halaman berikutnya (supaya tidak tumpang tindih dengan
+        // kepala tabel). Kepala tabel sendiri (opsi "head" AutoTable) tetap otomatis berulang di SETIAP
+        // halaman baru - itu sudah perilaku bawaan AutoTable, tidak perlu digambar manual lagi di sini.
         function drawPdfKop(doc, meta, title, opts) {
             const pageWidth = doc.internal.pageSize.getWidth();
             const marginX = 10;
@@ -12000,8 +12061,38 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const orientation = opts.orientation || 'portrait';
             const doc = new jspdf.jsPDF({ orientation, unit: 'mm', format: 'a4' });
 
+            // Kop surat (logo, nama proyek, judul laporan) HANYA digambar SEKALI di halaman pertama - TIDAK
+            // diulang di halaman berikutnya (itu yang menyebabkan tumpang tindih dengan kepala tabel
+            // sebelumnya). Di halaman kedua dst, yang otomatis berulang HANYA kepala tabelnya sendiri (opsi
+            // "head" AutoTable di bawah, ini bawaan/default library - tidak perlu digambar manual lagi).
             const startY = drawPdfKop(doc, meta, title, opts);
-            const body = rows.map(row => columns.map(c => formatPdfCellValue(c.key, row[c.key])));
+
+            const subtotalStyle = { fillColor: [226, 232, 240], fontStyle: 'bold', textColor: [15, 23, 42] };
+            let body;
+            if (rows.length === 0) {
+                body = [[{ content: 'Belum ada data untuk ditampilkan pada laporan ini.', colSpan: columns.length, styles: { halign: 'center', textColor: [100, 116, 139] } }]];
+            } else if (opts.groupByDivision) {
+                // Sisipkan baris SUBTOTAL setiap kali kelompok (Divisi) berganti, di dalam badan tabel itu
+                // sendiri (bukan di footer) - supaya letaknya persis di bawah baris-baris divisi terkait.
+                body = [];
+                groupRowsByKey(rows, opts.groupKey || 'div').forEach(g => {
+                    g.indices.forEach(i => body.push(columns.map(c => formatPdfCellValue(c.key, rows[i][c.key]))));
+                    const subRow = columns.map((c, ci) => {
+                        let val = '';
+                        if (ci === 0) val = `Subtotal: ${g.key}`;
+                        else if (opts.totalRow && opts.totalRow.sumKeys && opts.totalRow.sumKeys.includes(c.key)) {
+                            val = formatPdfCellValue(c.key, g.indices.reduce((a, i) => a + (Number(rows[i][c.key]) || 0), 0));
+                        }
+                        return { content: val, styles: subtotalStyle };
+                    });
+                    body.push(subRow);
+                });
+            } else {
+                body = rows.map(row => columns.map(c => formatPdfCellValue(c.key, row[c.key])));
+            }
+
+            // Baris TOTAL BESAR - ditaruh sebagai baris FOOTER, dan showFoot:'lastPage' memastikan baris ini
+            // HANYA muncul SEKALI di ujung tabel (baris paling akhir), bukan diulang-ulang di setiap halaman.
             let foot;
             if (opts.totalRow && rows.length > 0) {
                 foot = [columns.map((c, ci) => {
@@ -12018,20 +12109,16 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
 
             doc.autoTable({
                 head: [columns.map(c => c.header)],
-                body: rows.length > 0 ? body : [[{ content: 'Belum ada data untuk ditampilkan pada laporan ini.', colSpan: columns.length, styles: { halign: 'center', textColor: [100, 116, 139] } }]],
+                body,
                 foot,
+                showFoot: 'lastPage',
                 startY,
-                margin: { top: 26, left: 10, right: 10, bottom: 12 },
+                margin: { top: 10, left: 10, right: 10, bottom: 12 },
                 styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.6, overflow: 'linebreak', valign: 'middle', lineColor: [183, 192, 206], lineWidth: 0.1 },
                 headStyles: { fillColor: [31, 54, 100], textColor: 255, fontStyle: 'bold', halign: 'center', valign: 'middle' },
                 footStyles: { fillColor: [217, 226, 243], textColor: [11, 19, 43], fontStyle: 'bold' },
                 alternateRowStyles: { fillColor: [244, 247, 251] },
-                columnStyles,
-                // Kepala tabel (head) OTOMATIS digambar ulang AutoTable di setiap halaman baru - dan lewat
-                // didDrawPage, kop surat proyek juga ikut digambar ulang, jadi setiap halaman cetak selalu
-                // punya identitas lengkap (logo, nama proyek, judul laporan, kepala tabel) tanpa perlu
-                // dicek manual sedang di halaman berapa.
-                didDrawPage: () => { drawPdfKop(doc, meta, title, opts); }
+                columnStyles
             });
 
             doc.save(filename);
@@ -12082,7 +12169,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     jumlahHarga: r.volume * r.harga,
                     bobot: (() => { const sub = projRAB.reduce((a, c) => a + c.volume * c.harga, 0); return sub > 0 ? (r.volume * r.harga / sub) * 100 : 0; })()
                 }));
-                return { title: 'RAB Kontrak Awal', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobot'] } };
+                return { title: 'RAB Kontrak Awal', columns, rows, orientation: 'landscape', groupByDivision: true, groupKey: 'div', totalRow: { label: 'TOTAL KESELURUHAN', sumKeys: ['jumlahHarga', 'bobot'] } };
             }
 
             if (type === 'lap-harian') {
@@ -12164,7 +12251,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     reportTitle = `Laporan Bulanan - ${selectedLabel}`;
                     subtitle = `Periode: ${selectedLabel}`;
                 }
-                return { title: reportTitle, columns, rows, orientation: 'landscape', subtitle, totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobotItem', 'jumlahUang'] } };
+                return { title: reportTitle, columns, rows, orientation: 'landscape', subtitle, groupByDivision: true, groupKey: 'div', totalRow: { label: 'TOTAL KESELURUHAN', sumKeys: ['jumlahHarga', 'bobotItem', 'jumlahUang'] } };
             }
 
             if (type === 'time-schedule') {
@@ -12182,7 +12269,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     satuan: r.satuan || '', volume: r.volume, harga: r.harga, jumlahHarga: r.volume * r.harga,
                     bobot: subtotal > 0 ? (r.volume * r.harga / subtotal) * 100 : 0
                 }));
-                return { title: 'Time Schedule - Bobot Item Pekerjaan (Dasar Kurva S)', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['jumlahHarga', 'bobot'] } };
+                return { title: 'Time Schedule - Bobot Item Pekerjaan (Dasar Kurva S)', columns, rows, orientation: 'landscape', groupByDivision: true, groupKey: 'div', totalRow: { label: 'TOTAL KESELURUHAN', sumKeys: ['jumlahHarga', 'bobot'] } };
             }
 
             if (type === 'bq-estimasi') {
@@ -12241,14 +12328,14 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const dataset = getExportDataset(type);
             const filename = `${dataset.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`;
-            exportProfessionalExcel(dataset.title, dataset.columns, dataset.rows, filename, { subtitle: dataset.subtitle, totalRow: dataset.totalRow });
+            exportProfessionalExcel(dataset.title, dataset.columns, dataset.rows, filename, { subtitle: dataset.subtitle, totalRow: dataset.totalRow, groupByDivision: dataset.groupByDivision, groupKey: dataset.groupKey });
         }
 
         function triggerPdfExport(type) {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const dataset = getExportDataset(type);
             const filename = `${dataset.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`;
-            exportProfessionalPdf(dataset.title, dataset.columns, dataset.rows, filename, { orientation: dataset.orientation, subtitle: dataset.subtitle, totalRow: dataset.totalRow });
+            exportProfessionalPdf(dataset.title, dataset.columns, dataset.rows, filename, { orientation: dataset.orientation, subtitle: dataset.subtitle, totalRow: dataset.totalRow, groupByDivision: dataset.groupByDivision, groupKey: dataset.groupKey });
         }
 
         let currentWaType = '';
