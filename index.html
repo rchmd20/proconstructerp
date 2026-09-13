@@ -7664,7 +7664,8 @@
                     <div><label class="block text-slate-400 mb-1">Volume Kebutuhan <span class="text-red-400">*</span></label><input type="number" step="any" id="matVolume" required placeholder="100" value="${editItem ? editItem.volume : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
                     <div><label class="block text-slate-400 mb-1">Harga Satuan (Rp) <span class="text-red-400">*</span></label><input type="number" step="any" id="matHarga" required placeholder="65000" value="${editItem ? editItem.harga : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
                     <div><label class="block text-slate-400 mb-1">Nama Toko</label><input type="text" id="matSupplier" placeholder="TB Sinar Jaya" value="${editItem ? editItem.supplier || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
-                    <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Kontak Toko</label><input type="text" id="matKontak" placeholder="0812xxxxxxx" value="${editItem ? editItem.kontak || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                    <div><label class="block text-slate-400 mb-1">Kontak Toko</label><input type="text" id="matKontak" placeholder="0812xxxxxxx" value="${editItem ? editItem.kontak || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                    <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Nama PIC (Penanggung Jawab Material) <span class="text-slate-500">- opsional</span></label><input type="text" id="matPic" placeholder="Contoh: Budi (Logistik)" value="${editItem ? editItem.pic || '' : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                 `;
             } else if (activeMaterialSub === 'mat-order') {
                 const editItem = isEdit ? materialOrderData.find(x => x.id == materialEditContext.id) : null;
@@ -7848,7 +7849,6 @@
             validatePoVolume();
             updatePoTahapInfo();
         }
-
         // Menampilkan info "PO ini akan menjadi tahap ke berapa" & auto-isi saran Keterangan PO
         function updatePoTahapInfo() {
             const kebId = document.getElementById('poKebutuhanId') ? document.getElementById('poKebutuhanId').value : '';
@@ -7869,7 +7869,6 @@
                 ketInput.value = `Tahap ${nextTahap}`;
             }
         }
-
         // Hitung total volume yang sudah dipesan (di seluruh Material Order) untuk 1 item Kebutuhan Material
         function getKebutuhanOrderedTotal(kebutuhanId, excludeOrderId) {
             return materialOrderData
@@ -7954,6 +7953,7 @@
 
             const o = materialOrderData.find(x => x.id == orderId);
             if (!o) return true;
+
             const excludeId = (materialEditContext && materialEditContext.type === 'masuk') ? materialEditContext.id : null;
             const st = getOrderMasukStatus(o, excludeId);
             const volInput = parseFloat(document.getElementById('mmVolume').value) || 0;
@@ -8047,7 +8047,7 @@
                 if (o.kebutuhanId == kebId) {
                     o.kode = newItem.kode; o.nama = newItem.nama; o.dimensi = newItem.dimensi;
                     o.spesifikasi = newItem.spesifikasi; o.satuan = newItem.satuan; o.harga = newItem.harga;
-                    o.supplier = newItem.supplier; o.kontak = newItem.kontak;
+                    o.supplier = newItem.supplier; o.kontak = newItem.kontak; o.pic = newItem.pic;
                     affectedOrderIds.push(o.id);
                     orderChanged = true;
                 }
@@ -8122,7 +8122,8 @@
                     volume: parseFloat(document.getElementById('matVolume').value) || 0,
                     harga: parseFloat(document.getElementById('matHarga').value) || 0,
                     supplier: document.getElementById('matSupplier').value.trim(),
-                    kontak: document.getElementById('matKontak').value.trim()
+                    kontak: document.getElementById('matKontak').value.trim(),
+                    pic: document.getElementById('matPic').value.trim()
                 };
                 if (isEditKebutuhan) {
                     const idx = kebutuhanMatData.findIndex(x => x.id == materialEditContext.id);
@@ -8148,7 +8149,7 @@
                     tanggal: document.getElementById('poTanggal').value,
                     kode: k.kode, nama: k.nama, dimensi: k.dimensi, spesifikasi: k.spesifikasi,
                     volume: volOrder, satuan: k.satuan, harga: k.harga,
-                    supplier: k.supplier, kontak: k.kontak,
+                    supplier: k.supplier, kontak: k.kontak, pic: k.pic,
                     estimasiTiba: document.getElementById('poEstimasiTiba').value,
                     ket: document.getElementById('poKet').value.trim()
                 };
@@ -8224,7 +8225,6 @@
             document.getElementById('formMaterial').reset();
             renderMaterialSection();
         }
-
         // Cari harga satuan material berdasarkan Nama + Dimensi + Spesifikasi (BUKAN nama saja),
         // mengacu ke data Kebutuhan Material (master harga) pada proyek aktif.
         // Ini mencegah harga tertukar antar item yang namanya sama tapi dimensi/spesifikasinya berbeda.
@@ -8263,18 +8263,32 @@
             const search = (document.getElementById('matSearchInput').value || '').toLowerCase();
 
             if (activeMaterialSub === 'mat-kebutuhan') {
-                head.innerHTML = `<tr><th class="p-3">Kode</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Satuan</th><th class="p-3">Volume</th><th class="p-3">Harga Satuan</th><th class="p-3">Total Harga</th><th class="p-3">Nama Toko</th><th class="p-3">Kontak Toko</th><th class="p-3">Status Order</th><th class="p-3">% Sudah Diorder</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
+                head.innerHTML = `<tr><th class="p-3">Kode</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Satuan</th><th class="p-3">Volume</th><th class="p-3">Harga Satuan</th><th class="p-3">Total Harga</th><th class="p-3">Nama Toko</th><th class="p-3">Kontak Toko</th><th class="p-3">PIC</th><th class="p-3">Status Order</th><th class="p-3">% Sudah Diorder</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
                 const data = kebutuhanMatData.filter(d => d.projId === activeProjectId && (d.nama.toLowerCase().includes(search) || (d.supplier || '').toLowerCase().includes(search)));
-                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="13" class="p-6 text-center text-slate-500">Belum ada data kebutuhan material.</td></tr>`; return; }
-                // Urutkan berdasarkan urutan waktu input (id = timestamp saat data dibuat), karena Kebutuhan Material tidak memiliki kolom tanggal
-                const sortedData = [...data].sort((a, b) => a.id - b.id);
-                let totalNilaiKebutuhan = 0;
-                sortedData.forEach(item => {
-                    const total = item.volume * item.harga;
-                    totalNilaiKebutuhan += total;
-                    // Status & persentase sudah diorder: dihitung dari total volume yang sudah dipesan (Material Order) utk item kebutuhan ini
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="14" class="p-6 text-center text-slate-500">Belum ada data kebutuhan material.</td></tr>`; return; }
+                // Hitung status order tiap item dulu, lalu urutkan berkelompok: BELUM ORDER paling atas (paling
+                // butuh perhatian/tindak lanjut), ORDER SEBAGIAN di tengah, SUDAH ORDER (100%) paling bawah -
+                // supaya langsung ketahuan material mana saja yang belum dipesan tanpa perlu mencari manual.
+                // Di dalam tiap kelompok, urutan mengikuti waktu input (id = timestamp saat data dibuat).
+                const withStatus = data.map(item => {
                     const sudahDipesan = getKebutuhanOrderedTotal(item.id, null);
                     const persenDipesan = item.volume > 0 ? Math.min(100, (sudahDipesan / item.volume) * 100) : 0;
+                    const statusGroup = persenDipesan <= 0 ? 0 : (persenDipesan >= 100 ? 2 : 1);
+                    return { item, persenDipesan, statusGroup };
+                });
+                const sortedData = withStatus.sort((a, b) => a.statusGroup - b.statusGroup || a.item.id - b.item.id);
+                const groupLabel = { 0: 'BELUM DI-ORDER', 1: 'SEDANG ORDER SEBAGIAN', 2: 'SUDAH DI-ORDER (100%)' };
+                const groupColor = { 0: 'bg-red-900/40 text-red-300', 1: 'bg-amber-900/40 text-amber-300', 2: 'bg-emerald-900/40 text-emerald-300' };
+                let totalNilaiKebutuhan = 0;
+                let currentGroup = null;
+                sortedData.forEach(({ item, persenDipesan, statusGroup }) => {
+                    if (statusGroup !== currentGroup) {
+                        const count = sortedData.filter(x => x.statusGroup === statusGroup).length;
+                        tbody.innerHTML += `<tr class="${groupColor[statusGroup]}"><td colspan="14" class="px-3 py-1.5 font-bold text-[10px] uppercase tracking-wider">${groupLabel[statusGroup]} (${count} item)</td></tr>`;
+                        currentGroup = statusGroup;
+                    }
+                    const total = item.volume * item.harga;
+                    totalNilaiKebutuhan += total;
                     let statusBadge;
                     if (persenDipesan <= 0) {
                         statusBadge = `<span class="bg-slate-600/30 text-slate-300 px-2.5 py-1 rounded-full text-[10px] font-bold">Belum Order</span>`;
@@ -8295,6 +8309,7 @@
                             <td class="p-3 font-mono font-bold text-emerald-400">${formatRupiah(total)}</td>
                             <td class="p-3 text-slate-300">${item.supplier || '-'}</td>
                             <td class="p-3 text-slate-300">${item.kontak || '-'}</td>
+                            <td class="p-3 text-slate-300">${item.pic || '-'}</td>
                             <td class="p-3">${statusBadge}</td>
                             <td class="p-3 font-mono">${formatAngka(persenDipesan)}%</td>
                             <td class="p-3 text-center">
@@ -8308,13 +8323,13 @@
                     <tr class="bg-[#0b132b] border-t-2 border-slate-700">
                         <td colspan="7" class="p-3 text-right font-bold text-white uppercase text-[11px]">Total Nilai Kebutuhan Material</td>
                         <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(totalNilaiKebutuhan)}</td>
-                        <td colspan="5"></td>
+                        <td colspan="6"></td>
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-order') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal PO</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Keterangan PO (Tahap)</th><th class="p-3">Volume Order</th><th class="p-3">Total Nilai</th><th class="p-3">Estimasi Tiba</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3">Sudah Masuk</th><th class="p-3">Sisa Belum Masuk</th><th class="p-3">% Sudah Masuk</th><th class="p-3">Status</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
+                head.innerHTML = `<tr><th class="p-3">Tanggal PO</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Keterangan PO (Tahap)</th><th class="p-3">Volume Order</th><th class="p-3">Total Nilai</th><th class="p-3">Estimasi Tiba</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3">PIC</th><th class="p-3">Sudah Masuk</th><th class="p-3">Sisa Belum Masuk</th><th class="p-3">% Sudah Masuk</th><th class="p-3">Status</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
                 const data = materialOrderData.filter(d => d.projId === activeProjectId && (d.nama.toLowerCase().includes(search) || (d.supplier || '').toLowerCase().includes(search)));
-                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="15" class="p-6 text-center text-slate-500">Belum ada data Material Order.</td></tr>`; return; }
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="16" class="p-6 text-center text-slate-500">Belum ada data Material Order.</td></tr>`; return; }
 
                 // Urutkan berdasarkan tanggal PO agar bisa dikelompokkan per hari
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
@@ -8333,7 +8348,7 @@
                             <td colspan="5" class="p-3 text-right font-bold text-slate-300 uppercase text-[10px]">Total Diorder Tanggal ${tgl || '-'}</td>
                             <td class="p-3 font-mono font-bold text-sky-300">${volText}</td>
                             <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(dailyNilai)}</td>
-                            <td colspan="8"></td>
+                            <td colspan="9"></td>
                         </tr>
                     `;
                     dailyVolumeMap = {};
@@ -8347,7 +8362,7 @@
                     // Sisipkan baris pemisah setiap kali data berpindah bulan (dicek sebelum baris tanggal baru dimulai)
                     const monthKey = (item.tanggal || '').slice(0, 7);
                     if (monthKey && monthKey !== currentMonthKeyOrder) {
-                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 15);
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 16);
                         currentMonthKeyOrder = monthKey;
                     }
                     currentTanggal = item.tanggal;
@@ -8378,6 +8393,7 @@
                             <td class="p-3 font-mono text-sky-300">${item.estimasiTiba || '-'}</td>
                             <td class="p-3 text-slate-300">${item.supplier}</td>
                             <td class="p-3 text-slate-300 font-mono">${item.kontak || '-'}</td>
+                            <td class="p-3 text-slate-300">${item.pic || '-'}</td>
                             <td class="p-3 font-mono font-bold text-sky-300">${formatAngka(st.totalMasuk)} ${item.satuan}</td>
                             <td class="p-3 font-mono text-rose-400">${formatAngka(st.sisa)} ${item.satuan}</td>
                             <td class="p-3 font-mono font-bold text-emerald-400">${st.persen.toFixed(1)}%</td>
@@ -8399,13 +8415,13 @@
                     <tr class="bg-[#0b132b] border-t-2 border-slate-700">
                         <td colspan="6" class="p-3 text-right font-bold text-white uppercase text-[11px]">Total Keseluruhan Order Material (Hari Pertama - Hari Akhir Proyek: ${rentangProyek})</td>
                         <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(totalNilaiOrder)}</td>
-                        <td colspan="8"></td>
+                        <td colspan="9"></td>
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-masuk') {
-                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">No. Nota / SJ</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Volume Masuk</th><th class="p-3">Total Nilai</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
+                head.innerHTML = `<tr><th class="p-3">Tanggal</th><th class="p-3">No. Nota / SJ</th><th class="p-3">Nama Material</th><th class="p-3">Dimensi</th><th class="p-3">Spesifikasi</th><th class="p-3">Volume Masuk</th><th class="p-3">Total Nilai</th><th class="p-3">Supplier</th><th class="p-3">Kontak Toko</th><th class="p-3">PIC</th><th class="p-3 text-center col-aksi">Aksi</th></tr>`;
                 const data = materialMasukData.filter(d => d.projId === activeProjectId && (d.nama.toLowerCase().includes(search) || d.supplier.toLowerCase().includes(search) || (d.nota || '').toLowerCase().includes(search)));
-                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Belum ada data Material Masuk.</td></tr>`; return; }
+                if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-500">Belum ada data Material Masuk.</td></tr>`; return; }
                 // Urutkan berdasarkan Tanggal Terima
                 const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
                 let totalNilaiMasuk = 0;
@@ -8413,15 +8429,15 @@
                 sortedData.forEach(item => {
                     const monthKey = (item.tanggal || '').slice(0, 7);
                     if (monthKey && monthKey !== currentMonthKeyMasuk) {
-                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 10);
+                        tbody.innerHTML += buildMonthSeparatorRow(item.tanggal, 11);
                         currentMonthKeyMasuk = monthKey;
                     }
                     const hargaSatuan = getHargaSatuan(item.nama, item.dimensi, item.spesifikasi);
                     const totalItem = (item.volume || 0) * hargaSatuan;
                     totalNilaiMasuk += totalItem;
-                    // Kontak toko di-JOIN LANGSUNG dari Order terkait (bukan disalin/disimpan sendiri di baris
-                    // Masuk) - supaya selalu ikut sinkron otomatis kalau data Order/Kebutuhan Material diedit,
-                    // tanpa perlu proses sinkronisasi tambahan.
+                    // Kontak toko & PIC di-JOIN LANGSUNG dari Order terkait (bukan disalin/disimpan sendiri di
+                    // baris Masuk) - supaya selalu ikut sinkron otomatis kalau data Order/Kebutuhan Material
+                    // diedit, tanpa perlu proses sinkronisasi tambahan.
                     const relatedOrder = materialOrderData.find(o => o.id == item.orderId);
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-800/50 transition">
@@ -8434,6 +8450,7 @@
                             <td class="p-3 font-mono font-bold text-emerald-400">${hargaSatuan ? formatRupiah(totalItem) : '-'}</td>
                             <td class="p-3 text-slate-300">${item.supplier}</td>
                             <td class="p-3 text-slate-300 font-mono">${(relatedOrder && relatedOrder.kontak) || '-'}</td>
+                            <td class="p-3 text-slate-300">${(relatedOrder && relatedOrder.pic) || '-'}</td>
                             <td class="p-3 text-center">
                                 <button onclick="editMaterialItem('masuk', ${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
                                 <button onclick="deleteMaterialItem('masuk', ${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>
@@ -8445,7 +8462,7 @@
                     <tr class="bg-[#0b132b] border-t-2 border-slate-700">
                         <td colspan="6" class="p-3 text-right font-bold text-white uppercase text-[11px]">Total Nilai Material Masuk</td>
                         <td class="p-3 font-mono font-bold text-emerald-300">${formatRupiah(totalNilaiMasuk)}</td>
-                        <td colspan="3"></td>
+                        <td colspan="4"></td>
                     </tr>
                 `;
             } else if (activeMaterialSub === 'mat-keluar') {
@@ -8541,6 +8558,7 @@
                 renderMaterialSection();
             }
         }
+
         // Scan Nota Modal Functions (Full Extraction)
         function openScanNotaModal() {
             document.getElementById('scanNotaModal').classList.remove('hidden');
@@ -8845,7 +8863,27 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const { metode, vals } = bqOpnameReadFormValues();
             const volume = computeBqOpnameVolume(metode, vals);
             const rab = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
-            el.innerText = `Hasil Volume: ${formatAngka(volume)} ${rab ? rab.satuan : ''}`;
+            let html = `Hasil Volume: ${formatAngka(volume)} ${rab ? rab.satuan : ''}`;
+
+            // Peringatan real-time (sebelum baris ini disimpan): kalau tipe & angka yang sedang diketik akan
+            // membuat total volume opname item ini melebihi Volume Kontrak RAB, tampilkan catatan peringatan
+            // di bawah preview supaya user langsung sadar sebelum menekan tombol simpan.
+            if (rab && rab.volume > 0) {
+                const tipeSel = document.getElementById('bqOpTipe');
+                const tipe = tipeSel ? tipeSel.value : 'tambah';
+                const weekNum = parseInt((bqOpnameSelectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+                const volLalu = bqOpnameNetVolumeCumulative(bqOpnameSelectedPekerjaanId, weekNum);
+                const siblingRows = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu && o.id !== bqOpEditRowId);
+                const editingRow = bqOpEditRowId ? bqOpnameData.find(o => o.id === bqOpEditRowId) : null;
+                const simulatedRow = editingRow ? { ...editingRow, tipe, volume } : { tipe, volume };
+                const volIniSimulasi = [...siblingRows, simulatedRow].reduce((a, r) => a + bqOpnameRowNetContribution(r), 0);
+                const volKumSimulasi = volLalu + volIniSimulasi;
+                if (volKumSimulasi > rab.volume + 0.0001) {
+                    const selisih = volKumSimulasi - rab.volume;
+                    html += `<div class="text-red-400 font-sans mt-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Peringatan: total volume opname akan jadi ${formatAngka(volKumSimulasi)} ${rab.satuan}, melebihi Volume Kontrak RAB (${formatAngka(rab.volume)} ${rab.satuan}) sebesar ${formatAngka(selisih)} ${rab.satuan}.</div>`;
+                }
+            }
+            el.innerHTML = html;
         }
 
         // Buka area detail input opname untuk 1 item pekerjaan RAB tertentu, pada minggu yang sedang dipilih.
@@ -8918,6 +8956,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             weekNumsWithData.forEach(wk => { total += bqOpnameNetVolumeForWeek(rabId, `Minggu ${wk}`); });
             return total;
         }
+
         // Cari minggu TERDEKAT sebelum `weekNum` (tidak harus persis weekNum-1, bisa lompat kalau ada minggu
         // yang dilewati) yang SUDAH punya baris opname untuk 1 item pekerjaan RAB tertentu. Dipakai untuk fitur
         // "lanjutkan dari minggu lalu" supaya tetap bisa menemukan data terakhir walau user melompati minggu.
@@ -9132,6 +9171,29 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             // (lihat formatAngka), tidak untuk data yang disimpan/dipakai hitung lebih lanjut.
             const rowValues = { segmen, tipe, metode, ...vals, catatan, volume: volume, mingguKe: bqOpnameSelectedMinggu };
 
+            // PERINGATAN: kalau total volume opname (kumulatif s/d minggu ini, TERMASUK baris yang baru
+            // disimpan ini) ternyata melebihi Volume Kontrak pada RAB item terkait, user diberi peringatan
+            // dulu dan diminta konfirmasi - supaya kesalahan input (mis. salah ketik, satuan tertukar, atau
+            // memang kelebihan volume riil di lapangan) tetap ketahuan sebelum datanya tersimpan, tapi tidak
+            // memblokir total kalau memang user yakin ingin tetap menyimpannya (mis. ada pekerjaan tambah).
+            const rabItemCek = rabData.find(r => r.id == bqOpnameSelectedPekerjaanId);
+            if (rabItemCek && rabItemCek.volume > 0) {
+                const weekNumCek = parseInt((bqOpnameSelectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+                const volLaluCek = bqOpnameNetVolumeCumulative(bqOpnameSelectedPekerjaanId, weekNumCek);
+                const siblingRowsCek = bqOpnameData.filter(o => o.pekerjaanId == bqOpnameSelectedPekerjaanId && o.mingguKe === bqOpnameSelectedMinggu && o.id !== bqOpEditRowId);
+                const volIniSimulasi = [...siblingRowsCek, rowValues].reduce((a, r) => a + bqOpnameRowNetContribution(r), 0);
+                const volKumSimulasi = volLaluCek + volIniSimulasi;
+                if (volKumSimulasi > rabItemCek.volume + 0.0001) {
+                    const selisih = volKumSimulasi - rabItemCek.volume;
+                    const lanjutkan = confirm(
+                        `⚠️ PERINGATAN: Total volume opname untuk item ini akan menjadi ${formatAngka(volKumSimulasi)} ${rabItemCek.satuan}, ` +
+                        `MELEBIHI Volume Kontrak RAB sebesar ${formatAngka(rabItemCek.volume)} ${rabItemCek.satuan} ` +
+                        `(kelebihan ${formatAngka(selisih)} ${rabItemCek.satuan}).\n\nTetap simpan data ini?`
+                    );
+                    if (!lanjutkan) return;
+                }
+            }
+
             if (bqOpEditRowId) {
                 const idx = bqOpnameData.findIndex(o => o.id === bqOpEditRowId);
                 if (idx !== -1) bqOpnameData[idx] = { ...bqOpnameData[idx], ...rowValues };
@@ -9169,6 +9231,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             document.getElementById('bqOpCancelBtn').classList.remove('hidden');
             document.getElementById('formBqOpname').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
         function cancelBqOpnameEdit() {
             bqOpEditRowId = null;
             const form = document.getElementById('formBqOpname');
@@ -9357,6 +9420,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             const selectedMinggu = bqOpnameSelectedMinggu;
             const selectedWeekNum = parseInt((selectedMinggu || '').replace(/\D/g, ''), 10) || 1;
+
             if (periodeLabelEl) {
                 const rangeDetailed = getWeekDateRangeDetailed(selectedWeekNum, proj.tglMulai, proj.tglSelesai);
                 periodeLabelEl.innerHTML = rangeDetailed
@@ -10175,6 +10239,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const errorOverlay = document.getElementById('webcamErrorOverlay');
             if (!video) return;
             if (errorOverlay) errorOverlay.classList.add('hidden');
+
             if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
                 console.warn('Kamera tidak didukung di browser/perangkat ini.');
                 if (errorOverlay) errorOverlay.classList.remove('hidden');
@@ -10405,6 +10470,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return;
             }
+
             // ================= MODE NORMAL: rekam absensi baru =================
             const nama = document.getElementById('absenNamaSelect').value;
             if (!nama) { alert('Pilih nama karyawan terlebih dahulu.'); return; }
@@ -10489,7 +10555,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 if (snapBtn) { snapBtn.disabled = false; snapBtn.innerHTML = '<i class="fa-solid fa-camera"></i><span>Ambil Foto & Simpan Absen</span>'; }
             }
         }
-
         // Muat gambar (dipakai untuk logo perusahaan/proyek pada watermark foto absensi) sebagai Promise
         function loadImage(src) {
             return new Promise((resolve, reject) => {
@@ -10845,6 +10910,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 opt.style.display = opt.textContent.toLowerCase().includes(query) ? '' : 'none';
             });
         }
+
         function handleDhLeaveSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -10928,6 +10994,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 };
             });
         }
+
         // Badge singkat untuk 1 sel hari pada tabel rekap kehadiran
         function dhDayCellHtml(dayInfo) {
             if (dayInfo.jenis === 'Hadir') {
@@ -11075,7 +11142,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data karyawan.</td></tr>`;
                 return;
             }
-
             projEmps.forEach(emp => {
                 const isAdmin = currentUser && currentUser.role === 'Admin';
                 const editBtn = isAdmin ? `<button onclick="editEmployee(${emp.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button>` : '';
@@ -11095,6 +11161,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 `;
             });
         }
+
         function openEmployeeModal(isEdit, id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang memiliki akses ke Data Karyawan.');
@@ -11199,6 +11266,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 initDropdowns();
             }
         }
+
         function handleUserPhotoUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -11304,7 +11372,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_users', JSON.stringify(users));
             openAdminApprovalModal();
         }
-
         // Hapus akun User dari proyek Admin. Tidak bisa menghapus akun Admin, dan hanya bisa menghapus
         // akun User yang memang tertaut ke salah satu proyek milik Admin yang sedang login.
         function deleteUserAccount(id) {
@@ -11409,7 +11476,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 try {
                     const backup = JSON.parse(evt.target.result);
                     if (!backup || !backup.project || !backup.data) { alert('File backup tidak valid.'); return; }
-
                     // Buat / timpa proyek tujuan berdasarkan id proyek dari file backup
                     // Kepemilikan (ownerId) proyek yang diimpor SELALU dipindah ke akun Admin yang sedang
                     // mengimpor — agar proyek ini pasti muncul di akun tujuan, bukan "hilang" karena ownerId
@@ -11650,27 +11716,41 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
         // daftar yang tampil di halaman (termasuk urutan tanggal & subtotal).
         // ===================================================================
         function buildKebutuhanExportRows() {
-            const headers = ['Kode', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Satuan', 'Volume', 'Harga Satuan', 'Total Harga', 'Nama Toko', 'Kontak Toko', 'Status Order', '% Sudah Diorder'];
-            const data = [...kebutuhanMatData.filter(d => d.projId === activeProjectId)].sort((a, b) => a.id - b.id);
-            const rows = [];
-            let total = 0;
-            data.forEach(item => {
-                const totalItem = (item.volume || 0) * (item.harga || 0);
-                total += totalItem;
+            const headers = ['Kode', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Satuan', 'Volume', 'Harga Satuan', 'Total Harga', 'Nama Toko', 'Kontak Toko', 'PIC', 'Status Order', '% Sudah Diorder'];
+            const data = kebutuhanMatData.filter(d => d.projId === activeProjectId);
+            // Kelompokkan: BELUM DI-ORDER paling atas (paling butuh tindak lanjut), lalu ORDER SEBAGIAN, lalu
+            // SUDAH DI-ORDER (100%) - supaya di Excel/PDF/WA pun langsung ketahuan material mana yang belum
+            // dipesan tanpa perlu menyisir satu-satu. Di dalam tiap kelompok, urutan mengikuti waktu input.
+            const withStatus = data.map(item => {
                 const sudahDipesan = getKebutuhanOrderedTotal(item.id, null);
                 const persenDipesan = item.volume > 0 ? Math.min(100, (sudahDipesan / item.volume) * 100) : 0;
+                const statusGroup = persenDipesan <= 0 ? 0 : (persenDipesan >= 100 ? 2 : 1);
+                return { item, persenDipesan, statusGroup };
+            }).sort((a, b) => a.statusGroup - b.statusGroup || a.item.id - b.item.id);
+            const groupLabel = { 0: 'BELUM DI-ORDER', 1: 'SEDANG ORDER SEBAGIAN', 2: 'SUDAH DI-ORDER (100%)' };
+            const rows = [];
+            let total = 0;
+            let currentGroup = null;
+            withStatus.forEach(({ item, persenDipesan, statusGroup }) => {
+                if (statusGroup !== currentGroup) {
+                    const count = withStatus.filter(x => x.statusGroup === statusGroup).length;
+                    rows.push({ kind: 'group', cells: [`=== ${groupLabel[statusGroup]} (${count} item) ===`, '', '', '', '', '', '', '', '', '', '', '', ''] });
+                    currentGroup = statusGroup;
+                }
+                const totalItem = (item.volume || 0) * (item.harga || 0);
+                total += totalItem;
                 const statusLabel = persenDipesan <= 0 ? 'Belum Order' : (persenDipesan >= 100 ? 'Sudah Order (100%)' : 'Order Sebagian');
                 rows.push({
                     kind: 'data',
-                    cells: [item.kode || '-', item.nama, item.dimensi || '-', item.spesifikasi || '-', item.satuan, item.volume, formatRupiah(item.harga), formatRupiah(totalItem), item.supplier || '-', item.kontak || '-', statusLabel, `${formatAngka(persenDipesan)}%`]
+                    cells: [item.kode || '-', item.nama, item.dimensi || '-', item.spesifikasi || '-', item.satuan, item.volume, formatRupiah(item.harga), formatRupiah(totalItem), item.supplier || '-', item.kontak || '-', item.pic || '-', statusLabel, `${formatAngka(persenDipesan)}%`]
                 });
             });
-            rows.push({ kind: 'total', cells: ['TOTAL NILAI KEBUTUHAN MATERIAL', '', '', '', '', '', '', formatRupiah(total), '', '', '', ''] });
+            rows.push({ kind: 'total', cells: ['TOTAL NILAI KEBUTUHAN MATERIAL', '', '', '', '', '', '', formatRupiah(total), '', '', '', '', ''] });
             return { title: 'Rencana Kebutuhan Material', headers, rows };
         }
 
         function buildOrderExportRows() {
-            const headers = ['Tanggal PO', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Keterangan PO (Tahap)', 'Volume Order', 'Total Nilai', 'Estimasi Tiba', 'Supplier', 'Sudah Masuk', 'Sisa Belum Masuk', '% Sudah Masuk', 'Status'];
+            const headers = ['Tanggal PO', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Keterangan PO (Tahap)', 'Volume Order', 'Total Nilai', 'Estimasi Tiba', 'Supplier', 'Kontak Toko', 'PIC', 'Sudah Masuk', 'Sisa Belum Masuk', '% Sudah Masuk', 'Status'];
             const data = materialOrderData.filter(d => d.projId === activeProjectId);
             const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
             const rows = [];
@@ -11682,7 +11762,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const flushDaily = (tgl) => {
                 if (tgl === null) return;
                 const volText = Object.entries(dailyVolumeMap).map(([sat, vol]) => `${vol} ${sat}`).join(', ') || '-';
-                rows.push({ kind: 'subtotal', cells: [`Total Diorder Tanggal ${tgl || '-'}`, '', '', '', '', volText, formatRupiah(dailyNilai), '', '', '', '', '', ''] });
+                rows.push({ kind: 'subtotal', cells: [`Total Diorder Tanggal ${tgl || '-'}`, '', '', '', '', volText, formatRupiah(dailyNilai), '', '', '', '', '', '', '', ''] });
                 dailyVolumeMap = {};
                 dailyNilai = 0;
             };
@@ -11705,6 +11785,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         item.tanggal, item.nama, item.dimensi || '-', item.spesifikasi || '-',
                         `Tahap ${tahap.ke} dari ${tahap.total}${item.ket ? ' - ' + item.ket : ''}`,
                         `${formatAngka(item.volume)} ${item.satuan}`, formatRupiah(totalItem), item.estimasiTiba || '-', item.supplier,
+                        item.kontak || '-', item.pic || '-',
                         `${formatAngka(st.totalMasuk)} ${item.satuan}`, `${formatAngka(st.sisa)} ${item.satuan}`, `${st.persen.toFixed(1)}%`, statusText
                     ]
                 });
@@ -11715,12 +11796,12 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const rentangProyek = (sortedData.length && activeProj && activeProj.tglMulai && activeProj.tglSelesai)
                 ? `${activeProj.tglMulai} s/d ${activeProj.tglSelesai}`
                 : (sortedData.length ? `${sortedData[0].tanggal || '-'} s/d ${sortedData[sortedData.length - 1].tanggal || '-'}` : '-');
-            rows.push({ kind: 'total', cells: [`TOTAL KESELURUHAN ORDER MATERIAL (${rentangProyek})`, '', '', '', '', '', formatRupiah(totalNilaiOrder), '', '', '', '', '', ''] });
+            rows.push({ kind: 'total', cells: [`TOTAL KESELURUHAN ORDER MATERIAL (${rentangProyek})`, '', '', '', '', '', formatRupiah(totalNilaiOrder), '', '', '', '', '', '', '', ''] });
             return { title: 'Pemesanan Material (Material Order)', headers, rows };
         }
 
         function buildMasukExportRows() {
-            const headers = ['Tanggal', 'No. Nota / SJ', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Volume Masuk', 'Total Nilai', 'Supplier'];
+            const headers = ['Tanggal', 'No. Nota / SJ', 'Nama Material', 'Dimensi', 'Spesifikasi', 'Volume Masuk', 'Total Nilai', 'Supplier', 'Kontak Toko', 'PIC'];
             const data = materialMasukData.filter(d => d.projId === activeProjectId);
             const sortedData = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
             const rows = [];
@@ -11729,12 +11810,13 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const hargaSatuan = getHargaSatuan(item.nama, item.dimensi, item.spesifikasi);
                 const totalItem = (item.volume || 0) * hargaSatuan;
                 totalNilaiMasuk += totalItem;
+                const relatedOrder = materialOrderData.find(o => o.id == item.orderId);
                 rows.push({
                     kind: 'data',
-                    cells: [item.tanggal, item.nota, item.nama, item.dimensi || '-', item.spesifikasi || '-', `${formatAngka(item.volume)} ${item.satuan}`, hargaSatuan ? formatRupiah(totalItem) : '-', item.supplier]
+                    cells: [item.tanggal, item.nota, item.nama, item.dimensi || '-', item.spesifikasi || '-', `${formatAngka(item.volume)} ${item.satuan}`, hargaSatuan ? formatRupiah(totalItem) : '-', item.supplier, (relatedOrder && relatedOrder.kontak) || '-', (relatedOrder && relatedOrder.pic) || '-']
                 });
             });
-            rows.push({ kind: 'total', cells: ['TOTAL NILAI MATERIAL MASUK', '', '', '', '', '', formatRupiah(totalNilaiMasuk), ''] });
+            rows.push({ kind: 'total', cells: ['TOTAL NILAI MATERIAL MASUK', '', '', '', '', '', formatRupiah(totalNilaiMasuk), '', '', ''] });
             return { title: 'Penerimaan Material Masuk', headers, rows };
         }
 
@@ -11912,6 +11994,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 { s: { r: 1, c: 0 }, e: { r: 1, c: Math.max(0, ncol - 1) } },
                 { s: { r: 2, c: 0 }, e: { r: 2, c: Math.max(0, ncol - 1) } }
             ];
+
             // Terapkan rumus Excel ASLI (bukan angka statis) pada kolom yang didefinisikan formula-nya -
             // memakai rowExcelIndex supaya tetap tepat sasaran meski posisinya bergeser oleh baris subtotal.
             columns.forEach((col, ci) => {
@@ -12000,7 +12083,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             try { XLSX.writeFile(wb, filename, { cellStyles: true }); }
             catch (e) { XLSX.writeFile(wb, filename); } // fallback kalau versi library tidak dukung styling, data tetap lengkap
         }
-
         function allThinBorder() {
             const b = { style: 'thin', color: { rgb: 'B7C0CE' } };
             return { top: b, bottom: b, left: b, right: b };
@@ -12357,7 +12439,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 container.innerHTML = `<p class="text-slate-300 text-[11px]">Export seluruh data lengkap ${type} proyek.</p>`;
             }
-
             generateWaTextContent();
         }
 
@@ -12415,6 +12496,33 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const rows = buildActionPlanExportRows(week);
                 text += `📋 *ACTION PLAN LAPANGAN*\nMinggu ke-${week}${range ? ' (' + range.label + ')' : ''}\n\n`;
                 text += rows.length > 0 ? rows.map((r, i) => `${i+1}. [${r['No. Divisi']}] ${r['Nama Sub Pekerjaan']}\n   Target: ${r['Target Minggu Ini (%)']}% | Status: ${r['Status Action Plan']}`).join('\n') + '\n' : 'Belum ada data RAB.\n';
+            } else if (currentWaType === 'mat-kebutuhan') {
+                const data = kebutuhanMatData.filter(d => d.projId === activeProjectId);
+                const withStatus = data.map(item => {
+                    const sudahDipesan = getKebutuhanOrderedTotal(item.id, null);
+                    const persenDipesan = item.volume > 0 ? Math.min(100, (sudahDipesan / item.volume) * 100) : 0;
+                    const statusGroup = persenDipesan <= 0 ? 0 : (persenDipesan >= 100 ? 2 : 1);
+                    return { item, persenDipesan, statusGroup };
+                }).sort((a, b) => a.statusGroup - b.statusGroup || a.item.id - b.item.id);
+                const groupEmoji = { 0: '🔴', 1: '🟡', 2: '🟢' };
+                const groupLabel = { 0: 'BELUM DI-ORDER', 1: 'SEDANG ORDER SEBAGIAN', 2: 'SUDAH DI-ORDER (100%)' };
+                text += `📦 *RENCANA KEBUTUHAN MATERIAL*\n\n`;
+                let totalNilai = 0;
+                [0, 1, 2].forEach(g => {
+                    const items = withStatus.filter(x => x.statusGroup === g);
+                    if (items.length === 0) return;
+                    text += `${groupEmoji[g]} *${groupLabel[g]} (${items.length} item)*\n`;
+                    items.forEach(({ item, persenDipesan }, i) => {
+                        const totalItem = (item.volume || 0) * (item.harga || 0);
+                        totalNilai += totalItem;
+                        text += `${i + 1}. ${item.nama}${item.dimensi ? ' ' + item.dimensi : ''} - ${formatAngka(item.volume)} ${item.satuan} (${formatAngka(persenDipesan)}% terorder)`;
+                        if (item.pic) text += ` | PIC: ${item.pic}`;
+                        text += `\n`;
+                    });
+                    text += `\n`;
+                });
+                if (data.length === 0) text += `Belum ada data kebutuhan material.\n`;
+                else text += `💰 *Total Nilai Kebutuhan:* ${formatRupiah(totalNilai)}\n`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }
