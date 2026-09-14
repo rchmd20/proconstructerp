@@ -354,6 +354,46 @@
                     </div>
                 </div>
 
+                <!-- 2.5 LAPORAN KEUANGAN (Accordion) -->
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
+                        <span class="flex items-center space-x-2">
+                            <i class="fa-solid fa-coins text-amber-400 w-4"></i>
+                            <span>LAPORAN KEUANGAN</span>
+                        </span>
+                    </div>
+                    <div class="pl-4 space-y-1 border-l-2 border-slate-700 ml-3">
+                        <button onclick="switchTab('pay-subkon')" id="menu-pay-subkon" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-people-roof text-[10px]"></i>
+                            <span>Pembayaran Subkon</span>
+                        </button>
+                        <button onclick="switchTab('pay-tenaga')" id="menu-pay-tenaga" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-helmet-safety text-[10px]"></i>
+                            <span>Pembayaran Tenaga (Upah)</span>
+                        </button>
+                        <button onclick="switchTab('pay-material')" id="menu-pay-material" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-truck-field text-[10px]"></i>
+                            <span>Pembayaran Material</span>
+                        </button>
+                        <button onclick="switchTab('pay-karyawan')" id="menu-pay-karyawan" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-id-badge text-[10px]"></i>
+                            <span>Pembayaran Karyawan</span>
+                        </button>
+                        <button onclick="switchTab('pay-termin')" id="menu-pay-termin" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i>
+                            <span>Pembayaran Termin</span>
+                        </button>
+                        <button onclick="switchTab('pay-investor')" id="menu-pay-investor" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-sack-dollar text-[10px]"></i>
+                            <span>Pembayaran Investor</span>
+                        </button>
+                        <button onclick="switchTab('pay-labarugi')" id="menu-pay-labarugi" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-scale-balanced text-[10px]"></i>
+                            <span>Laba Rugi & Untung</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 3. TIME SCHEDULE & ACTION PLAN -->
                 <div class="space-y-1">
                     <div class="flex items-center justify-between px-3 py-2 text-slate-400 font-semibold text-[11px]">
@@ -482,7 +522,6 @@
                 <div id="sidebarProjectTitle" class="font-bold text-amber-400 break-words whitespace-normal text-xs">-</div>
                 <div id="sidebarProjectSub" class="text-[10px] text-slate-300 break-words whitespace-normal">-</div>
             </div>
-
             <!-- Copyright Footer -->
             <div class="text-center text-[10px] text-slate-500 shrink-0 pb-1">
                 &copy; <span id="copyrightYearSidebar"></span> ProConstruct ERP. All Rights Reserved.<br>Developed by rchmd20.
@@ -606,6 +645,7 @@
                         <p class="text-[11px] text-slate-500 mt-3">Rencana &amp; Realisasi dihitung kumulatif dari Minggu ke-1 sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal pada halaman Time Schedule.</p>
                     </div>
                 </div>
+
                 <!-- Quick Access Grid -->
                 <div class="navy-card p-4 md:p-5 rounded-2xl border border-slate-700">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3"><i class="fa-solid fa-bolt text-amber-400"></i> Akses Cepat Modul</h3>
@@ -668,6 +708,7 @@
                         </h2>
                         <p class="text-xs text-slate-400 mt-0.5">Input Divisi, Sub Pekerjaan, Volume, Harga Satuan, PPN, PPH & Perhitungan Bobot Otomatis. Ini adalah RAB kontrak awal - semua halaman lain (Laporan, Time Schedule, Opname, dsb) mengambil data dari sini. Untuk perubahan kontrak (adendum), gunakan halaman <span class="text-amber-300 font-semibold">RAB CCO</span>.</p>
                     </div>
+
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="openExcelImportModal()" id="btnRabImportExcel" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-file-arrow-down"></i>
@@ -858,7 +899,6 @@
                         <p class="text-xs text-slate-400 mt-0.5">Catat perubahan kontrak (pekerjaan tambah, kurang, baru, atau dihilangkan) lengkap dengan justifikasinya. CCO 1 mengacu ke RAB Kontrak Awal, CCO 2 mengacu ke hasil CCO 1, dan seterusnya berantai.</p>
                     </div>
                 </div>
-
                 <div id="rabCcoReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
                     <i class="fa-solid fa-lock text-amber-400"></i>
                     <span>Halaman RAB CCO bersifat lihat-saja (read-only) untuk akun User. Hanya Admin yang dapat menambah, mengubah, atau menghapus CCO.</span>
@@ -1299,7 +1339,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="navy-card p-4 rounded-2xl space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border-b border-slate-700 pb-3">
                         <div class="flex items-center space-x-2">
@@ -1341,7 +1380,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="navy-card rounded-2xl overflow-hidden shadow-xl">
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <span class="font-bold text-xs text-slate-200">Progress Item Pekerjaan (mengikuti data RAB) &mdash; Volume Bulan Ini Otomatis Dari Total Volume Mingguan</span>
@@ -1380,6 +1418,172 @@
                             <tbody id="lapBulananTableBody" class="divide-y divide-slate-800">
                                 <!-- JS Populated -->
                             </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.5: LAPORAN KEUANGAN - PEMBAYARAN (generik, 6 kategori) -->
+            <!-- =================================================================== -->
+            <section id="sec-pay" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 id="payPageTitle" class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i id="payPageIcon" class="fa-solid fa-coins text-amber-400"></i>
+                            <span id="payPageTitleText">Pembayaran</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Catat &amp; pantau riwayat pembayaran proyek, lengkap dengan bukti/keterangan. Datanya jadi dasar perhitungan halaman Laba Rugi &amp; Untung.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('pay-' + activePayKategori)" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                        <button onclick="triggerPdfExport('pay-' + activePayKategori)" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button onclick="openWaExportModal('pay-' + activePayKategori)" class="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>Export WA</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="payReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i>
+                    <span>Halaman ini bersifat lihat-saja (read-only) untuk akun Anda. Hubungi Admin untuk menambah/mengubah data pembayaran.</span>
+                </div>
+
+                <!-- FORM TAMBAH/EDIT PEMBAYARAN -->
+                <div id="payFormBox" class="navy-card p-5 rounded-2xl">
+                    <h3 id="payFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2 mb-4">Tambah Data Pembayaran</h3>
+                    <form id="formPay" onsubmit="handlePaySubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                        <input type="hidden" id="payEditId" value="">
+                        <div><label class="block text-slate-400 mb-1">Tanggal Bayar</label><input type="date" id="payTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div class="md:col-span-2"><label id="payNamaLabel" class="block text-slate-400 mb-1">Nama</label><input type="text" id="payNama" required placeholder="" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Jumlah Dibayar (Rp)</label><input type="number" step="any" id="payJumlah" required min="0" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div class="md:col-span-2"><label id="payUraianLabel" class="block text-slate-400 mb-1">Uraian</label><input type="text" id="payUraian" placeholder="" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Metode Bayar</label>
+                            <select id="payMetode" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                <option value="Transfer Bank">Transfer Bank</option>
+                                <option value="Tunai / Cash">Tunai / Cash</option>
+                                <option value="Cek/Giro">Cek/Giro</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Keterangan (opsional)</label><input type="text" id="payKeterangan" placeholder="Catatan tambahan, no. bukti transfer, dsb." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div class="md:col-span-4 flex justify-end items-center gap-2">
+                            <button type="button" id="payCancelBtn" onclick="cancelPayEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition"><i class="fa-solid fa-xmark mr-1"></i> Batal Edit</button>
+                            <button type="submit" id="paySubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Data</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- RINGKASAN -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="navy-card p-3 rounded-xl">
+                        <span class="text-slate-400 text-[10px]">Jumlah Transaksi</span>
+                        <div id="paySumCount" class="text-base font-black text-white font-mono mt-1">0</div>
+                    </div>
+                    <div class="navy-card p-3 rounded-xl">
+                        <span class="text-slate-400 text-[10px]" id="paySumTotalLabel">Total Dibayarkan</span>
+                        <div id="paySumTotal" class="text-base font-black text-emerald-400 font-mono mt-1">Rp 0</div>
+                    </div>
+                </div>
+
+                <!-- TABEL -->
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span id="payTableTitle" class="font-bold text-xs text-slate-200">Riwayat Pembayaran</span>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                            <input type="text" id="paySearchInput" oninput="renderPayTable()" placeholder="Cari nama/uraian..." class="w-full bg-[#1c2541] border border-slate-700 rounded-lg pl-8 pr-8 py-1.5 text-white text-xs">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                <tr>
+                                    <th class="p-3">No</th>
+                                    <th class="p-3">Tanggal</th>
+                                    <th id="payColNama" class="p-3">Nama</th>
+                                    <th id="payColUraian" class="p-3">Uraian</th>
+                                    <th class="p-3">Jumlah (Rp)</th>
+                                    <th class="p-3">Metode Bayar</th>
+                                    <th class="p-3">Keterangan</th>
+                                    <th class="p-3 text-center col-aksi">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.6: LABA RUGI & UNTUNG -->
+            <!-- =================================================================== -->
+            <section id="sec-pay-labarugi" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+                            <span>Laba Rugi & Untung</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Ringkasan Pemasukan (Termin + Investor) dikurangi Pengeluaran (Subkon + Tenaga + Material + Karyawan), dihitung otomatis dari seluruh data di halaman Laporan Keuangan.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('pay-labarugi')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                        <button onclick="triggerPdfExport('pay-labarugi')" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
+                        <button onclick="openWaExportModal('pay-labarugi')" class="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>Export WA</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="navy-card p-5 rounded-2xl border border-emerald-700/40">
+                        <span class="text-slate-400 text-[11px] uppercase">Total Pemasukan</span>
+                        <div id="lrTotalPemasukan" class="text-2xl font-black text-emerald-400 font-mono mt-1">Rp 0</div>
+                        <div class="text-[10px] text-slate-500 mt-1">Termin + Investor</div>
+                    </div>
+                    <div class="navy-card p-5 rounded-2xl border border-red-700/40">
+                        <span class="text-slate-400 text-[11px] uppercase">Total Pengeluaran</span>
+                        <div id="lrTotalPengeluaran" class="text-2xl font-black text-red-400 font-mono mt-1">Rp 0</div>
+                        <div class="text-[10px] text-slate-500 mt-1">Subkon + Tenaga + Material + Karyawan</div>
+                    </div>
+                    <div class="navy-card p-5 rounded-2xl border border-amber-500/50">
+                        <span class="text-slate-400 text-[11px] uppercase" id="lrLabaRugiLabel">Laba / (Rugi)</span>
+                        <div id="lrLabaRugi" class="text-2xl font-black text-amber-400 font-mono mt-1">Rp 0</div>
+                        <div class="text-[10px] text-slate-500 mt-1" id="lrMargin">Margin: 0%</div>
+                    </div>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700">
+                        <span class="font-bold text-xs text-slate-200">Rincian per Kategori</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                <tr>
+                                    <th class="p-3">Kategori</th>
+                                    <th class="p-3">Arah</th>
+                                    <th class="p-3">Jumlah Transaksi</th>
+                                    <th class="p-3">Total (Rp)</th>
+                                    <th class="p-3">% thd Total Arahnya</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lrTableBody" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1427,10 +1631,9 @@
                         </div>
 
                         <div id="tsBobotInfo" class="text-[11px] text-slate-400 leading-relaxed"></div>
-
                         <div>
-                            <label class="block text-slate-400 mb-1">Volume Rencana (diterapkan sama ke tiap minggu yang dipilih)</label>
-                            <input type="number" step="any" min="0" id="tsVolume" oninput="updateTsBobotInfo()" placeholder="mis. 50" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                            <label class="block text-slate-400 mb-1">Volume Rencana TOTAL untuk Periode Ini (dibagi rata ke tiap minggu yang dipilih)</label>
+                            <input type="number" step="any" min="0" id="tsVolume" oninput="updateTsBobotInfo()" placeholder="mis. 200" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
                         </div>
 
                         <div>
@@ -1801,10 +2004,10 @@
                         </table>
                     </div>
                 </div>
+
                 <!-- AREA DETAIL PERHITUNGAN UNTUK 1 ITEM PEKERJAAN PADA CCO TERPILIH -->
                 <div id="volCcoDetailArea" class="hidden space-y-6">
                     <div id="volCcoJudulInfo" class="text-[11px] text-slate-400"></div>
-
                     <!-- FORM TAMBAH/EDIT BARIS PERHITUNGAN -->
                     <div class="navy-card p-5 rounded-2xl space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-700 pb-2">
@@ -1922,6 +2125,10 @@
                         <button onclick="triggerExcelExport('bq-opname')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Export Excel</span>
+                        </button>
+                        <button onclick="exportBqOpnamePdf()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition" title="Export PDF rincian perhitungan lengkap per item pekerjaan, tersusun rapi untuk keperluan audit">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Export PDF (Rincian Audit)</span>
                         </button>
                     </div>
                 </div>
@@ -3144,7 +3351,7 @@
             erp_mat_order: 'materialOrder', erp_mat_masuk: 'materialMasuk', erp_mat_keluar: 'materialKeluar',
             erp_karyawan: 'karyawan',
             erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname',
-            erp_rab_cco_list: 'rabCcoList', erp_rab_cco_items: 'rabCcoItems', erp_vol_cco: 'volCco'
+            erp_rab_cco_list: 'rabCcoList', erp_rab_cco_items: 'rabCcoItems', erp_vol_cco: 'volCco', erp_pay: 'pay'
         };
         // erp_absen_masuk & erp_absen_keluar SENGAJA TIDAK dimasukkan ke CLOUD_WORKSPACE_FIELD di atas.
         // Kedua data ini memuat FOTO (base64) yang bisa besar, sehingga kalau digabung jadi 1 field string
@@ -3189,6 +3396,7 @@
                     case 'erp_rab_cco_list': rabCcoList = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_rab_cco_items': rabCcoItems = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_vol_cco': volCcoData = JSON.parse(localStorage.getItem(k)) || []; break;
+                    case 'erp_pay': payData = JSON.parse(localStorage.getItem(k)) || []; break;
                 }
             });
             // Jika sesi sedang login, refresh currentUser dari daftar users terbaru (mis. status approval berubah)
@@ -3265,6 +3473,7 @@
 
         let cloudAbsenUnsubs = [];
         const _migratedAbsenWorkspaces = new Set();
+
         // Dengarkan perubahan sub-collection Absen Masuk/Keluar secara realtime, & lakukan migrasi 1x untuk
         // membersihkan field lama (absenMasuk/absenKeluar) yang mungkin masih tersimpan sebagai field raksasa
         // di dokumen workspace utama dari versi aplikasi sebelumnya, serta memastikan data lokal saat ini juga
@@ -3433,6 +3642,19 @@
         let currentTab = 'home';
         let homeBudgetChartInstance = null;
         let activeMaterialSub = 'mat-kebutuhan';
+        // ==== LAPORAN KEUANGAN ====
+        let activePayKategori = 'subkon'; // subkon|tenaga|material|karyawan|termin|investor
+        let payEditContext = null; // id baris yang sedang diedit, null = mode tambah baru
+        let payData = JSON.parse(localStorage.getItem('erp_pay')) || [];
+        // { id, projId, kategori, tanggal, nama, uraian, jumlah, metodeBayar, keterangan }
+        const PAY_KATEGORI = {
+            subkon: { label: 'Pembayaran Subkontraktor', namaLabel: 'Nama Subkontraktor', namaPlaceholder: 'CV Karya Beton', uraianLabel: 'Uraian Pekerjaan', arah: 'keluar', icon: 'fa-people-roof' },
+            tenaga: { label: 'Pembayaran Tenaga (Upah)', namaLabel: 'Nama Mandor / Kelompok Kerja', namaPlaceholder: 'Mandor Slamet', uraianLabel: 'Uraian Pekerjaan', arah: 'keluar', icon: 'fa-helmet-safety' },
+            material: { label: 'Pembayaran Material', namaLabel: 'Nama Toko / Supplier', namaPlaceholder: 'TB Sinar Jaya', uraianLabel: 'Uraian Material', arah: 'keluar', icon: 'fa-truck-field' },
+            karyawan: { label: 'Pembayaran Karyawan (Gaji)', namaLabel: 'Nama Karyawan', namaPlaceholder: 'Budi Santoso', uraianLabel: 'Uraian (Gaji Bulan/Posisi)', arah: 'keluar', icon: 'fa-id-badge' },
+            termin: { label: 'Pembayaran Termin (dari Owner)', namaLabel: 'Termin Ke-', namaPlaceholder: 'Termin 1 (Uang Muka)', uraianLabel: 'Uraian Termin', arah: 'masuk', icon: 'fa-hand-holding-dollar' },
+            investor: { label: 'Pembayaran Investor', namaLabel: 'Nama Investor', namaPlaceholder: 'PT Modal Sejahtera', uraianLabel: 'Uraian (Modal/Investasi)', arah: 'masuk', icon: 'fa-sack-dollar' }
+        };
         let materialEditContext = null; // { type: 'kebutuhan'|'order'|'masuk'|'keluar', id } - null jika sedang mode tambah baru
         let activeAbsenType = 'absen-masuk';
         let webcamStream = null;
@@ -3474,6 +3696,7 @@
             }
             return projects.filter(p => p.id === currentUser.projectId);
         }
+
         // Membuat 1 proyek kosong (tanpa data RAB/karyawan/laporan) untuk Admin yang baru pertama kali login
         // dan belum memiliki proyek sama sekali, supaya aplikasi tetap bisa berjalan tanpa mewarisi data demo.
         function createStarterProjectFor(user) {
@@ -3606,7 +3829,6 @@
                 }
             }
         }
-
         function toggleAuthTab(tab) {
             hideLoginError();
             const unverifiedBox = document.getElementById('unverifiedEmailBox');
@@ -3725,6 +3947,7 @@
                 setBtnLoading(btn, false, '<i class="fa-solid fa-rotate mr-1"></i> Sudah Verifikasi? Cek Lagi');
             }
         }
+
         async function resendVerificationEmail() {
             const u = firebase.auth().currentUser;
             if (!u) {
@@ -3773,7 +3996,6 @@
             const box = document.getElementById('regPasswordError');
             if (box) box.classList.add('hidden');
         }
-
         async function handleLoginSubmit(e) {
             e.preventDefault();
             hideLoginError();
@@ -3987,6 +4209,12 @@
             if (btnSaveRabCco) btnSaveRabCco.classList.toggle('hidden', !admin);
             if (btnAddRabCcoBaru) btnAddRabCcoBaru.classList.toggle('hidden', !admin);
 
+            // --- Laporan Keuangan: User hanya boleh melihat, tidak boleh tambah/ubah/hapus pembayaran ---
+            const payReadOnlyNotice = document.getElementById('payReadOnlyNotice');
+            const payFormBox = document.getElementById('payFormBox');
+            if (payReadOnlyNotice) payReadOnlyNotice.classList.toggle('hidden', admin);
+            if (payFormBox) payFormBox.classList.toggle('hidden', !admin);
+
             // --- Data Karyawan: halaman ini hanya ada untuk Admin ---
             const menuKaryawan = document.getElementById('menu-data-karyawan');
             if (menuKaryawan) menuKaryawan.classList.toggle('hidden', !admin);
@@ -4102,6 +4330,7 @@
             const nilai = parseFloat(document.getElementById('pmNilai').value) || 0;
             const tglMulai = document.getElementById('pmTglMulai').value;
             const tglSelesai = document.getElementById('pmTglSelesai').value;
+
             const existingIdx = projects.findIndex(p => p.id === activeProjectId && p.ownerId === currentUser.id);
             if (existingIdx !== -1 && document.getElementById('projModalTitle').innerText.includes('Edit')) {
                 projects[existingIdx] = {
@@ -4248,6 +4477,18 @@
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderMaterialSection();
+            } else if (tabId === 'pay-labarugi') {
+                showSection('sec-pay-labarugi');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                renderLabaRugi();
+            } else if (tabId.startsWith('pay-')) {
+                activePayKategori = tabId.replace('pay-', '');
+                payEditContext = null;
+                showSection('sec-pay');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                renderPaySection();
             } else if (tabId === 'absen-daftar-hadir') {
                 showSection('sec-absen-daftar-hadir');
                 const btn = document.getElementById('menu-' + tabId);
@@ -4395,6 +4636,7 @@
             // Progress Minggu Ini (Kumulatif): Rencana Kumulatif, Realisasi Kumulatif, & Deviasi
             // dihitung sampai dengan minggu berjalan saat ini, mengikuti Rencana Jadwal (Time Schedule)
             renderHomeWeeklyProgress(proj);
+
             // Chart Komposisi Anggaran per Divisi
             const chartCanvas = document.getElementById('homeBudgetChart');
             const emptyStateEl = document.getElementById('homeChartEmptyState');
@@ -4604,6 +4846,7 @@
             const displayRAB = rabSearchQuery
                 ? projRAB.filter(r => `${r.noDiv} ${r.div} ${r.sub} ${r.rincian} ${r.satuan}`.toLowerCase().includes(rabSearchQuery))
                 : projRAB;
+
             if (displayRAB.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-500">Tidak ada item RAB yang cocok dengan pencarian "${rabSearchEl ? rabSearchEl.value : ''}".</td></tr>`;
                 applyRoleBasedUI();
@@ -4613,7 +4856,6 @@
 
             const admin = isAdminUser();
             const canReorder = admin && !rabSearchQuery; // Urutan drag naik/turun hanya valid saat list tidak sedang difilter pencarian
-
             // Kelompokkan item per Divisi (No/Div + Nama Divisi) sesuai urutan kemunculan pertama,
             // supaya total harga & total bobot per divisi bisa ditampilkan langsung di dalam list,
             // lalu diakhiri baris Total Keseluruhan Divisi.
@@ -4907,7 +5149,6 @@
         function closeExcelImportModal() {
             document.getElementById('excelImportModal').classList.add('hidden');
         }
-
         function handleExcelFileSelected(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -5086,6 +5327,7 @@
             const btnTambah = document.getElementById('btnTambahLhPekerjaan');
             if (btnTambah) btnTambah.classList.remove('hidden');
         }
+
         function filterLhPekerjaanOptions(rowId) {
             const row = document.querySelector(`.lh-pekerjaan-row[data-row-id="${rowId}"]`);
             if (!row) return;
@@ -5137,7 +5379,6 @@
             const query = searchInput ? searchInput.value.toLowerCase() : '';
             const projRAB = rabData.filter(r => r.projId === activeProjectId);
             const currentVal = selectedId !== undefined ? selectedId : select.value;
-
             select.innerHTML = '<option value="">-- Pilih Pekerjaan --</option>';
             const filtered = projRAB.filter(r => r.sub.toLowerCase().includes(query) || r.div.toLowerCase().includes(query) || r.rincian.toLowerCase().includes(query));
             filtered.forEach(r => {
@@ -5148,6 +5389,7 @@
                 select.appendChild(opt);
             });
         }
+
         // ===================================================================
         // 1.1 RAB CCO MODULE (Contract Change Order / Adendum)
         // ===================================================================
@@ -5157,7 +5399,6 @@
             if (nomor <= 1) return rabData.filter(r => r.projId === projId).map(r => ({ ...r }));
             return computeRabCcoResult(projId, nomor - 1);
         }
-
         // Hasil (daftar item efektif) SETELAH perubahan CCO `nomor` diterapkan ke baseline-nya.
         // nomor 0/negatif dianggap "belum ada CCO sama sekali" -> hasilnya = RAB Kontrak Awal apa adanya.
         function computeRabCcoResult(projId, nomor) {
@@ -5262,7 +5503,6 @@
         // Baris "Pekerjaan Baru" yang sedang diedit di form (belum tentu sudah tersimpan) - direset/dimuat ulang
         // setiap kali renderRabCcoDetail() dipanggil, dari rabCcoItems bertipe 'baru' milik CCO yang dipilih.
         let rabCcoBaruDraft = [];
-
         function renderRabCcoDetail() {
             if (!rabCcoSelectedNomor) return;
             const admin = isAdminUser();
@@ -5273,6 +5513,7 @@
             const changes = rabCcoItems.filter(c => c.ccoId === cco.id);
             const changeByRef = new Map(changes.filter(c => c.refId !== null && c.refId !== undefined).map(c => [String(c.refId), c]));
             rabCcoBaruDraft = changes.filter(c => c.tipe === 'baru').map(c => ({ ...c }));
+
             document.getElementById('ccoBaselineLabel').innerText = rabCcoSelectedNomor <= 1 ? 'RAB Kontrak Awal' : `hasil CCO ${rabCcoSelectedNomor - 1}`;
 
             // ---- Tabel pekerjaan acuan (existing) ----
@@ -5366,7 +5607,6 @@
                     <td class="p-2 text-center">${admin ? `<button onclick="removeRabCcoBaruRow(${idx})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>` : '-'}</td>
                 </tr>`).join('');
         }
-
         function addRabCcoBaruRow() {
             if (!isAdminUser()) return;
             rabCcoBaruDraft.push({ id: Date.now(), tipe: 'baru', noDiv: '', div: '', sub: '', rincian: '', satuan: '', volumeBaru: '', hargaBaru: '', justifikasi: '' });
@@ -5377,6 +5617,7 @@
             rabCcoBaruDraft.splice(idx, 1);
             renderRabCcoBaruTable();
         }
+
         function renderRabCcoSummary(baseline, cco) {
             const nilaiSebelum = baseline.reduce((a, c) => a + (c.volume * c.harga), 0);
             const hasilSesudah = computeRabCcoResult(activeProjectId, rabCcoSelectedNomor);
@@ -5449,7 +5690,6 @@
                 });
                 jumlahPerubahan++;
             });
-
             localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
             alert(`Perubahan CCO ${rabCcoSelectedNomor} berhasil disimpan (${jumlahPerubahan} baris perubahan tercatat).`);
             renderRabCcoDetail();
@@ -5575,7 +5815,6 @@
             renderVolCcoDetail();
             detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
         function closeVolCcoDetail() {
             volCcoSelectedRefId = null;
             volCcoEditRowId = null;
@@ -5831,8 +6070,171 @@
             }
         }
 
+        // ===================================================================
+        // 2.5 LAPORAN KEUANGAN - PEMBAYARAN (generik, 6 kategori) & LABA RUGI
+        // ===================================================================
+
+        function renderPaySection() {
+            const cfg = PAY_KATEGORI[activePayKategori];
+            if (!cfg) return;
+            document.getElementById('payPageTitleText').innerText = cfg.label;
+            document.getElementById('payPageIcon').className = `fa-solid ${cfg.icon} text-amber-400`;
+            document.getElementById('payFormTitle').innerText = `Tambah Data ${cfg.label}`;
+            document.getElementById('payNamaLabel').innerText = cfg.namaLabel;
+            document.getElementById('payNama').placeholder = cfg.namaPlaceholder;
+            document.getElementById('payUraianLabel').innerText = cfg.uraianLabel;
+            document.getElementById('payUraian').placeholder = cfg.uraianLabel;
+            document.getElementById('payColNama').innerText = cfg.namaLabel;
+            document.getElementById('payColUraian').innerText = cfg.uraianLabel;
+            document.getElementById('payTableTitle').innerText = `Riwayat ${cfg.label}`;
+            document.getElementById('paySumTotalLabel').innerText = cfg.arah === 'masuk' ? 'Total Diterima' : 'Total Dibayarkan';
+            cancelPayEdit();
+            applyRoleBasedUI();
+            renderPayTable();
+        }
+
+        function renderPayTable() {
+            const cfg = PAY_KATEGORI[activePayKategori];
+            const tbody = document.getElementById('payTableBody');
+            if (!tbody || !cfg) return;
+            const query = (document.getElementById('paySearchInput').value || '').trim().toLowerCase();
+            let data = payData.filter(d => d.projId === activeProjectId && d.kategori === activePayKategori);
+            if (query) data = data.filter(d => (d.nama || '').toLowerCase().includes(query) || (d.uraian || '').toLowerCase().includes(query));
+            data = [...data].sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data ${escapeHtml(cfg.label)}.</td></tr>`;
+            } else {
+                let total = 0;
+                tbody.innerHTML = data.map((item, idx) => {
+                    total += Number(item.jumlah) || 0;
+                    return `
+                        <tr class="hover:bg-slate-800/50 transition">
+                            <td class="p-3">${idx + 1}</td>
+                            <td class="p-3 font-mono text-amber-400">${item.tanggal || '-'}</td>
+                            <td class="p-3 font-bold text-white">${escapeHtml(item.nama)}</td>
+                            <td class="p-3 text-slate-300">${escapeHtml(item.uraian) || '-'}</td>
+                            <td class="p-3 font-mono font-bold ${cfg.arah === 'masuk' ? 'text-emerald-400' : 'text-red-400'}">${cfg.arah === 'masuk' ? '+' : '-'}${formatRupiah(item.jumlah)}</td>
+                            <td class="p-3">${escapeHtml(item.metodeBayar) || '-'}</td>
+                            <td class="p-3 text-[11px] text-slate-400">${escapeHtml(item.keterangan) || '-'}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="editPayItem(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button onclick="deletePayItem(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            </td>
+                        </tr>`;
+                }).join('');
+                document.getElementById('paySumTotal').innerText = formatRupiah(total);
+                document.getElementById('paySumCount').innerText = data.length;
+                return;
+            }
+            document.getElementById('paySumTotal').innerText = formatRupiah(0);
+            document.getElementById('paySumCount').innerText = 0;
+        }
+
+        function handlePaySubmit(e) {
+            e.preventDefault();
+            if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
+            const payload = {
+                kategori: activePayKategori,
+                tanggal: document.getElementById('payTanggal').value,
+                nama: document.getElementById('payNama').value.trim(),
+                uraian: document.getElementById('payUraian').value.trim(),
+                jumlah: parseFloat(document.getElementById('payJumlah').value) || 0,
+                metodeBayar: document.getElementById('payMetode').value,
+                keterangan: document.getElementById('payKeterangan').value.trim()
+            };
+            if (payEditContext) {
+                const idx = payData.findIndex(d => d.id === payEditContext);
+                if (idx !== -1) payData[idx] = { ...payData[idx], ...payload };
+            } else {
+                payData.push({ id: Date.now() + Math.random(), projId: activeProjectId, ...payload });
+            }
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            cancelPayEdit();
+            renderPayTable();
+        }
+
+        function editPayItem(id) {
+            const item = payData.find(d => d.id === id);
+            if (!item) return;
+            payEditContext = id;
+            document.getElementById('payEditId').value = id;
+            document.getElementById('payTanggal').value = item.tanggal || '';
+            document.getElementById('payNama').value = item.nama || '';
+            document.getElementById('payUraian').value = item.uraian || '';
+            document.getElementById('payJumlah').value = item.jumlah || '';
+            document.getElementById('payMetode').value = item.metodeBayar || 'Transfer Bank';
+            document.getElementById('payKeterangan').value = item.keterangan || '';
+            document.getElementById('payFormTitle').innerText = `Edit Data ${PAY_KATEGORI[activePayKategori].label}`;
+            document.getElementById('paySubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('payCancelBtn').classList.remove('hidden');
+            document.getElementById('payFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelPayEdit() {
+            payEditContext = null;
+            const form = document.getElementById('formPay');
+            if (form) form.reset();
+            document.getElementById('payEditId').value = '';
+            const cfg = PAY_KATEGORI[activePayKategori];
+            if (cfg) document.getElementById('payFormTitle').innerText = `Tambah Data ${cfg.label}`;
+            const submitBtn = document.getElementById('paySubmitBtn');
+            if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Tambah Data';
+            const cancelBtn = document.getElementById('payCancelBtn');
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+        }
+
+        function deletePayItem(id) {
+            if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
+            if (!confirm('Hapus data pembayaran ini?')) return;
+            payData = payData.filter(d => d.id !== id);
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            renderPayTable();
+        }
+
+        // Kategori Termin & Investor dianggap PEMASUKAN (uang masuk ke proyek); Subkon/Tenaga/Material/
+        // Karyawan dianggap PENGELUARAN. Laba/Rugi = Total Pemasukan - Total Pengeluaran.
+        function renderLabaRugi() {
+            const projPay = payData.filter(d => d.projId === activeProjectId);
+            let totalMasuk = 0, totalKeluar = 0;
+            const perKategori = {};
+            Object.keys(PAY_KATEGORI).forEach(k => { perKategori[k] = { count: 0, total: 0 }; });
+            projPay.forEach(d => {
+                const cfg = PAY_KATEGORI[d.kategori];
+                if (!cfg) return;
+                perKategori[d.kategori].count++;
+                perKategori[d.kategori].total += Number(d.jumlah) || 0;
+                if (cfg.arah === 'masuk') totalMasuk += Number(d.jumlah) || 0;
+                else totalKeluar += Number(d.jumlah) || 0;
+            });
+            const labaRugi = totalMasuk - totalKeluar;
+            const margin = totalMasuk > 0 ? (labaRugi / totalMasuk) * 100 : 0;
+
+            document.getElementById('lrTotalPemasukan').innerText = formatRupiah(totalMasuk);
+            document.getElementById('lrTotalPengeluaran').innerText = formatRupiah(totalKeluar);
+            const lrEl = document.getElementById('lrLabaRugi');
+            lrEl.innerText = formatRupiah(labaRugi);
+            lrEl.className = `text-2xl font-black font-mono mt-1 ${labaRugi >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+            document.getElementById('lrLabaRugiLabel').innerText = labaRugi >= 0 ? 'Laba / Untung' : 'Rugi';
+            document.getElementById('lrMargin').innerText = `Margin: ${margin.toFixed(2)}%`;
+
+            const tbody = document.getElementById('lrTableBody');
+            tbody.innerHTML = Object.keys(PAY_KATEGORI).map(k => {
+                const cfg = PAY_KATEGORI[k];
+                const d = perKategori[k];
+                const arahTotal = cfg.arah === 'masuk' ? totalMasuk : totalKeluar;
+                const persen = arahTotal > 0 ? (d.total / arahTotal) * 100 : 0;
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-bold text-white"><i class="fa-solid ${cfg.icon} text-amber-400 mr-1.5"></i>${cfg.label}</td>
+                        <td class="p-3">${cfg.arah === 'masuk' ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">PEMASUKAN</span>' : '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">PENGELUARAN</span>'}</td>
+                        <td class="p-3 font-mono">${d.count}</td>
+                        <td class="p-3 font-mono font-bold ${cfg.arah === 'masuk' ? 'text-emerald-400' : 'text-red-400'}">${formatRupiah(d.total)}</td>
+                        <td class="p-3 font-mono">${persen.toFixed(1)}%</td>
+                    </tr>`;
+            }).join('');
+        }
         function renderLapHarian() {
-            // Pastikan minimal 1 baris item pekerjaan tersedia di form, lalu segarkan opsi RAB pada tiap baris yang sudah ada
             // (tidak mereset seluruh form agar isian yang sedang diketik user tidak hilang saat renderLapHarian dipanggil ulang)
             const rowsContainer = document.getElementById('lhPekerjaanRowsContainer');
             if (rowsContainer) {
@@ -5880,6 +6282,7 @@
             // Get material masuk & keluar for project
             const projMatMasuk = materialMasukData.filter(m => m.projId === activeProjectId);
             const projMatKeluar = materialKeluarData.filter(m => m.projId === activeProjectId);
+
             // Urutkan berdasarkan tanggal (lama -> baru) supaya list selalu rapi & tidak acak-acakan
             const sortedGroups = Object.values(groupedByDate).sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
             let currentMonthKey = null;
@@ -6005,6 +6408,7 @@
                 alert('Setiap item pekerjaan wajib dipilih dari daftar RAB terlebih dahulu.');
                 return;
             }
+
             if (editId) {
                 // Mode Edit: hanya 1 item laporan harian (baris pertama pada form) yang diperbarui
                 const idx = lapHarianData.findIndex(l => l.id == editId);
@@ -6109,6 +6513,7 @@
         function loadLhKendalaByDate(forceOverwrite) {
             const tanggal = document.getElementById('lhkTanggal').value;
             if (!tanggal) return;
+
             const kendalaEl = document.getElementById('lhKendala');
             const notulenEl = document.getElementById('lhNotulen');
             const adaTeksBelumTersimpan = !forceOverwrite && lhKendalaDirty && (kendalaEl.value.trim() !== '' || notulenEl.value.trim() !== '');
@@ -6269,7 +6674,6 @@
                     mingguSel.appendChild(opt);
                 }
             }
-
             const selectedMinggu = mingguSel ? mingguSel.value : 'Minggu 1';
             const selectedWeekNum = parseInt((selectedMinggu || '').replace(/\D/g, ''), 10) || 1;
             const admin = isAdminUser();
@@ -6318,6 +6722,7 @@
                 divGroups.forEach(group => {
                     let divJumlahHargaRab = 0, divBobotRab = 0;
                     let divBobotLalu = 0, divBobotIni = 0, divBobotKum = 0, divUang = 0;
+
                     group.items.forEach(item => {
                         // Jumlah Harga & Bobot (%) di sini PERSIS sama dengan kolom di list RAB (nilai & bobot
                         // penuh/rencana item ini terhadap keseluruhan proyek) - dipakai juga sbg pembagi progress.
@@ -6394,7 +6799,6 @@
                     grandJumlahHargaRab += divJumlahHargaRab; grandBobotRab += divBobotRab;
                     grandBobotLalu += divBobotLalu; grandBobotIni += divBobotIni; grandBobotKum += divBobotKum;
                     grandUang += divUang;
-
                     // Baris total per divisi: kolom "% Bobot Item" (progress per-item) TIDAK dijumlahkan karena
                     // itu murni rasio milik masing2 item sendiri, begitu juga kolom Volume (satuan berbeda2).
                     const subtotalTr = document.createElement('tr');
@@ -6415,7 +6819,6 @@
                     `;
                     tbody.appendChild(subtotalTr);
                 });
-
                 const grandTr = document.createElement('tr');
                 grandTr.className = 'bg-emerald-950/40 border-t-2 border-emerald-500/60';
                 grandTr.innerHTML = `
@@ -6794,13 +7197,13 @@
         }
 
         // Total VOLUME yang sudah dijadwalkan utk 1 pekerjaan, dari SEMUA grup volume+minggu yang sudah ada.
-        // 1 grup dgn volume V pada N minggu terpilih dianggap berkomitmen V x N (karena volume yang sama
-        // diterapkan ke tiap minggu yang dipilih, bukan dibagi rata).
+        // 1 grup dgn volume V dianggap berkomitmen TOTAL V (bukan dikali jumlah minggu) - karena V adalah
+        // TOTAL volume utk seluruh periode grup itu, yang lalu dibagi rata ke tiap minggu yang dipilih.
         // excludeId: opsional, dipakai saat mode edit agar grup yang sedang diedit tidak ikut dihitung dobel
         function getTsScheduledVolume(noDiv, sub, excludeId) {
             return divScheduleData
                 .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub && d.id != excludeId)
-                .reduce((a, c) => a + ((parseFloat(c.volume) || 0) * ((c.weeks || []).length)), 0);
+                .reduce((a, c) => a + (parseFloat(c.volume) || 0), 0);
         }
 
         // Total bobot yang sudah dimasukkan (dijadwalkan) utk 1 pekerjaan, dikonversi dari total volume terjadwal
@@ -6813,8 +7216,10 @@
         }
 
         // Rencana mingguan (bobot %) 1 pekerjaan, dijumlahkan dari SEMUA grup volume+minggu pekerjaan tsb.
-        // Tiap grup menerapkan volume yang SAMA persis ke setiap minggu yang dipilih (bukan dibagi rata),
-        // lalu dikonversi ke bobot% memakai harga rata-rata per satuan pekerjaan tsb.
+        // Tiap grup me-representasikan TOTAL volume utk seluruh minggu yang dipilih pada grup itu, jadi
+        // dibagi rata ke tiap minggu (volume / jumlah minggu) - supaya kalau dijumlahkan lagi dari minggu ke
+        // minggu, hasilnya balik tepat ke total volume/bobot grup itu (dan pada akhirnya ke 100% keseluruhan
+        // proyek kalau seluruh volume RAB sudah dijadwalkan semuanya), bukan malah berlipat ganda.
         function getSubScheduleWeekly(noDiv, sub, totalWeeks) {
             const weekly = Array(totalWeeks).fill(0);
             const volInfo = getSubVolumeInfo(noDiv, sub);
@@ -6823,7 +7228,10 @@
             divScheduleData
                 .filter(d => d.projId === activeProjectId && (d.noDiv || '-') === noDiv && d.sub === sub)
                 .forEach(entry => {
-                    const volPerWeek = parseFloat(entry.volume) || 0;
+                    const jumlahMinggu = (entry.weeks || []).length;
+                    if (jumlahMinggu === 0) return;
+                    const volTotal = parseFloat(entry.volume) || 0;
+                    const volPerWeek = volTotal / jumlahMinggu;
                     const bobotPerWeek = (volPerWeek * volInfo.hargaRataRata / subtotalProyek) * 100;
                     (entry.weeks || []).forEach(w => {
                         if (w >= 1 && w <= totalWeeks) weekly[w - 1] += bobotPerWeek;
@@ -6914,7 +7322,6 @@
             populateTsWeekPicker();
             updateTsBobotInfo();
         }
-
         // Tampilkan info Volume Total Pekerjaan (RAB) · Sudah Dijadwalkan · Sisa Bisa Dijadwalkan
         // begitu pekerjaan dipilih pada form Time Schedule, sekaligus preview & validasi input Volume+Minggu yang sedang diketik
         function updateTsBobotInfo() {
@@ -6931,19 +7338,19 @@
 
             const volInputVal = parseFloat(volInput.value) || 0;
             const jumlahMinggu = tsSelectedWeeks.length;
-            const totalKomitmenBaru = volInputVal * jumlahMinggu;
 
             let warning = '';
-            if (totalKomitmenBaru > sisaBisaDijadwalkan + 0.01) {
-                warning = ` <span class="text-red-400 font-bold">(Total volume baru melebihi sisa yang bisa dijadwalkan!)</span>`;
+            if (volInputVal > sisaBisaDijadwalkan + 0.01) {
+                warning = ` <span class="text-red-400 font-bold">(Volume melebihi sisa yang bisa dijadwalkan!)</span>`;
             }
 
             let preview = '';
             if (jumlahMinggu > 0 && volInputVal > 0) {
                 const subtotalProyek = getSubtotalRabProyek();
                 const bobotKomitmenBaru = (subtotalProyek > 0 && volInfo.hargaRataRata > 0)
-                    ? (totalKomitmenBaru * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
-                preview = `<br>Preview: ${formatAngka(volInputVal)} ${volInfo.satuan} &times; ${jumlahMinggu} minggu = <span class="font-bold text-sky-300">${formatAngka(totalKomitmenBaru)} ${volInfo.satuan}</span> (&asymp; <span class="font-bold text-amber-300">${formatAngka(bobotKomitmenBaru)}%</span> bobot)`;
+                    ? (volInputVal * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
+                const volPerMinggu = volInputVal / jumlahMinggu;
+                preview = `<br>Preview: ${formatAngka(volInputVal)} ${volInfo.satuan} &divide; ${jumlahMinggu} minggu = <span class="font-bold text-sky-300">${formatAngka(volPerMinggu)} ${volInfo.satuan}/minggu</span> (total &asymp; <span class="font-bold text-amber-300">${formatAngka(bobotKomitmenBaru)}%</span> bobot)`;
             }
 
             infoEl.innerHTML = `Volume Total Pekerjaan (RAB): <span class="font-bold text-white">${formatAngka(volInfo.totalVolume)} ${volInfo.satuan}</span> &middot; Sudah Dijadwalkan: <span class="font-bold text-amber-300">${formatAngka(sudahDijadwalkan)} ${volInfo.satuan}</span> &middot; Sisa Bisa Dijadwalkan: <span class="font-bold text-emerald-400">${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}</span>${warning}${preview}`;
@@ -7030,12 +7437,13 @@
                     return range ? `M${w} (${fmtShortDate(range.start)}-${fmtShortDate(range.end)})` : `M${w}`;
                 }).join(', ') : '-';
                 const bobotEkuivalen = (subtotalProyek > 0 && volInfo.hargaRataRata > 0)
-                    ? ((parseFloat(d.volume) || 0) * jumlahMinggu * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
+                    ? ((parseFloat(d.volume) || 0) * volInfo.hargaRataRata / subtotalProyek) * 100 : 0;
+                const volPerMinggu = jumlahMinggu > 0 ? (parseFloat(d.volume) || 0) / jumlahMinggu : 0;
                 return `
                 <tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-mono text-slate-400">${i + 1}</td>
                     <td class="p-3 text-white font-semibold">${d.noDiv || '-'} - ${d.sub}</td>
-                    <td class="p-3 font-mono text-sky-300">${formatAngka(d.volume)} ${volInfo.satuan}<span class="text-slate-500 font-normal"> /minggu</span></td>
+                    <td class="p-3 font-mono text-sky-300">${formatAngka(d.volume)} ${volInfo.satuan}<span class="text-slate-500 font-normal"> total (${formatAngka(volPerMinggu)}/minggu)</span></td>
                     <td class="p-3 font-mono text-[11px]">${weeksLabel}</td>
                     <td class="p-3 font-mono text-amber-300">${formatAngka(bobotEkuivalen)}%</td>
                     <td class="p-3 text-center">
@@ -7081,7 +7489,6 @@
             document.getElementById('btnCancelTsEdit').classList.add('hidden');
             updateTsBobotInfo();
         }
-
         function renderTimeSchedule() {
             // Populate tsDivSelect (kepala Sub Pekerjaan RAB, bukan Divisi)
             populateTsSubSelect();
@@ -7165,7 +7572,6 @@
                     totalRencanaMingguan[w] += rencanaMingguan[w];
                     totalRealisasiMingguan[w] += realisasiMingguan[w];
                 }
-
                 const fmt = (n) => n.toFixed(2) + '%';
                 const rowsMeta = [
                     { label: 'Rencana Mingguan', data: rencanaMingguan, cls: 'text-sky-300' },
@@ -7237,15 +7643,15 @@
             if (volume <= 0) { alert('Volume Rencana harus diisi lebih dari 0.'); return; }
             if (tsSelectedWeeks.length === 0) { alert('Pilih minimal 1 minggu untuk volume rencana ini.'); return; }
 
-            // Validasi: total volume baru (volume x jumlah minggu terpilih) tidak boleh melebihi sisa volume
-            // pekerjaan ini yang bisa dijadwalkan (berdasarkan Volume Total RAB-nya)
+            // Validasi: total volume baru TIDAK boleh melebihi sisa volume pekerjaan ini yang bisa
+            // dijadwalkan (berdasarkan Volume Total RAB-nya) - volume di sini adalah TOTAL utk seluruh
+            // minggu yang dipilih (bukan dikali jumlah minggu lagi), karena nanti dibagi rata per minggu.
             const volInfo = getSubVolumeInfo(noDiv, sub);
             const sudahDijadwalkan = getTsScheduledVolume(noDiv, sub, editId || null);
             const sisaBisaDijadwalkan = Math.max(0, volInfo.totalVolume - sudahDijadwalkan);
             const weeksSorted = [...tsSelectedWeeks].sort((a, b) => a - b);
-            const totalKomitmenBaru = volume * weeksSorted.length;
-            if (totalKomitmenBaru > sisaBisaDijadwalkan + 0.01) {
-                alert(`Total volume baru (${formatAngka(volume)} ${volInfo.satuan} x ${weeksSorted.length} minggu = ${formatAngka(totalKomitmenBaru)} ${volInfo.satuan}) melebihi sisa volume pekerjaan ini yang bisa dijadwalkan (${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}).`);
+            if (volume > sisaBisaDijadwalkan + 0.01) {
+                alert(`Volume Rencana (${formatAngka(volume)} ${volInfo.satuan}) melebihi sisa volume pekerjaan ini yang bisa dijadwalkan (${formatAngka(sisaBisaDijadwalkan)} ${volInfo.satuan}).`);
                 return;
             }
 
@@ -7291,7 +7697,6 @@
             subKeys.forEach(key => {
                 const [noDiv, sub] = key.split('|||');
                 const subItems = projRab.filter(r => r.sub === sub && (r.noDiv || '-') === noDiv);
-
                 const rencanaMingguan = getSubScheduleWeekly(noDiv, sub, totalWeeks, proj.tglMulai);
                 for (let w = 0; w < totalWeeks; w++) totalRencanaMingguan[w] += rencanaMingguan[w];
 
@@ -7388,6 +7793,7 @@
         // 3.2 ACTION PLAN
         // ===================================================================
         let actionPlanSelectedWeek = 1;
+
         // Kembalikan rentang tanggal (mulai - selesai) untuk minggu ke-N dihitung dari tanggal mulai proyek
         function getWeekDateRange(week, projStartStr, projEndStr) {
             if (!projStartStr) return null;
@@ -7500,7 +7906,6 @@
             } else {
                 status = 'Behind Schedule'; statusCls = 'bg-red-500/20 text-red-300';
             }
-
             return { bobotItem, targetMingguIni, realisasiMingguIni, status, statusCls };
         }
 
@@ -7521,7 +7926,6 @@
                 }
             }
             if (weekSelect) weekSelect.value = actionPlanSelectedWeek;
-
             const proj = projects.find(p => p.id === activeProjectId) || {};
             const range = getWeekDateRange(actionPlanSelectedWeek, proj.tglMulai, proj.tglSelesai);
             const rangeBox = document.getElementById('actionPlanWeekDateRange');
@@ -7605,7 +8009,6 @@
             const ds = getActionPlanExportDataset();
             exportProfessionalExcel(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`, { subtitle: ds.subtitle });
         }
-
         function exportActionPlanPdf() {
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const ds = getActionPlanExportDataset();
@@ -7731,7 +8134,6 @@
                     const label = `${o.nama}${o.dimensi ? ' (' + o.dimensi + ')' : ''}${o.spesifikasi ? ' - ' + o.spesifikasi : ''} | ${o.supplier} | PO ${o.tanggal} (${formatAngka(o.volume)} ${o.satuan})`;
                     return `<option value="${o.id}" data-search="${searchTxt}" ${o.id == selectedOrderId ? 'selected' : ''}>${label}</option>`;
                 }).join('');
-
                 container.innerHTML = `
                     <div><label class="block text-slate-400 mb-1">Tanggal Terima</label><input type="date" id="mmTanggal" required value="${editItem ? editItem.tanggal : ''}" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                     <div class="md:col-span-3">
@@ -7849,6 +8251,7 @@
             validatePoVolume();
             updatePoTahapInfo();
         }
+
         // Menampilkan info "PO ini akan menjadi tahap ke berapa" & auto-isi saran Keterangan PO
         function updatePoTahapInfo() {
             const kebId = document.getElementById('poKebutuhanId') ? document.getElementById('poKebutuhanId').value : '';
@@ -7856,7 +8259,6 @@
             const ketInput = document.getElementById('poKet');
             if (!tahapBox) return;
             if (!kebId) { tahapBox.innerHTML = ''; return; }
-
             const excludeId = (materialEditContext && materialEditContext.type === 'order') ? materialEditContext.id : null;
             const existing = materialOrderData
                 .filter(o => o.projId === activeProjectId && o.kebutuhanId == kebId && o.id != excludeId)
@@ -7869,6 +8271,7 @@
                 ketInput.value = `Tahap ${nextTahap}`;
             }
         }
+
         // Hitung total volume yang sudah dipesan (di seluruh Material Order) untuk 1 item Kebutuhan Material
         function getKebutuhanOrderedTotal(kebutuhanId, excludeOrderId) {
             return materialOrderData
@@ -8225,6 +8628,7 @@
             document.getElementById('formMaterial').reset();
             renderMaterialSection();
         }
+
         // Cari harga satuan material berdasarkan Nama + Dimensi + Spesifikasi (BUKAN nama saja),
         // mengacu ke data Kebutuhan Material (master harga) pada proyek aktif.
         // Ini mencegah harga tertukar antar item yang namanya sama tapi dimensi/spesifikasinya berbeda.
@@ -8253,7 +8657,6 @@
             const m = cari(materialMasukData) || cari(materialOrderData) || cari(kebutuhanMatData);
             return { dimensi: (m && m.dimensi) || '', spesifikasi: (m && m.spesifikasi) || '' };
         }
-
         function renderMaterialTable() {
             const head = document.getElementById('materialTableHead');
             const tbody = document.getElementById('materialTableBody');
@@ -8568,7 +8971,6 @@
         function closeScanNotaModal() {
             document.getElementById('scanNotaModal').classList.add('hidden');
         }
-
         function handleNotaImageSelected(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -8694,7 +9096,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             renderBqResultsTable();
             renderBqManualFields();
         }
-
         // ===================================================================
         // BACKUP QUANTITY - OPNAME LAPANGAN
         // Setiap item pekerjaan RAB (judul: rincian, satuan, volume) dapat memiliki
@@ -8925,7 +9326,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             }
             return currentNet;
         }
-
         // Total opname bersih (Tambah - Kurang, sudah memperhitungkan aturan baris salinan di atas)
         // untuk 1 item pekerjaan RAB pada 1 minggu tertentu.
         function bqOpnameNetVolumeForWeek(rabId, mingguKe) {
@@ -9492,7 +9892,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         tbody.appendChild(tr);
                     });
                 });
-
                 document.getElementById('bqOpSumTotalItem').innerText = displayRAB.length;
                 document.getElementById('bqOpSumSudah').innerText = sudahCount;
                 document.getElementById('bqOpSumBelum').innerText = belumCount;
@@ -9523,6 +9922,99 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                         'Koefisien': o.koefisien || '', 'Volume Hasil': o.volume, 'Catatan': o.catatan || ''
                     };
                 });
+        }
+
+        // Versi TEKS POLOS dari bqOpnameFormulaText (yang di halaman aslinya memakai HTML <span>) - dipakai
+        // khusus untuk PDF karena AutoTable/jsPDF butuh teks polos, bukan markup HTML.
+        function bqOpnameFormulaTextPlain(row) {
+            const cfg = BQ_OPNAME_METODE[row.metode];
+            if (!cfg) return '';
+            const lhs = typeof cfg.formula === 'function' ? cfg.formula(row) : cfg.fields.map(f => `${formatAngka(row[f])}`).join(' × ');
+            return `${lhs} = ${formatAngka(row.volume)}`;
+        }
+
+        // Export PDF khusus Opname: BUKAN tabel datar biasa, tapi disusun PER ITEM PEKERJAAN RAB - tiap item
+        // punya judul sendiri (No/Div, Divisi, Sub Pekerjaan, Volume Kontrak), diikuti tabel rincian SETIAP
+        // baris hitungan (minggu, segmen, metode, rumus lengkap sampai hasil akhirnya, tipe, volume, catatan),
+        // ditutup ringkasan progres item itu (Volume Komulatif vs Volume Kontrak vs Bobot %). Susunan ini
+        // dipilih supaya auditor/pemeriksa bisa menelusuri SETIAP angka dari mana asalnya (rumus & inputnya
+        // terlihat jelas), bukan cuma melihat angka akhir tanpa tahu cara hitungnya.
+        function exportBqOpnamePdf() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const meta = getExportProjectMeta();
+            const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            let y = drawPdfKop(doc, meta, 'Backup Quantity - Rincian Perhitungan Opname (Untuk Keperluan Audit)', {});
+
+            const allRows = bqOpnameData.filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; });
+            const itemIdsWithData = new Set(allRows.map(o => o.pekerjaanId));
+            const orderedItems = rabData
+                .filter(r => r.projId === activeProjectId && itemIdsWithData.has(r.id))
+                .sort((a, b) => compareDivisionKey(a.noDiv, b.noDiv));
+
+            if (orderedItems.length === 0) {
+                doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(100, 116, 139);
+                doc.text('Belum ada data opname untuk proyek ini.', pageWidth / 2, y + 10, { align: 'center' });
+            }
+
+            orderedItems.forEach((rab, idx) => {
+                const rows = allRows
+                    .filter(o => o.pekerjaanId == rab.id)
+                    .sort((a, b) => (parseInt((a.mingguKe || '').replace(/\D/g, ''), 10) || 0) - (parseInt((b.mingguKe || '').replace(/\D/g, ''), 10) || 0) || ((a.order || 0) - (b.order || 0)));
+
+                // Kalau ruang tersisa di halaman terlalu sempit untuk judul item + minimal 1 baris, mulai halaman baru
+                if (y > pageHeight - 45) { doc.addPage(); y = 15; }
+
+                // Judul/header item pekerjaan - identitas lengkap supaya jelas ini rincian utk item yang mana
+                doc.setFillColor(226, 232, 240);
+                doc.rect(10, y, pageWidth - 20, 7, 'F');
+                doc.setTextColor(11, 19, 43); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+                const judul = `${idx + 1}. [${rab.noDiv || '-'}] ${rab.div || ''} \u00bb ${rab.sub}${rab.rincian ? ' - ' + rab.rincian : ''}  (Satuan: ${rab.satuan}, Volume Kontrak: ${formatAngka(rab.volume)} ${rab.satuan})`;
+                doc.text(judul, 12, y + 5, { maxWidth: pageWidth - 24 });
+                y += 9;
+
+                const body = rows.map(r => [
+                    r.mingguKe || '-',
+                    r.segmen || '-',
+                    (BQ_OPNAME_METODE[r.metode] ? BQ_OPNAME_METODE[r.metode].label : r.metode) || '-',
+                    bqOpnameFormulaTextPlain(r),
+                    r.tipe === 'kurang' ? 'Kurang' : 'Tambah',
+                    `${r.tipe === 'kurang' ? '-' : '+'}${formatAngka(r.volume)} ${rab.satuan}`,
+                    r.catatan || '-'
+                ]);
+
+                doc.autoTable({
+                    head: [['Minggu', 'Segmen / Ruangan / Posisi', 'Metode', 'Rumus Perhitungan (terurai s/d hasil)', 'Tipe', 'Volume', 'Catatan']],
+                    body,
+                    startY: y,
+                    margin: { left: 10, right: 10, bottom: 12 },
+                    styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 1.4, overflow: 'linebreak', valign: 'middle', lineColor: [203, 213, 225], lineWidth: 0.1 },
+                    headStyles: { fillColor: [71, 85, 105], textColor: 255, fontStyle: 'bold', halign: 'center' },
+                    alternateRowStyles: { fillColor: [248, 250, 252] },
+                    columnStyles: {
+                        0: { cellWidth: 18, halign: 'center' }, 1: { cellWidth: 45 }, 2: { cellWidth: 40 },
+                        4: { cellWidth: 16, halign: 'center' }, 5: { cellWidth: 26, halign: 'right' }
+                    }
+                });
+                y = doc.lastAutoTable.finalY + 3;
+
+                // Ringkasan progres item ini: volume komulatif SELURUH minggu s/d saat ini, dibandingkan
+                // Volume Kontrak RAB-nya - supaya auditor langsung tahu status akhirnya tanpa menjumlah manual.
+                const volKum = bqOpnameNetVolumeCumulative(rab.id, undefined);
+                const bobotKum = rab.volume > 0 ? (volKum / rab.volume) * 100 : 0;
+                const melebihi = rab.volume > 0 && volKum > rab.volume + 0.0001;
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+                doc.setTextColor(melebihi ? 185 : 15, melebihi ? 28 : 23, melebihi ? 28 : 42);
+                const ringkasan = `Volume Komulatif Akhir: ${formatAngka(volKum)} ${rab.satuan}   |   Volume Kontrak: ${formatAngka(rab.volume)} ${rab.satuan}   |   Progres: ${bobotKum.toFixed(2)}%` + (melebihi ? '   \u26a0 MELEBIHI VOLUME KONTRAK' : '');
+                doc.text(ringkasan, 12, y + 4);
+                y += 11;
+
+                if (y > pageHeight - 30 && idx < orderedItems.length - 1) { doc.addPage(); y = 15; }
+            });
+
+            doc.save(`Rincian_Perhitungan_Opname_(Audit)_${proj.nama}.pdf`);
         }
 
         // ===================================================================
@@ -10239,7 +10731,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const errorOverlay = document.getElementById('webcamErrorOverlay');
             if (!video) return;
             if (errorOverlay) errorOverlay.classList.add('hidden');
-
             if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
                 console.warn('Kamera tidak didukung di browser/perangkat ini.');
                 if (errorOverlay) errorOverlay.classList.remove('hidden');
@@ -10470,7 +10961,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return;
             }
-
             // ================= MODE NORMAL: rekam absensi baru =================
             const nama = document.getElementById('absenNamaSelect').value;
             if (!nama) { alert('Pilih nama karyawan terlebih dahulu.'); return; }
@@ -10555,6 +11045,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 if (snapBtn) { snapBtn.disabled = false; snapBtn.innerHTML = '<i class="fa-solid fa-camera"></i><span>Ambil Foto & Simpan Absen</span>'; }
             }
         }
+
         // Muat gambar (dipakai untuk logo perusahaan/proyek pada watermark foto absensi) sebagai Promise
         function loadImage(src) {
             return new Promise((resolve, reject) => {
@@ -10910,7 +11401,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 opt.style.display = opt.textContent.toLowerCase().includes(query) ? '' : 'none';
             });
         }
-
         function handleDhLeaveSubmit(e) {
             e.preventDefault();
             if (!canUserEdit()) { alert('Akses ditolak. Admin telah menonaktifkan izin edit akun Anda untuk proyek ini.'); return; }
@@ -10994,7 +11484,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 };
             });
         }
-
         // Badge singkat untuk 1 sel hari pada tabel rekap kehadiran
         function dhDayCellHtml(dayInfo) {
             if (dayInfo.jenis === 'Hadir') {
@@ -11142,6 +11631,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data karyawan.</td></tr>`;
                 return;
             }
+
             projEmps.forEach(emp => {
                 const isAdmin = currentUser && currentUser.role === 'Admin';
                 const editBtn = isAdmin ? `<button onclick="editEmployee(${emp.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button>` : '';
@@ -11161,7 +11651,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 `;
             });
         }
-
         function openEmployeeModal(isEdit, id) {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang memiliki akses ke Data Karyawan.');
@@ -11266,7 +11755,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 initDropdowns();
             }
         }
-
         function handleUserPhotoUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -11372,6 +11860,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             localStorage.setItem('erp_users', JSON.stringify(users));
             openAdminApprovalModal();
         }
+
         // Hapus akun User dari proyek Admin. Tidak bisa menghapus akun Admin, dan hanya bisa menghapus
         // akun User yang memang tertaut ke salah satu proyek milik Admin yang sedang login.
         function deleteUserAccount(id) {
@@ -11458,7 +11947,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     bqOpname: bqOpnameData.filter(o => { const r = rabData.find(x => x.id == o.pekerjaanId); return r && r.projId === activeProjectId; }),
                     rabCcoList: rabCcoList.filter(c => c.projId === activeProjectId),
                     rabCcoItems: rabCcoItems.filter(c => c.projId === activeProjectId),
-                    volCco: volCcoData.filter(c => c.projId === activeProjectId)
+                    volCco: volCcoData.filter(c => c.projId === activeProjectId),
+                    pay: payData.filter(c => c.projId === activeProjectId)
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -11476,6 +11966,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 try {
                     const backup = JSON.parse(evt.target.result);
                     if (!backup || !backup.project || !backup.data) { alert('File backup tidak valid.'); return; }
+
                     // Buat / timpa proyek tujuan berdasarkan id proyek dari file backup
                     // Kepemilikan (ownerId) proyek yang diimpor SELALU dipindah ke akun Admin yang sedang
                     // mengimpor — agar proyek ini pasti muncul di akun tujuan, bukan "hilang" karena ownerId
@@ -11494,7 +11985,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     const rabIdsProj = new Set((backup.data.rab || []).map(r => r.id));
                     lapHarianData = [...lapHarianData.filter(l => !rabIdsProj.has(l.pekerjaanId)), ...(backup.data.lapHarian || [])];
                     lapHarianKendalaData = mergeByProj(lapHarianKendalaData, backup.data.lapHarianKendala, 'projId');
-
                     rabData = mergeByProj(rabData, backup.data.rab, 'projId');
                     lapMingguanData = mergeByProj(lapMingguanData, backup.data.lapMingguan, 'projId');
                     divScheduleData = mergeByProj(divScheduleData, backup.data.divSchedule, 'projId');
@@ -11511,6 +12001,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     rabCcoList = mergeByProj(rabCcoList, backup.data.rabCcoList, 'projId');
                     rabCcoItems = mergeByProj(rabCcoItems, backup.data.rabCcoItems, 'projId');
                     volCcoData = mergeByProj(volCcoData, backup.data.volCco, 'projId');
+                    payData = mergeByProj(payData, backup.data.pay, 'projId');
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -11530,6 +12021,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
                     localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
                     localStorage.setItem('erp_vol_cco', JSON.stringify(volCcoData));
+                    localStorage.setItem('erp_pay', JSON.stringify(payData));
 
                     activeProjectId = pid;
                     localStorage.setItem('erp_active_project', activeProjectId);
@@ -11574,7 +12066,8 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     bqOpname: bqOpnameData,
                     rabCcoList: rabCcoList,
                     rabCcoItems: rabCcoItems,
-                    volCco: volCcoData
+                    volCco: volCcoData,
+                    pay: payData
                 }
             };
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -11632,6 +12125,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     rabCcoList = mergeAllByProj(rabCcoList, backup.data.rabCcoList);
                     rabCcoItems = mergeAllByProj(rabCcoItems, backup.data.rabCcoItems);
                     volCcoData = mergeAllByProj(volCcoData, backup.data.volCco);
+                    payData = mergeAllByProj(payData, backup.data.pay);
 
                     localStorage.setItem('erp_rab', JSON.stringify(rabData));
                     localStorage.setItem('erp_lap_harian', JSON.stringify(lapHarianData));
@@ -11651,6 +12145,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                     localStorage.setItem('erp_rab_cco_list', JSON.stringify(rabCcoList));
                     localStorage.setItem('erp_rab_cco_items', JSON.stringify(rabCcoItems));
                     localStorage.setItem('erp_vol_cco', JSON.stringify(volCcoData));
+                    localStorage.setItem('erp_pay', JSON.stringify(payData));
 
                     if (backup.projects.length > 0) {
                         activeProjectId = backup.projects[0].id;
@@ -11727,6 +12222,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 const statusGroup = persenDipesan <= 0 ? 0 : (persenDipesan >= 100 ? 2 : 1);
                 return { item, persenDipesan, statusGroup };
             }).sort((a, b) => a.statusGroup - b.statusGroup || a.item.id - b.item.id);
+
             const groupLabel = { 0: 'BELUM DI-ORDER', 1: 'SEDANG ORDER SEBAGIAN', 2: 'SUDAH DI-ORDER (100%)' };
             const rows = [];
             let total = 0;
@@ -12083,6 +12579,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             try { XLSX.writeFile(wb, filename, { cellStyles: true }); }
             catch (e) { XLSX.writeFile(wb, filename); } // fallback kalau versi library tidak dukung styling, data tetap lengkap
         }
+
         function allThinBorder() {
             const b = { style: 'thin', color: { rgb: 'B7C0CE' } };
             return { top: b, bottom: b, left: b, right: b };
@@ -12390,7 +12887,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 }
                 return { title: 'Backup Quantity - Opname Lapangan', columns, rows, orientation: 'landscape' };
             }
-
             if (type === 'absen-daftar-hadir') {
                 const bulanInput = document.getElementById('dhFilterBulan');
                 const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
@@ -12401,6 +12897,40 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 ];
                 const rows = buildDaftarHadirRekap(bulanStr).map((r, i) => ({ no: i + 1, ...r }));
                 return { title: `Daftar Hadir - ${bulanStr}`, columns, rows, orientation: 'landscape' };
+            }
+
+            if (type.startsWith('pay-') && type !== 'pay-labarugi') {
+                const kategori = type.replace('pay-', '');
+                const cfg = PAY_KATEGORI[kategori];
+                if (!cfg) return { title: type, columns: [], rows: [] };
+                const data = [...payData.filter(d => d.projId === activeProjectId && d.kategori === kategori)]
+                    .sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Tanggal', key: 'tanggal' }, { header: cfg.namaLabel, key: 'nama' },
+                    { header: cfg.uraianLabel, key: 'uraian' }, { header: 'Jumlah (Rp)', key: 'jumlah' },
+                    { header: 'Metode Bayar', key: 'metodeBayar' }, { header: 'Keterangan', key: 'keterangan' }
+                ];
+                const rows = data.map((d, i) => ({ no: i + 1, tanggal: d.tanggal || '-', nama: d.nama, uraian: d.uraian || '-', jumlah: d.jumlah || 0, metodeBayar: d.metodeBayar || '-', keterangan: d.keterangan || '-' }));
+                return { title: cfg.label, columns, rows, orientation: 'portrait', totalRow: { label: 'TOTAL', sumKeys: ['jumlah'] } };
+            }
+
+            if (type === 'pay-labarugi') {
+                const projPay = payData.filter(d => d.projId === activeProjectId);
+                const columns = [
+                    { header: 'Kategori', key: 'kategori' }, { header: 'Arah', key: 'arah' },
+                    { header: 'Jumlah Transaksi', key: 'count' }, { header: 'Total (Rp)', key: 'total' }
+                ];
+                const rows = Object.keys(PAY_KATEGORI).map(k => {
+                    const cfg = PAY_KATEGORI[k];
+                    const items = projPay.filter(d => d.kategori === k);
+                    return { kategori: cfg.label, arah: cfg.arah === 'masuk' ? 'Pemasukan' : 'Pengeluaran', count: items.length, total: items.reduce((a, d) => a + (Number(d.jumlah) || 0), 0) };
+                });
+                const totalMasuk = rows.filter(r => r.arah === 'Pemasukan').reduce((a, r) => a + r.total, 0);
+                const totalKeluar = rows.filter(r => r.arah === 'Pengeluaran').reduce((a, r) => a + r.total, 0);
+                rows.push({ kategori: 'TOTAL PEMASUKAN', arah: '', count: '', total: totalMasuk });
+                rows.push({ kategori: 'TOTAL PENGELUARAN', arah: '', count: '', total: totalKeluar });
+                rows.push({ kategori: (totalMasuk - totalKeluar) >= 0 ? 'LABA / UNTUNG' : 'RUGI', arah: '', count: '', total: totalMasuk - totalKeluar });
+                return { title: 'Laba Rugi & Untung', columns, rows, orientation: 'portrait' };
             }
 
             return { title: type, columns: [], rows: [] };
@@ -12419,7 +12949,6 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             const filename = `${dataset.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`;
             exportProfessionalPdf(dataset.title, dataset.columns, dataset.rows, filename, { orientation: dataset.orientation, subtitle: dataset.subtitle, totalRow: dataset.totalRow, groupByDivision: dataset.groupByDivision, groupKey: dataset.groupKey });
         }
-
         let currentWaType = '';
         function openWaExportModal(type) {
             currentWaType = type;
@@ -12439,6 +12968,7 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
             } else {
                 container.innerHTML = `<p class="text-slate-300 text-[11px]">Export seluruh data lengkap ${type} proyek.</p>`;
             }
+
             generateWaTextContent();
         }
 
@@ -12523,6 +13053,32 @@ SEMUA ITEM BERHASIL DIEKSTRAK TANPA TERKECUALI!`;
                 });
                 if (data.length === 0) text += `Belum ada data kebutuhan material.\n`;
                 else text += `💰 *Total Nilai Kebutuhan:* ${formatRupiah(totalNilai)}\n`;
+            } else if (currentWaType.startsWith('pay-') && currentWaType !== 'pay-labarugi') {
+                const kategori = currentWaType.replace('pay-', '');
+                const cfg = PAY_KATEGORI[kategori];
+                const data = [...payData.filter(d => d.projId === activeProjectId && d.kategori === kategori)]
+                    .sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+                const emoji = cfg.arah === 'masuk' ? '💵' : '💸';
+                text += `${emoji} *${(cfg.label || '').toUpperCase()}*\n\n`;
+                let total = 0;
+                data.forEach((d, i) => {
+                    total += Number(d.jumlah) || 0;
+                    text += `${i + 1}. ${d.tanggal || '-'} - ${d.nama}${d.uraian ? ' (' + d.uraian + ')' : ''}\n   ${cfg.arah === 'masuk' ? '+' : '-'}${formatRupiah(d.jumlah)}${d.metodeBayar ? ' via ' + d.metodeBayar : ''}\n`;
+                });
+                if (data.length === 0) text += 'Belum ada data.\n';
+                else text += `\n${cfg.arah === 'masuk' ? '💵 *Total Diterima:*' : '💸 *Total Dibayarkan:*'} ${formatRupiah(total)}\n`;
+            } else if (currentWaType === 'pay-labarugi') {
+                const projPay = payData.filter(d => d.projId === activeProjectId);
+                let totalMasuk = 0, totalKeluar = 0;
+                text += `⚖️ *LABA RUGI & UNTUNG*\n\n`;
+                Object.keys(PAY_KATEGORI).forEach(k => {
+                    const cfg = PAY_KATEGORI[k];
+                    const sub = projPay.filter(d => d.kategori === k).reduce((a, d) => a + (Number(d.jumlah) || 0), 0);
+                    if (cfg.arah === 'masuk') totalMasuk += sub; else totalKeluar += sub;
+                    text += `${cfg.arah === 'masuk' ? '➕' : '➖'} ${cfg.label}: ${formatRupiah(sub)}\n`;
+                });
+                const labaRugi = totalMasuk - totalKeluar;
+                text += `\n💵 *Total Pemasukan:* ${formatRupiah(totalMasuk)}\n💸 *Total Pengeluaran:* ${formatRupiah(totalKeluar)}\n${labaRugi >= 0 ? '✅ *Laba/Untung:*' : '⚠️ *Rugi:*'} ${formatRupiah(labaRugi)}\n`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }
