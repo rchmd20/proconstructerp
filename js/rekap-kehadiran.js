@@ -52,7 +52,20 @@
                     if (masuk) {
                         const keluar = keluarList.find(a => a.tanggal === tgl);
                         dayInfo.jenis = 'Hadir';
-                        if (keluar && keluar.ts > masuk.ts) {
+                        if (masuk.manual && keluar) {
+                            // Absen Manual (diinput Admin lewat halaman Absen Manual): Jam Kerja Normal &
+                            // Lembur mengikuti NILAI YANG DIINPUT ADMIN SECARA EKSPLISIT (sudah dikurangi
+                            // Istirahat), BUKAN dihitung ulang dari selisih mentah Masuk-Pulang seperti absen
+                            // kamera - supaya Admin punya kendali penuh atas jam istirahat & lembur.
+                            const jamNormalManual = Number(keluar.manualJamNormal) || 0;
+                            const lemburManual = Number(keluar.manualJamLembur) || 0;
+                            jamHadir += jamNormalManual;
+                            dayInfo.jamKerja = jamNormalManual;
+                            dayInfo.jamLembur = lemburManual;
+                            dayInfo.hariValue = 1;
+                            dayInfo.manual = true;
+                            if (lemburManual > 0) { jamLembur += lemburManual; hariLembur++; }
+                        } else if (keluar && keluar.ts > masuk.ts) {
                             // Absen masuk & absen keluar lengkap -> dihitung normal (maks 8 jam, sisanya lembur)
                             const jamKerjaHariIni = (keluar.ts - masuk.ts) / (1000 * 60 * 60);
                             const jamNormal = Math.min(jamKerjaHariIni, 8);
@@ -84,6 +97,7 @@
 
                 return {
                     nama: k.nama,
+                    jabatan: k.jabatan || '-',
                     days,
                     hariHadir: hariHadir % 1 === 0 ? hariHadir.toFixed(0) : hariHadir.toFixed(1),
                     jamHadir: jamHadir.toFixed(1),
@@ -100,7 +114,8 @@
                     return `<div class="text-amber-400 font-bold" title="Tidak absen pulang - dihitung masuk setengah hari">H½</div><div class="text-[9px] text-slate-400">${dayInfo.jamKerja.toFixed(1)}j</div>`;
                 }
                 const lemburTxt = dayInfo.jamLembur > 0 ? `<div class="text-[9px] text-amber-400">+${dayInfo.jamLembur.toFixed(1)}j</div>` : '';
-                return `<div class="text-emerald-400 font-bold">H</div><div class="text-[9px] text-slate-400">${dayInfo.jamKerja.toFixed(1)}j</div>${lemburTxt}`;
+                const manualTxt = dayInfo.manual ? `<div class="text-[8px] text-amber-300" title="Diinput manual oleh Admin">manual</div>` : '';
+                return `<div class="text-emerald-400 font-bold">H</div><div class="text-[9px] text-slate-400">${dayInfo.jamKerja.toFixed(1)}j</div>${lemburTxt}${manualTxt}`;
             } else if (dayInfo.jenis === 'Izin') {
                 return `<div class="text-sky-400 font-bold">I</div>`;
             } else if (dayInfo.jenis === 'Sakit') {
@@ -113,11 +128,18 @@
 
         // Karyawan yang boleh dilihat pada halaman Daftar Hadir: Admin melihat seluruh karyawan proyek,
         // akun User hanya melihat data dirinya sendiri (dicocokkan dari nama akun dengan nama karyawan).
+        // Diurutkan berdasarkan Jabatan (abjad) lalu Nama (abjad) di dalam jabatan yang sama, supaya rekap
+        // kehadiran bulanan berkelompok rapi per jabatan dan mudah dicari.
         function getVisibleKaryawanForDaftarHadir() {
             const list = karyawanData.filter(k => k.projId === activeProjectId);
-            if (isAdminUser()) return list;
             const myName = ((currentUser && currentUser.name) || '').trim().toLowerCase();
-            return list.filter(k => (k.nama || '').trim().toLowerCase() === myName);
+            const visible = isAdminUser() ? list : list.filter(k => (k.nama || '').trim().toLowerCase() === myName);
+            return visible.slice().sort((a, b) => {
+                const jabA = (a.jabatan || '').trim().toLowerCase();
+                const jabB = (b.jabatan || '').trim().toLowerCase();
+                if (jabA !== jabB) return jabA.localeCompare(jabB, 'id');
+                return (a.nama || '').trim().toLowerCase().localeCompare((b.nama || '').trim().toLowerCase(), 'id');
+            });
         }
 
         function renderDaftarHadir() {
@@ -173,7 +195,7 @@
                 r.days.forEach(d => { dayCells += `<td class="p-1 text-center align-top">${dhDayCellHtml(d)}</td>`; });
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-800/50 transition">
-                        <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${r.nama}</td>
+                        <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${escapeHtml(r.nama)}<div class="text-[10px] font-normal text-sky-400">${escapeHtml(r.jabatan)}</div></td>
                         ${dayCells}
                         <td class="p-3 font-mono text-emerald-400 text-center">${r.hariHadir} hari</td>
                         <td class="p-3 font-mono text-center">${r.jamHadir} jam</td>
@@ -203,7 +225,7 @@
                 return '-';
             };
 
-            const columns = [{ header: 'Nama Karyawan', key: 'nama', width: 20 }];
+            const columns = [{ header: 'Nama Karyawan', key: 'nama', width: 20 }, { header: 'Jabatan', key: 'jabatan', width: 16 }];
             for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 4 });
             columns.push(
                 { header: 'Hari Hadir', key: 'hariHadir' }, { header: 'Jam Hadir', key: 'jamHadir' },
@@ -211,7 +233,7 @@
                 { header: 'Izin', key: 'izin', width: 6 }, { header: 'Sakit', key: 'sakit', width: 6 }, { header: 'Cuti', key: 'cuti', width: 6 }
             );
             const rows = rekap.map(r => {
-                const obj = { nama: r.nama, hariHadir: r.hariHadir, jamHadir: r.jamHadir, hariLembur: r.hariLembur, jamLembur: r.jamLembur, izin: r.izin, sakit: r.sakit, cuti: r.cuti };
+                const obj = { nama: r.nama, jabatan: r.jabatan, hariHadir: r.hariHadir, jamHadir: r.jamHadir, hariLembur: r.hariLembur, jamLembur: r.jamLembur, izin: r.izin, sakit: r.sakit, cuti: r.cuti };
                 r.days.forEach((d, idx) => { obj['d' + (idx + 1)] = dayCellText(d); });
                 return obj;
             });

@@ -203,6 +203,10 @@
                 alert('Akses ditolak. Halaman Data Karyawan hanya tersedia untuk akun Admin.');
                 tabId = 'rab';
             }
+            if (tabId === 'absen-manual' && !isAdminUser()) {
+                alert('Akses ditolak. Halaman Absen Manual hanya tersedia untuk akun Admin.');
+                tabId = 'rab';
+            }
             currentTab = tabId;
             // Sembunyikan SEMUA section lain secara ganda: lewat class "hidden" (Tailwind) DAN langsung lewat
             // style.display (inline, prioritas paling tinggi & tidak bergantung pada CSS eksternal selesai
@@ -259,6 +263,11 @@
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 renderDaftarHadir();
+            } else if (tabId === 'absen-manual') {
+                showSection('sec-absen-manual');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                renderAbsenManualSection();
             } else if (tabId.startsWith('absen-')) {
                 // Jika sedang mode edit foto tapi user berpindah ke jenis absen yang berbeda (Masuk <-> Keluar), batalkan mode edit
                 if (typeof editingAbsenContext !== 'undefined' && editingAbsenContext && editingAbsenContext.isMasuk !== (tabId === 'absen-masuk')) {

@@ -1020,6 +1020,14 @@
             if (!admin && currentTab === 'data-karyawan') {
                 switchTab('rab');
             }
+
+            // --- Absen Manual: halaman ini hanya ada untuk Admin ---
+            const menuAbsenManual = document.getElementById('menu-absen-manual');
+            if (menuAbsenManual) menuAbsenManual.classList.toggle('hidden', !admin);
+            // Jika akun User sedang berada di halaman Absen Manual (mis. sesi lama), alihkan ke RAB.
+            if (!admin && currentTab === 'absen-manual') {
+                switchTab('rab');
+            }
         }
 
         function checkAdminPendingCount() {
