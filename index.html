@@ -319,6 +319,10 @@
                             <i class="fa-solid fa-right-from-bracket text-[10px]"></i>
                             <span>Absen Keluar (Kamera)</span>
                         </button>
+                        <button onclick="switchTab('absen-manual')" id="menu-absen-manual" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-user-pen text-[10px]"></i>
+                            <span>Absen Manual (Admin)</span>
+                        </button>
                         <button onclick="switchTab('absen-daftar-hadir')" id="menu-absen-daftar-hadir" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
                             <i class="fa-solid fa-clipboard-list text-[10px]"></i>
                             <span>Daftar Hadir (Rekap Bulanan)</span>
@@ -2317,6 +2321,86 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 5.0b: ABSEN MANUAL (KHUSUS ADMIN) - tanpa foto & lokasi, Admin atur langsung jam -->
+            <!-- =================================================================== -->
+            <section id="sec-absen-manual" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-user-pen text-amber-400"></i>
+                            <span>Absen Manual (Khusus Admin)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Catat kehadiran karyawan/tukang secara manual tanpa foto & lokasi GPS &mdash; untuk kasus lupa absen kamera, sinyal/lokasi bermasalah, atau input data lampau. Admin mengatur langsung Jam Masuk, Jam Pulang, Istirahat, dan Lembur.</p>
+                    </div>
+                </div>
+
+                <div class="navy-card p-5 rounded-2xl space-y-4">
+                    <h3 id="amFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Input Absen Manual</h3>
+                    <form id="formAbsenManual" onsubmit="handleAbsenManualSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Nama Karyawan / Tukang <span class="text-red-400">*</span></label>
+                            <select id="amKaryawanSelect" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                <!-- JS Populated -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Tanggal <span class="text-red-400">*</span></label>
+                            <input type="date" id="amTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                        </div>
+                        <div></div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Jam Masuk <span class="text-red-400">*</span></label>
+                            <input type="time" id="amJamMasuk" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Jam Pulang <span class="text-red-400">*</span></label>
+                            <input type="time" id="amJamPulang" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                        </div>
+                        <div></div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Istirahat (jam)</label>
+                            <input type="number" step="0.5" min="0" id="amIstirahat" placeholder="1" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Lembur (jam)</label>
+                            <input type="number" step="0.5" min="0" id="amLembur" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono">
+                        </div>
+                        <div></div>
+                        <div class="md:col-span-3">
+                            <label class="block text-slate-400 mb-1">Catatan (opsional)</label>
+                            <input type="text" id="amCatatan" placeholder="Contoh: Lupa absen kamera, sinyal lokasi tidak stabil, dsb." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                        </div>
+                        <div class="md:col-span-3 flex justify-end items-center gap-2">
+                            <button type="button" id="amCancelBtn" onclick="cancelAbsenManualEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition"><i class="fa-solid fa-xmark mr-1"></i> Batal Edit</button>
+                            <button type="submit" id="amSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Simpan Absen Manual</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Absen Manual</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
+                                <tr>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3">Jam Masuk - Pulang</th>
+                                    <th class="p-3">Istirahat</th>
+                                    <th class="p-3">Lembur</th>
+                                    <th class="p-3 text-center col-aksi">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absenManualTableBody" class="divide-y divide-slate-800">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
