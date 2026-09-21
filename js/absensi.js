@@ -6,7 +6,7 @@
 
             const tbody = document.getElementById('absenTableBody');
             tbody.innerHTML = '';
-            const data = (isMasuk ? absenMasukData : absenKeluarData).filter(d => d.projId === activeProjectId);
+            const data = (isMasuk ? absenMasukData : absenKeluarData).filter(d => d.projId === activeProjectId && !d.manual);
 
             if (data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Belum ada riwayat absensi.</td></tr>`;
@@ -723,4 +723,172 @@
         }
 
         // ===================================================================
+        // 5.0b ABSEN MANUAL (KHUSUS ADMIN): mencatat kehadiran karyawan/tukang tanpa foto & lokasi GPS,
+        // dengan Admin mengatur langsung Jam Masuk, Jam Pulang, Istirahat, dan Lembur. Disimpan sebagai
+        // SEPASANG record di absenMasukData & absenKeluarData (memakai array & localStorage key yang sama
+        // dengan Absen Kamera) supaya otomatis ikut terhitung di Daftar Hadir/Rekap Bulanan, KPI Beranda,
+        // dan cloud sync - tanpa perlu penyimpanan/skema data terpisah. Kedua record ditandai `manual: true`
+        // dan dihubungkan lewat `pairId` yang sama, dan SENGAJA disaring keluar dari list Absen Masuk/Keluar
+        // Kamera (lihat renderAbsenSection) karena tidak punya foto untuk ditampilkan di sana.
+        // ===================================================================
+        let absenManualEditPairId = null; // pairId yang sedang diedit; null = mode tambah baru
+
+        function renderAbsenManualSection() {
+            const karyawanSelect = document.getElementById('amKaryawanSelect');
+            if (karyawanSelect) {
+                const currentVal = karyawanSelect.value;
+                const projEmps = karyawanData.filter(k => k.projId === activeProjectId);
+                karyawanSelect.innerHTML = projEmps.map(k => `<option value="${escapeHtml(k.nama)}">${escapeHtml(k.nama)} - ${escapeHtml(k.jabatan || '-')}</option>`).join('');
+                if (currentVal && projEmps.some(k => k.nama === currentVal)) karyawanSelect.value = currentVal;
+            }
+            const tglInput = document.getElementById('amTanggal');
+            if (tglInput && !tglInput.value) tglInput.value = new Date().toISOString().split('T')[0];
+            renderAbsenManualTable();
+        }
+
+        // Hitung Jam Kerja Normal & pastikan rentang waktu valid, dari Jam Masuk/Pulang/Istirahat/Lembur
+        // yang diinput Admin. Lembur TIDAK dihitung otomatis dari selisih di atas 8 jam (berbeda dari absen
+        // kamera) - murni angka yang diinput Admin sendiri, supaya Admin punya kendali penuh (mis. lembur
+        // yang disetujui bisa saja lebih sedikit dari total jam ekstra yang sebenarnya terjadi di lapangan).
+        function computeAbsenManualJam(jamMasuk, jamPulang, istirahat, lembur) {
+            const [hM, mM] = jamMasuk.split(':').map(Number);
+            const [hP, mP] = jamPulang.split(':').map(Number);
+            let totalJamKotor = (hP + mP / 60) - (hM + mM / 60);
+            if (totalJamKotor <= 0) totalJamKotor += 24; // jaga-jaga kalau jam pulang melewati tengah malam
+            const totalJamBersih = Math.max(0, totalJamKotor - (istirahat || 0));
+            const jamNormal = Math.max(0, totalJamBersih - (lembur || 0));
+            return { jamNormal, jamLembur: lembur || 0, totalJamBersih };
+        }
+
+        function handleAbsenManualSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengisi Absen Manual.'); return; }
+            const nama = document.getElementById('amKaryawanSelect').value;
+            const tanggal = document.getElementById('amTanggal').value;
+            const jamMasuk = document.getElementById('amJamMasuk').value;
+            const jamPulang = document.getElementById('amJamPulang').value;
+            const istirahat = parseFloat(document.getElementById('amIstirahat').value) || 0;
+            const lembur = parseFloat(document.getElementById('amLembur').value) || 0;
+            const catatan = document.getElementById('amCatatan').value.trim();
+
+            if (!nama) { alert('Pilih karyawan/tukang terlebih dahulu.'); return; }
+            if (!tanggal || !jamMasuk || !jamPulang) { alert('Tanggal, Jam Masuk, dan Jam Pulang wajib diisi.'); return; }
+
+            const { jamNormal, jamLembur, totalJamBersih } = computeAbsenManualJam(jamMasuk, jamPulang, istirahat, lembur);
+            if (totalJamBersih <= 0) { alert('Rentang Jam Masuk - Jam Pulang (dikurangi Istirahat) tidak valid. Periksa kembali jamnya.'); return; }
+
+            const tsMasuk = new Date(`${tanggal}T${jamMasuk}:00`).getTime();
+            let tsPulang = new Date(`${tanggal}T${jamPulang}:00`).getTime();
+            if (tsPulang <= tsMasuk) tsPulang += 24 * 60 * 60 * 1000; // lewat tengah malam
+            const waktuMasukStr = new Date(tsMasuk).toLocaleString('id-ID');
+            const waktuPulangStr = new Date(tsPulang).toLocaleString('id-ID');
+            const jamKerjaText = `Masuk ${jamMasuk} - Pulang ${jamPulang} (Istirahat ${formatAngka(istirahat)} jam, Lembur ${formatAngka(jamLembur)} jam) — Total Kerja: ${formatAngka(jamNormal)} jam`;
+
+            const isEdit = !!absenManualEditPairId;
+            const pairId = isEdit ? absenManualEditPairId : Date.now();
+
+            const masukPayload = {
+                id: pairId, pairId, projId: activeProjectId, nama, tanggal, waktu: waktuMasukStr, ts: tsMasuk,
+                manual: true, lokasi: '-', alamat: 'Input manual oleh Admin', lat: null, lng: null, accuracy: null,
+                photo: '', jamKerja: jamKerjaText, catatan
+            };
+            const keluarPayload = {
+                id: pairId + 1, pairId, projId: activeProjectId, nama, tanggal, waktu: waktuPulangStr, ts: tsPulang,
+                manual: true, lokasi: '-', alamat: 'Input manual oleh Admin', lat: null, lng: null, accuracy: null,
+                photo: '', jamKerja: jamKerjaText, manualIstirahat: istirahat, manualJamNormal: jamNormal, manualJamLembur: jamLembur, catatan
+            };
+
+            if (isEdit) {
+                const idxM = absenMasukData.findIndex(a => a.pairId === pairId);
+                const idxK = absenKeluarData.findIndex(a => a.pairId === pairId);
+                if (idxM !== -1) absenMasukData[idxM] = { ...absenMasukData[idxM], ...masukPayload };
+                if (idxK !== -1) absenKeluarData[idxK] = { ...absenKeluarData[idxK], ...keluarPayload };
+            } else {
+                absenMasukData.push(masukPayload);
+                absenKeluarData.push(keluarPayload);
+            }
+            localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
+            localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
+            pushAbsenRecordToCloud('erp_absen_masuk', absenMasukData.find(a => a.pairId === pairId));
+            pushAbsenRecordToCloud('erp_absen_keluar', absenKeluarData.find(a => a.pairId === pairId));
+
+            cancelAbsenManualEdit();
+            renderAbsenManualTable();
+        }
+
+        function editAbsenManualEntry(pairId) {
+            const masuk = absenMasukData.find(a => a.pairId === pairId);
+            const keluar = absenKeluarData.find(a => a.pairId === pairId);
+            if (!masuk) return;
+            absenManualEditPairId = pairId;
+            document.getElementById('amKaryawanSelect').value = masuk.nama;
+            document.getElementById('amTanggal').value = masuk.tanggal;
+            document.getElementById('amJamMasuk').value = new Date(masuk.ts).toTimeString().slice(0, 5);
+            document.getElementById('amJamPulang').value = keluar ? new Date(keluar.ts).toTimeString().slice(0, 5) : '';
+            document.getElementById('amIstirahat').value = (keluar && keluar.manualIstirahat) || 0;
+            document.getElementById('amLembur').value = (keluar && keluar.manualJamLembur) || 0;
+            document.getElementById('amCatatan').value = masuk.catatan || '';
+            document.getElementById('amFormTitle').innerText = 'Edit Absen Manual';
+            document.getElementById('amSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('amCancelBtn').classList.remove('hidden');
+            document.getElementById('formAbsenManual').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelAbsenManualEdit() {
+            absenManualEditPairId = null;
+            const form = document.getElementById('formAbsenManual');
+            if (form) form.reset();
+            document.getElementById('amTanggal').value = new Date().toISOString().split('T')[0];
+            document.getElementById('amFormTitle').innerText = 'Input Absen Manual';
+            document.getElementById('amSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Absen Manual';
+            document.getElementById('amCancelBtn').classList.add('hidden');
+        }
+
+        function deleteAbsenManualEntry(pairId) {
+            if (!confirm('Hapus data absen manual ini (Masuk & Pulang sekaligus)? Tindakan ini tidak bisa dibatalkan.')) return;
+            const masuk = absenMasukData.find(a => a.pairId === pairId);
+            const keluar = absenKeluarData.find(a => a.pairId === pairId);
+            absenMasukData = absenMasukData.filter(a => a.pairId !== pairId);
+            absenKeluarData = absenKeluarData.filter(a => a.pairId !== pairId);
+            localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
+            localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
+            if (cloudDb && cloudReady && cloudWorkspaceId) {
+                if (masuk) cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection('absenMasuk').doc(String(masuk.id)).delete().catch(err => showCloudSyncError('Hapus absen manual di cloud', err));
+                if (keluar) cloudDb.collection('workspaces').doc(cloudWorkspaceId).collection('absenKeluar').doc(String(keluar.id)).delete().catch(err => showCloudSyncError('Hapus absen manual di cloud', err));
+            }
+            if (absenManualEditPairId === pairId) cancelAbsenManualEdit();
+            renderAbsenManualTable();
+        }
+
+        function renderAbsenManualTable() {
+            const tbody = document.getElementById('absenManualTableBody');
+            if (!tbody) return;
+            const pairs = absenMasukData.filter(a => a.projId === activeProjectId && a.manual).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            if (pairs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data absen manual.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = pairs.map(masuk => {
+                const keluar = absenKeluarData.find(k => k.pairId === masuk.pairId);
+                const karyawan = karyawanData.find(k => k.projId === activeProjectId && k.nama === masuk.nama);
+                const jamMasukLabel = new Date(masuk.ts).toTimeString().slice(0, 5);
+                const jamPulangLabel = keluar ? new Date(keluar.ts).toTimeString().slice(0, 5) : '-';
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-3 font-mono text-amber-400">${masuk.tanggal}</td>
+                        <td class="p-3 font-bold text-white">${escapeHtml(masuk.nama)}</td>
+                        <td class="p-3 text-sky-400">${escapeHtml(karyawan ? karyawan.jabatan : '-') || '-'}</td>
+                        <td class="p-3 font-mono">${jamMasukLabel} - ${jamPulangLabel}</td>
+                        <td class="p-3 font-mono text-slate-300">${formatAngka(keluar ? keluar.manualIstirahat : 0)} jam</td>
+                        <td class="p-3 font-mono text-amber-300">${formatAngka(keluar ? keluar.manualJamLembur : 0)} jam</td>
+                        <td class="p-3 text-center">
+                            <button onclick="editAbsenManualEntry(${masuk.pairId})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded-lg transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteAbsenManualEntry(${masuk.pairId})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        // ===================================================================
         // 5.1 DAFTAR HADIR - REKAP BULANAN
+
