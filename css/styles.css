@@ -14,6 +14,19 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* ============================ */
+        /* SEBELUM LOGIN: sembunyikan TOTAL isi aplikasi (header & konten utama) */
+        /* Sebelumnya layar Login hanya berupa lapisan blur transparan yang menumpuk DI ATAS konten
+           aplikasi yang sudah ter-render penuh di baliknya - membuat kesan seolah isi aplikasi "bisa
+           diintip/ditembus" sebelum login. Dengan class "pre-auth" pada <body> (dihapus otomatis oleh JS
+           setelah login berhasil), header & konten utama benar-benar tidak dirender sama sekali sampai
+           login berhasil, sehingga layar Login punya latar belakangnya sendiri yang solid & bersih. */
+        /* ============================ */
+        body.pre-auth #appTopHeader,
+        body.pre-auth #appMainWrapper {
+            display: none !important;
+        }
+
         .custom-scroll::-webkit-scrollbar {
             width: 6px;
             height: 6px;
