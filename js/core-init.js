@@ -576,6 +576,33 @@
         }
 
         // ===================================================================
+        // DEBOUNCE UNTUK KOTAK PENCARIAN: beberapa halaman list (RAB, Laporan Mingguan/Bulanan, Material,
+        // Volume CCO, Opname, Pembayaran, Data Karyawan) sebelumnya memanggil render ULANG SELURUH tabel
+        // (termasuk hitungan subtotal/bobot per baris) pada SETIAP ketukan tombol di kotak pencarian -
+        // termasuk saat menghapus huruf dengan cepat (backspace berkali-kali). Karena render-nya berat
+        // (loop banyak item + rekalkulasi), ini yang menyebabkan tampilan terasa patah-patah/lag lama
+        // khususnya saat menghapus kata. Dengan debounce, render sungguhan baru dijalankan sesaat (300ms)
+        // SETELAH user berhenti mengetik/menghapus - kotak teksnya sendiri tetap responsif instan (itu
+        // murni ditangani browser), hanya tabelnya yang menyusul sedikit lebih belakangan, jadi tidak lagi
+        // menghitung ulang berkali-kali dalam waktu singkat.
+        // ===================================================================
+        function debounce(fn, delay) {
+            let timer = null;
+            return function (...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+        const renderRABSearchDebounced = debounce(() => renderRAB(), 300);
+        const renderLapMingguanSearchDebounced = debounce(() => renderLapMingguan(), 300);
+        const renderLapBulananSearchDebounced = debounce(() => renderLapBulanan(), 300);
+        const renderMaterialTableSearchDebounced = debounce(() => renderMaterialTable(), 300);
+        const renderVolCcoMasterSearchDebounced = debounce(() => renderVolCcoMaster(), 300);
+        const renderBqOpnameMasterSearchDebounced = debounce(() => renderBqOpnameMaster(), 300);
+        const renderPayTableSearchDebounced = debounce(() => renderPayTable(), 300);
+        const renderEmployeeTableSearchDebounced = debounce(() => renderEmployeeTable(), 300);
+
+        // ===================================================================
         // SIDEBAR HIDE / UNHIDE (Desktop: collapse, Mobile: slide-over drawer)
         // ===================================================================
         function initSidebarState() {
@@ -610,8 +637,10 @@
 
         function checkAuthStatus() {
             if (!currentUser) {
+                document.body.classList.add('pre-auth');
                 document.getElementById('authModal').classList.remove('hidden');
             } else {
+                document.body.classList.remove('pre-auth');
                 document.getElementById('authModal').classList.add('hidden');
                 resolveActiveProjectForCurrentUser();
                 updateUserHeaderUI();
@@ -705,6 +734,7 @@
             document.getElementById('formLogin').classList.remove('hidden');
             currentUser = foundEmail;
             sessionStorage.setItem('erp_current_user', JSON.stringify(currentUser));
+            document.body.classList.remove('pre-auth');
             document.getElementById('authModal').classList.add('hidden');
             resolveActiveProjectForCurrentUser();
             updateUserHeaderUI();

@@ -245,29 +245,29 @@
                 showSection('sec-material');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderMaterialSection();
+                requestAnimationFrame(renderMaterialSection);
             } else if (tabId === 'pay-labarugi') {
                 showSection('sec-pay-labarugi');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderLabaRugi();
+                requestAnimationFrame(renderLabaRugi);
             } else if (tabId.startsWith('pay-')) {
                 activePayKategori = tabId.replace('pay-', '');
                 payEditContext = null;
                 showSection('sec-pay');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderPaySection();
+                requestAnimationFrame(renderPaySection);
             } else if (tabId === 'absen-daftar-hadir') {
                 showSection('sec-absen-daftar-hadir');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderDaftarHadir();
+                requestAnimationFrame(renderDaftarHadir);
             } else if (tabId === 'absen-manual') {
                 showSection('sec-absen-manual');
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderAbsenManualSection();
+                requestAnimationFrame(renderAbsenManualSection);
             } else if (tabId.startsWith('absen-')) {
                 // Jika sedang mode edit foto tapi user berpindah ke jenis absen yang berbeda (Masuk <-> Keluar), batalkan mode edit
                 if (typeof editingAbsenContext !== 'undefined' && editingAbsenContext && editingAbsenContext.isMasuk !== (tabId === 'absen-masuk')) {
@@ -284,7 +284,11 @@
                 showSection('sec-' + tabId);
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
-                renderActiveTabContent();
+                // requestAnimationFrame: biarkan browser MELUKIS dulu perpindahan section & highlight menu
+                // (yang ringan) sebelum menjalankan render tabel yang berat (loop banyak item/minggu, dsb) -
+                // supaya klik menu terasa instan meresponnya, walau proses hitung tabelnya sendiri butuh
+                // waktu yang kurang lebih sama seperti sebelumnya (bukan dipercepat, tapi terasa lebih responsif).
+                requestAnimationFrame(renderActiveTabContent);
             }
         }
 
