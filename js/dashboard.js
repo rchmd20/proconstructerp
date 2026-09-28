@@ -87,7 +87,7 @@
             document.getElementById('homeProgressLabel').innerText = bobotKumTotal.toFixed(1) + '%';
 
             // Karyawan
-            const projKaryawan = karyawanData.filter(k => k.projId === activeProjectId);
+            const projKaryawan = karyawanData.filter(k => k.projId === activeProjectId && (k.kategori || 'Karyawan') === 'Karyawan');
             document.getElementById('homeKpiKaryawan').innerText = projKaryawan.length;
 
             // Absen masuk hari ini
@@ -212,7 +212,7 @@
             const empSelect = document.getElementById('absenNamaSelect');
             if (empSelect) {
                 empSelect.innerHTML = '';
-                const projEmps = karyawanData.filter(e => e.projId === activeProjectId);
+                const projEmps = karyawanData.filter(e => e.projId === activeProjectId && (e.kategori || 'Karyawan') === 'Karyawan');
                 projEmps.forEach(e => {
                     const opt = document.createElement('option');
                     opt.value = e.nama;

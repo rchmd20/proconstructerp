@@ -120,22 +120,44 @@
 
         // Kategori Termin & Investor dianggap PEMASUKAN (uang masuk ke proyek); Subkon/Tenaga/Material/
         // Karyawan dianggap PENGELUARAN. Laba/Rugi = Total Pemasukan - Total Pengeluaran.
-        function renderLabaRugi() {
+        // Sumber tunggal perhitungan Laba Rugi - dipakai bersama oleh tampilan halaman, Export Excel/PDF & WhatsApp
+        function computeLabaRugiData() {
             const projPay = payData.filter(d => d.projId === activeProjectId);
-            let totalMasuk = 0, totalKeluar = 0;
-            const perKategori = {};
-            Object.keys(PAY_KATEGORI).forEach(k => { perKategori[k] = { count: 0, total: 0 }; });
-            projPay.forEach(d => {
-                const cfg = PAY_KATEGORI[d.kategori];
-                if (!cfg) return;
-                perKategori[d.kategori].count++;
-                perKategori[d.kategori].total += Number(d.jumlah) || 0;
-                if (cfg.arah === 'masuk') totalMasuk += Number(d.jumlah) || 0;
-                else totalKeluar += Number(d.jumlah) || 0;
-            });
-            const labaRugi = totalMasuk - totalKeluar;
-            const margin = totalMasuk > 0 ? (labaRugi / totalMasuk) * 100 : 0;
+            const w = computeInvestorWaterfall(activeProjectId);
+            const sumBy = (fn) => projPay.filter(fn).reduce((a, c) => a + (Number(c.jumlah) || 0), 0);
+            const cnt = (fn) => projPay.filter(fn).length;
 
+            const terminNetto = sumBy(d => d.kategori === 'termin');
+            const subkonUtangMasuk = sumBy(d => d.kategori === 'subkon' && d.jenis === 'utang');
+            const subkonPengembalianMasuk = sumBy(d => d.kategori === 'subkon' && d.jenis === 'pengembalian');
+            const totalMasuk = terminNetto + subkonUtangMasuk + subkonPengembalianMasuk + w.modal;
+
+            const tenagaKeluar = sumBy(d => d.kategori === 'tenaga');
+            const karyawanKeluar = sumBy(d => d.kategori === 'karyawan');
+            const materialKeluar = sumBy(d => d.kategori === 'material');
+            const subkonPengambilanKeluar = sumBy(d => d.kategori === 'subkon' && d.jenis === 'pengambilan');
+            const subkonPajakKeluar = sumBy(d => d.kategori === 'subkon' && d.jenis === 'pajak');
+            const totalKeluar = tenagaKeluar + karyawanKeluar + materialKeluar + subkonPengambilanKeluar + subkonPajakKeluar + w.dikembalikan + w.keuntungan;
+
+            const rows = [
+                { label: 'Termin (Netto Diterima)', arah: 'masuk', icon: 'fa-hand-holding-dollar', count: cnt(d => d.kategori === 'termin'), total: terminNetto },
+                { label: 'Modal Investor Masuk', arah: 'masuk', icon: 'fa-sack-dollar', count: w.modal > 0 ? 1 : 0, total: w.modal },
+                { label: 'Subkon - Pembayaran Utang (Diterima)', arah: 'masuk', icon: 'fa-hand-holding-dollar', count: cnt(d => d.kategori === 'subkon' && d.jenis === 'utang'), total: subkonUtangMasuk },
+                { label: 'Subkon - Pengembalian / Ganti Rugi (Diterima)', arah: 'masuk', icon: 'fa-rotate-left', count: cnt(d => d.kategori === 'subkon' && d.jenis === 'pengembalian'), total: subkonPengembalianMasuk },
+                { label: 'Tenaga (Upah)', arah: 'keluar', icon: 'fa-helmet-safety', count: cnt(d => d.kategori === 'tenaga'), total: tenagaKeluar },
+                { label: 'Karyawan (Gaji)', arah: 'keluar', icon: 'fa-id-badge', count: cnt(d => d.kategori === 'karyawan'), total: karyawanKeluar },
+                { label: 'Material', arah: 'keluar', icon: 'fa-truck-field', count: cnt(d => d.kategori === 'material'), total: materialKeluar },
+                { label: 'Subkon - Pengambilan Dana', arah: 'keluar', icon: 'fa-money-bill-transfer', count: cnt(d => d.kategori === 'subkon' && d.jenis === 'pengambilan'), total: subkonPengambilanKeluar },
+                { label: 'Subkon - Pajak', arah: 'keluar', icon: 'fa-receipt', count: cnt(d => d.kategori === 'subkon' && d.jenis === 'pajak'), total: subkonPajakKeluar },
+                { label: 'Investor - Pengembalian Modal (otomatis dari Termin)', arah: 'keluar', icon: 'fa-rotate-left', count: w.dikembalikan > 0 ? 1 : 0, total: w.dikembalikan },
+                { label: 'Investor - Keuntungan (% x Modal)', arah: 'keluar', icon: 'fa-chart-line', count: w.keuntungan > 0 ? 1 : 0, total: w.keuntungan }
+            ];
+            const labaRugi = totalMasuk - totalKeluar;
+            return { rows, totalMasuk, totalKeluar, labaRugi, margin: totalMasuk > 0 ? (labaRugi / totalMasuk) * 100 : 0 };
+        }
+
+        function renderLabaRugi() {
+            const { rows, totalMasuk, totalKeluar, labaRugi, margin } = computeLabaRugiData();
             document.getElementById('lrTotalPemasukan').innerText = formatRupiah(totalMasuk);
             document.getElementById('lrTotalPengeluaran').innerText = formatRupiah(totalKeluar);
             const lrEl = document.getElementById('lrLabaRugi');
@@ -145,17 +167,15 @@
             document.getElementById('lrMargin').innerText = `Margin: ${margin.toFixed(2)}%`;
 
             const tbody = document.getElementById('lrTableBody');
-            tbody.innerHTML = Object.keys(PAY_KATEGORI).map(k => {
-                const cfg = PAY_KATEGORI[k];
-                const d = perKategori[k];
-                const arahTotal = cfg.arah === 'masuk' ? totalMasuk : totalKeluar;
-                const persen = arahTotal > 0 ? (d.total / arahTotal) * 100 : 0;
+            tbody.innerHTML = rows.map(r => {
+                const arahTotal = r.arah === 'masuk' ? totalMasuk : totalKeluar;
+                const persen = arahTotal > 0 ? (r.total / arahTotal) * 100 : 0;
                 return `
                     <tr class="hover:bg-slate-800/50 transition">
-                        <td class="p-3 font-bold text-white"><i class="fa-solid ${cfg.icon} text-amber-400 mr-1.5"></i>${cfg.label}</td>
-                        <td class="p-3">${cfg.arah === 'masuk' ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">PEMASUKAN</span>' : '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">PENGELUARAN</span>'}</td>
-                        <td class="p-3 font-mono">${d.count}</td>
-                        <td class="p-3 font-mono font-bold ${cfg.arah === 'masuk' ? 'text-emerald-400' : 'text-red-400'}">${formatRupiah(d.total)}</td>
+                        <td class="p-3 font-bold text-white"><i class="fa-solid ${r.icon} text-amber-400 mr-1.5"></i>${r.label}</td>
+                        <td class="p-3">${r.arah === 'masuk' ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">PEMASUKAN</span>' : '<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">PENGELUARAN</span>'}</td>
+                        <td class="p-3 font-mono">${r.count}</td>
+                        <td class="p-3 font-mono font-bold ${r.arah === 'masuk' ? 'text-emerald-400' : 'text-red-400'}">${formatRupiah(r.total)}</td>
                         <td class="p-3 font-mono">${persen.toFixed(1)}%</td>
                     </tr>`;
             }).join('');
@@ -418,3 +438,565 @@
 
         // ===================================================================
         // 2.1.b KENDALA & NOTULEN HARIAN (TERPISAH, 1X INPUT PER TANGGAL, BISA DIEDIT)
+
+        // ===================================================================
+        // PEMBAYARAN MATERIAL (khusus): ambil data dasar dari Material Order, admin hanya menambahkan
+        // biaya tambahan (Ongkir, Admin, Pajak, dll) secara lengkap. Total = Harga Dasar + Biaya Tambahan.
+        // ===================================================================
+        let pmTambahanDraft = []; // [{id, label, nominal}] draft biaya tambahan yang sedang diedit di form
+
+        function renderPayMaterialSection() {
+            const orderSelect = document.getElementById('pmOrderId');
+            if (orderSelect) {
+                const projOrders = materialOrderData.filter(o => o.projId === activeProjectId);
+                orderSelect.innerHTML = '<option value="">-- Pilih Material Order --</option>' +
+                    projOrders.map(o => `<option value="${o.id}">${escapeHtml(o.nama)}${o.dimensi ? ' (' + escapeHtml(o.dimensi) + ')' : ''} - ${o.tanggal || '-'} - ${formatRupiah((o.volume || 0) * (o.harga || 0))}</option>`).join('');
+            }
+            if (!document.getElementById('pmTanggal').value) document.getElementById('pmTanggal').value = new Date().toISOString().split('T')[0];
+            const admin = isAdminUser();
+            document.getElementById('pmReadOnlyNotice').classList.toggle('hidden', admin);
+            document.getElementById('pmFormBox').classList.toggle('hidden', !admin);
+            renderPmTambahanList();
+            updatePmTotals();
+            renderPayMaterialTable();
+        }
+
+        function fillPmFromOrder() {
+            const orderId = document.getElementById('pmOrderId').value;
+            const box = document.getElementById('pmOrderPreview');
+            const order = materialOrderData.find(o => o.id == orderId);
+            if (!order) { box.innerHTML = 'Pilih PO untuk melihat harga dasarnya.'; updatePmTotals(); return; }
+            box.innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div><strong class="text-slate-400">Material:</strong> ${escapeHtml(order.nama)}</div>
+                <div><strong class="text-slate-400">Volume:</strong> ${formatAngka(order.volume)} ${escapeHtml(order.satuan || '')}</div>
+                <div><strong class="text-slate-400">Harga Satuan:</strong> ${formatRupiah(order.harga)}</div>
+                <div><strong class="text-slate-400">Supplier:</strong> ${escapeHtml(order.supplier) || '-'}</div>
+            </div>`;
+            updatePmTotals();
+        }
+
+        function addPmBiayaTambahan() {
+            const labelEl = document.getElementById('pmTambahanLabel');
+            const nominalEl = document.getElementById('pmTambahanNominal');
+            const label = labelEl.value.trim();
+            const nominal = parseFloat(nominalEl.value);
+            if (!label) { alert('Nama biaya tambahan wajib diisi (mis. Ongkir, Admin, Pajak).'); return; }
+            if (isNaN(nominal) || nominal <= 0) { alert('Nominal biaya harus lebih dari 0.'); return; }
+            pmTambahanDraft.push({ id: Date.now() + Math.random(), label, nominal });
+            labelEl.value = ''; nominalEl.value = '';
+            renderPmTambahanList();
+            updatePmTotals();
+        }
+
+        function removePmBiayaTambahan(id) {
+            pmTambahanDraft = pmTambahanDraft.filter(b => b.id !== id);
+            renderPmTambahanList();
+            updatePmTotals();
+        }
+
+        function renderPmTambahanList() {
+            const el = document.getElementById('pmTambahanList');
+            if (!el) return;
+            if (pmTambahanDraft.length === 0) { el.innerHTML = '<div class="text-[11px] text-slate-500 italic">Belum ada biaya tambahan. Tambahkan Ongkir/Admin/Pajak/dll di atas.</div>'; return; }
+            el.innerHTML = pmTambahanDraft.map(b => `
+                <div class="flex items-center justify-between bg-[#1c2541] border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+                    <span class="text-slate-200 font-medium">${escapeHtml(b.label)}</span>
+                    <div class="flex items-center space-x-3">
+                        <span class="font-mono text-indigo-300">${formatRupiah(b.nominal)}</span>
+                        <button type="button" onclick="removePmBiayaTambahan(${b.id})" class="text-red-400 hover:text-red-300 px-1" title="Hapus"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function updatePmTotals() {
+            const orderId = document.getElementById('pmOrderId').value;
+            const order = materialOrderData.find(o => o.id == orderId);
+            const hargaDasar = order ? (order.volume || 0) * (order.harga || 0) : 0;
+            const totalTambahan = pmTambahanDraft.reduce((a, c) => a + (Number(c.nominal) || 0), 0);
+            document.getElementById('pmHargaDasarView').innerText = formatRupiah(hargaDasar);
+            document.getElementById('pmTotalView').innerText = formatRupiah(hargaDasar + totalTambahan);
+        }
+
+        function handlePayMaterialSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengisi Pembayaran Material.'); return; }
+            const orderId = document.getElementById('pmOrderId').value;
+            const order = materialOrderData.find(o => o.id == orderId);
+            if (!order) { alert('Pilih PO Material Order terlebih dahulu.'); return; }
+            const tanggal = document.getElementById('pmTanggal').value;
+            const hargaDasar = (order.volume || 0) * (order.harga || 0);
+            const biayaTambahan = pmTambahanDraft.map(b => ({ ...b }));
+            const totalTambahan = biayaTambahan.reduce((a, c) => a + (Number(c.nominal) || 0), 0);
+            const jumlah = hargaDasar + totalTambahan;
+            const payload = {
+                kategori: 'material', tanggal, nama: order.nama, uraian: biayaTambahan.map(b => b.label).join(', ') || '-',
+                jumlah, orderId: order.id, hargaDasar, biayaTambahan, metodeBayar: 'Transfer Bank', keterangan: ''
+            };
+            const editId = document.getElementById('pmEditId').value;
+            if (editId) {
+                const idx = payData.findIndex(d => d.id == editId);
+                if (idx !== -1) payData[idx] = { ...payData[idx], ...payload };
+            } else {
+                payData.push({ id: Date.now() + Math.random(), projId: activeProjectId, ...payload });
+            }
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            cancelPayMaterialEdit();
+            renderPayMaterialTable();
+        }
+
+        function editPayMaterialItem(id) {
+            const item = payData.find(d => d.id === id);
+            if (!item) return;
+            document.getElementById('pmEditId').value = id;
+            document.getElementById('pmTanggal').value = item.tanggal || '';
+            document.getElementById('pmOrderId').value = item.orderId || '';
+            pmTambahanDraft = (item.biayaTambahan || []).map(b => ({ ...b }));
+            fillPmFromOrder();
+            renderPmTambahanList();
+            updatePmTotals();
+            document.getElementById('pmFormTitle').innerText = 'Edit Pembayaran Material';
+            document.getElementById('pmSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('pmCancelBtn').classList.remove('hidden');
+            document.getElementById('pmFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelPayMaterialEdit() {
+            document.getElementById('pmEditId').value = '';
+            const form = document.getElementById('formPayMaterial');
+            if (form) form.reset();
+            pmTambahanDraft = [];
+            renderPmTambahanList();
+            const preview = document.getElementById('pmOrderPreview');
+            if (preview) preview.innerHTML = 'Pilih PO untuk melihat harga dasarnya.';
+            document.getElementById('pmTanggal').value = new Date().toISOString().split('T')[0];
+            updatePmTotals();
+            document.getElementById('pmFormTitle').innerText = 'Tambah Pembayaran Material';
+            document.getElementById('pmSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Pembayaran';
+            document.getElementById('pmCancelBtn').classList.add('hidden');
+        }
+
+        function deletePayMaterialItem(id) {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menghapus data ini.'); return; }
+            if (!confirm('Hapus data pembayaran material ini?')) return;
+            payData = payData.filter(d => d.id !== id);
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            renderPayMaterialTable();
+        }
+
+        function renderPayMaterialTable() {
+            const tbody = document.getElementById('payMaterialTableBody');
+            if (!tbody) return;
+            const admin = isAdminUser();
+            const data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'material').sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada data pembayaran material.</td></tr>`; return; }
+            tbody.innerHTML = data.map(item => {
+                const tambahanText = (item.biayaTambahan || []).map(b => `${escapeHtml(b.label)}: ${formatRupiah(b.nominal)}`).join('<br>') || '-';
+                const aksi = admin ? `<button onclick="editPayMaterialItem(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="deletePayMaterialItem(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>` : '-';
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-mono text-amber-400">${item.tanggal || '-'}</td>
+                    <td class="p-3 font-bold text-white">${escapeHtml(item.nama)}</td>
+                    <td class="p-3 font-mono text-slate-300">${formatRupiah(item.hargaDasar || 0)}</td>
+                    <td class="p-3 text-[11px] text-slate-400">${tambahanText}</td>
+                    <td class="p-3 font-mono font-bold text-emerald-400">${formatRupiah(item.jumlah)}</td>
+                    <td class="p-3 text-center">${aksi}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ===================================================================
+        // PEMBAYARAN SUBKON: Nilai Kontrak per Subkon + 4 jenis transaksi
+        // (Pengambilan Dana & Pajak = keluar; Pembayaran Utang & Pengembalian/Ganti Rugi = masuk)
+        // ===================================================================
+        let skSelectedKaryawanId = null;
+        let skTransaksiEditId = null;
+
+        function getSubkonList() {
+            return karyawanData.filter(k => k.projId === activeProjectId && k.kategori === 'Subkon');
+        }
+
+        function renderPaySubkonSection() {
+            const admin = isAdminUser();
+            document.getElementById('skReadOnlyNotice').classList.toggle('hidden', admin);
+            const formBox = document.getElementById('skFormBox');
+            if (formBox) formBox.classList.toggle('hidden', !admin);
+
+            const sel = document.getElementById('skSubkonSelect');
+            const list = getSubkonList();
+            if (list.length === 0) {
+                sel.innerHTML = '';
+                document.getElementById('skEmptyState').classList.remove('hidden');
+                document.getElementById('skContent').classList.add('hidden');
+                skSelectedKaryawanId = null;
+                return;
+            }
+            document.getElementById('skEmptyState').classList.add('hidden');
+            document.getElementById('skContent').classList.remove('hidden');
+            if (!skSelectedKaryawanId || !list.some(k => k.id === skSelectedKaryawanId)) {
+                skSelectedKaryawanId = list[0].id;
+            }
+            sel.innerHTML = list.map(k => `<option value="${k.id}" ${k.id === skSelectedKaryawanId ? 'selected' : ''}>${escapeHtml(k.nama)}</option>`).join('');
+            cancelSkTransaksiEdit();
+            renderSkDetail();
+        }
+
+        function handleSkSubkonChange() {
+            const sel = document.getElementById('skSubkonSelect');
+            skSelectedKaryawanId = sel ? Number(sel.value) : null;
+            cancelSkTransaksiEdit();
+            renderSkDetail();
+        }
+
+        function renderSkDetail() {
+            const k = karyawanData.find(x => x.id === skSelectedKaryawanId);
+            const kontrakInput = document.getElementById('skNilaiKontrakInput');
+            if (kontrakInput) kontrakInput.value = k ? (k.nilaiKontrak || 0) : 0;
+            populateSkWeekFilter();
+            renderSkTransaksiTable();
+            renderSkSummaryCards();
+        }
+
+        function saveSkNilaiKontrak() {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengubah Nilai Kontrak.'); return; }
+            const k = karyawanData.find(x => x.id === skSelectedKaryawanId);
+            if (!k) return;
+            k.nilaiKontrak = parseFloat(document.getElementById('skNilaiKontrakInput').value) || 0;
+            localStorage.setItem('erp_karyawan', JSON.stringify(karyawanData));
+            renderSkSummaryCards();
+            alert('Nilai Kontrak Subkon berhasil disimpan.');
+        }
+
+        function updateSkFormFields() {
+            const jenis = document.getElementById('skJenis').value;
+            const persenBox = document.getElementById('skPersentaseBox');
+            const nominalInput = document.getElementById('skNominal');
+            const nominalLabel = document.getElementById('skNominalLabel');
+            if (jenis === 'pengambilan') {
+                persenBox.classList.remove('hidden');
+                nominalInput.readOnly = true;
+                nominalLabel.innerText = 'Nominal (Rp) - otomatis dari %';
+                updateSkNominalPreview();
+            } else {
+                persenBox.classList.add('hidden');
+                nominalInput.readOnly = false;
+                nominalInput.value = '';
+                nominalLabel.innerText = 'Nominal (Rp)';
+            }
+        }
+
+        function updateSkNominalPreview() {
+            const jenis = document.getElementById('skJenis').value;
+            if (jenis !== 'pengambilan') return;
+            const k = karyawanData.find(x => x.id === skSelectedKaryawanId);
+            const persen = parseFloat(document.getElementById('skPersentase').value) || 0;
+            const nilaiKontrak = k ? (k.nilaiKontrak || 0) : 0;
+            const nominal = nilaiKontrak * (persen / 100);
+            document.getElementById('skNominal').value = nominal ? nominal.toFixed(2) : '';
+        }
+
+        function handleSkTransaksiSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengisi transaksi Subkon.'); return; }
+            if (!skSelectedKaryawanId) { alert('Pilih Subkon terlebih dahulu.'); return; }
+            const jenis = document.getElementById('skJenis').value;
+            const tanggal = document.getElementById('skTanggal').value;
+            const persentase = jenis === 'pengambilan' ? (parseFloat(document.getElementById('skPersentase').value) || 0) : null;
+            const nominal = parseFloat(document.getElementById('skNominal').value) || 0;
+            const keterangan = document.getElementById('skKeterangan').value.trim();
+            if (!tanggal) { alert('Tanggal wajib diisi.'); return; }
+            if (nominal <= 0) { alert('Nominal harus lebih dari 0.'); return; }
+
+            const k = karyawanData.find(x => x.id === skSelectedKaryawanId);
+            const payload = {
+                kategori: 'subkon', tanggal, nama: k ? k.nama : '-', uraian: (SUBKON_JENIS_INFO[jenis] || {}).label || jenis,
+                jumlah: nominal, karyawanId: skSelectedKaryawanId, jenis, persentase, keterangan, metodeBayar: 'Transfer Bank'
+            };
+            if (skTransaksiEditId) {
+                const idx = payData.findIndex(d => d.id === skTransaksiEditId);
+                if (idx !== -1) payData[idx] = { ...payData[idx], ...payload };
+            } else {
+                payData.push({ id: Date.now() + Math.random(), projId: activeProjectId, ...payload });
+            }
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            cancelSkTransaksiEdit();
+            renderSkDetail();
+        }
+
+        function editSkTransaksi(id) {
+            const item = payData.find(d => d.id === id);
+            if (!item) return;
+            skTransaksiEditId = id;
+            document.getElementById('skTanggal').value = item.tanggal || '';
+            document.getElementById('skJenis').value = item.jenis;
+            updateSkFormFields();
+            if (item.jenis === 'pengambilan') document.getElementById('skPersentase').value = item.persentase || '';
+            document.getElementById('skNominal').value = item.jumlah;
+            document.getElementById('skKeterangan').value = item.keterangan || '';
+            document.getElementById('skFormTitle').innerText = 'Edit Transaksi Subkon';
+            document.getElementById('skSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('skCancelBtn').classList.remove('hidden');
+            document.getElementById('skFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelSkTransaksiEdit() {
+            skTransaksiEditId = null;
+            const form = document.getElementById('formSkTransaksi');
+            if (form) form.reset();
+            const jenisSel = document.getElementById('skJenis');
+            if (jenisSel) jenisSel.value = 'pengambilan';
+            updateSkFormFields();
+            const tglInput = document.getElementById('skTanggal');
+            if (tglInput) tglInput.value = new Date().toISOString().split('T')[0];
+            const titleEl = document.getElementById('skFormTitle');
+            if (titleEl) titleEl.innerText = 'Tambah Transaksi Subkon';
+            const submitBtn = document.getElementById('skSubmitBtn');
+            if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Transaksi';
+            const cancelBtn = document.getElementById('skCancelBtn');
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+        }
+
+        function deleteSkTransaksi(id) {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menghapus data ini.'); return; }
+            if (!confirm('Hapus transaksi ini?')) return;
+            payData = payData.filter(d => d.id !== id);
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            if (skTransaksiEditId === id) cancelSkTransaksiEdit();
+            renderSkDetail();
+        }
+
+        function populateSkWeekFilter() {
+            const sel = document.getElementById('skFilterMinggu');
+            if (!sel) return;
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+            const curVal = sel.value;
+            const totalWeeks = (typeof getProjectScheduleWeeks === 'function') ? getProjectScheduleWeeks() : 12;
+            let html = '<option value="">Semua Minggu</option>';
+            for (let w = 1; w <= totalWeeks; w++) {
+                const range = (typeof getWeekDateRangeDetailed === 'function') ? getWeekDateRangeDetailed(w, proj.tglMulai, proj.tglSelesai) : null;
+                html += `<option value="${w}">Minggu ${w}${range ? ' (' + range.labelShort + ')' : ''}</option>`;
+            }
+            sel.innerHTML = html;
+            if (curVal && [...sel.options].some(o => o.value === curVal)) sel.value = curVal;
+        }
+
+        function renderSkTransaksiTable() {
+            const tbody = document.getElementById('skTransaksiTableBody');
+            if (!tbody || !skSelectedKaryawanId) return;
+            const admin = isAdminUser();
+            let data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'subkon' && d.karyawanId === skSelectedKaryawanId);
+
+            const weekFilter = document.getElementById('skFilterMinggu') ? document.getElementById('skFilterMinggu').value : '';
+            if (weekFilter) {
+                const proj = projects.find(p => p.id === activeProjectId) || {};
+                const range = (typeof getWeekDateRangeDetailed === 'function') ? getWeekDateRangeDetailed(parseInt(weekFilter, 10), proj.tglMulai, proj.tglSelesai) : null;
+                if (range) {
+                    const startStr = range.start.toISOString().split('T')[0];
+                    const endStr = range.end.toISOString().split('T')[0];
+                    data = data.filter(d => d.tanggal >= startStr && d.tanggal <= endStr);
+                }
+            }
+            data = data.slice().sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada transaksi untuk periode ini.</td></tr>`; return; }
+            tbody.innerHTML = data.map(item => {
+                const info = SUBKON_JENIS_INFO[item.jenis] || { label: item.jenis, arah: 'keluar', badge: '' };
+                const aksi = admin ? `<button onclick="editSkTransaksi(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="deleteSkTransaksi(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>` : '-';
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-mono text-amber-400">${item.tanggal || '-'}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${info.badge}">${info.label}</span></td>
+                    <td class="p-3 font-mono">${item.persentase != null ? formatAngka(item.persentase) + '%' : '-'}</td>
+                    <td class="p-3 font-mono font-bold ${info.arah === 'masuk' ? 'text-emerald-400' : 'text-red-400'}">${info.arah === 'masuk' ? '+' : '-'}${formatRupiah(item.jumlah)}</td>
+                    <td class="p-3 text-[11px] text-slate-400">${escapeHtml(item.keterangan) || '-'}</td>
+                    <td class="p-3 text-center">${aksi}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderSkSummaryCards() {
+            const k = karyawanData.find(x => x.id === skSelectedKaryawanId);
+            const nilaiKontrak = k ? (k.nilaiKontrak || 0) : 0;
+            const allData = payData.filter(d => d.projId === activeProjectId && d.kategori === 'subkon' && d.karyawanId === skSelectedKaryawanId);
+            const sum = (jenis) => allData.filter(d => d.jenis === jenis).reduce((a, c) => a + (Number(c.jumlah) || 0), 0);
+            const totalPengambilan = sum('pengambilan');
+            document.getElementById('skSumKontrak').innerText = formatRupiah(nilaiKontrak);
+            document.getElementById('skSumPengambilan').innerText = formatRupiah(totalPengambilan);
+            document.getElementById('skSumSisa').innerText = formatRupiah(Math.max(0, nilaiKontrak - totalPengambilan));
+            document.getElementById('skSumPajak').innerText = formatRupiah(sum('pajak'));
+            document.getElementById('skSumUtang').innerText = formatRupiah(sum('utang'));
+            document.getElementById('skSumPengembalian').innerText = formatRupiah(sum('pengembalian'));
+        }
+
+        // ===================================================================
+        // PEMBAYARAN TERMIN: Nilai Kontrak otomatis dari RAB (di luar PPN/PPH) = Subtotal Fisik + Biaya
+        // Tambahan. Tiap termin = Persentase x Nilai Kontrak, dikurangi Pajak & PPh per termin (netto).
+        // ===================================================================
+        function getRabKontrakValue(projId) {
+            const projRAB = rabData.filter(r => r.projId === projId);
+            const subtotal = projRAB.reduce((a, c) => a + (c.volume * c.harga), 0);
+            const proj = projects.find(p => p.id === projId) || {};
+            const biayaTambahan = Array.isArray(proj.biayaTambahan) ? proj.biayaTambahan : [];
+            const totalPersenTambahan = biayaTambahan.reduce((a, c) => a + (Number(c.persen) || 0), 0);
+            const tambahanVal = subtotal * (totalPersenTambahan / 100);
+            return subtotal + tambahanVal;
+        }
+
+        function getTerminTotalNettoAndPersen(projId) {
+            const data = payData.filter(d => d.projId === projId && d.kategori === 'termin');
+            return {
+                totalNetto: data.reduce((a, c) => a + (Number(c.jumlah) || 0), 0),
+                totalPersen: data.reduce((a, c) => a + (Number(c.persentase) || 0), 0)
+            };
+        }
+
+        function renderPayTerminSection() {
+            const admin = isAdminUser();
+            document.getElementById('tmReadOnlyNotice').classList.toggle('hidden', admin);
+            document.getElementById('tmFormBox').classList.toggle('hidden', !admin);
+            if (!document.getElementById('tmTanggal').value) document.getElementById('tmTanggal').value = new Date().toISOString().split('T')[0];
+            cancelTerminEdit();
+            renderPayTerminTable();
+        }
+
+        function updateTerminPreview() {
+            const kontrak = getRabKontrakValue(activeProjectId);
+            const persen = parseFloat(document.getElementById('tmPersentase').value) || 0;
+            const pajak = parseFloat(document.getElementById('tmPajak').value) || 0;
+            const pph = parseFloat(document.getElementById('tmPph').value) || 0;
+            const nominal = kontrak * (persen / 100);
+            const netto = Math.max(0, nominal - pajak - pph);
+            const box = document.getElementById('tmPreviewBox');
+            if (box) box.innerHTML = `<div class="text-[11px] bg-[#0b132b] border border-slate-700 rounded-lg p-3 text-slate-300">Nilai Kontrak: <b class="text-white">${formatRupiah(kontrak)}</b> &middot; Nominal Termin (${formatAngka(persen)}%): <b class="text-sky-300">${formatRupiah(nominal)}</b> &middot; Netto Diterima: <b class="text-emerald-400">${formatRupiah(netto)}</b></div>`;
+        }
+
+        function handleTerminSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengisi Pembayaran Termin.'); return; }
+            const tanggal = document.getElementById('tmTanggal').value;
+            const persentase = parseFloat(document.getElementById('tmPersentase').value) || 0;
+            const pajak = parseFloat(document.getElementById('tmPajak').value) || 0;
+            const pph = parseFloat(document.getElementById('tmPph').value) || 0;
+            const keterangan = document.getElementById('tmKeterangan').value.trim();
+            if (!tanggal) { alert('Tanggal wajib diisi.'); return; }
+            if (persentase <= 0) { alert('Persentase harus lebih dari 0.'); return; }
+            const kontrak = getRabKontrakValue(activeProjectId);
+            const nominalTermin = kontrak * (persentase / 100);
+            const jumlah = Math.max(0, nominalTermin - pajak - pph);
+            const editId = document.getElementById('tmEditId').value;
+            const existingCount = payData.filter(d => d.projId === activeProjectId && d.kategori === 'termin' && d.id != editId).length;
+            const nama = keterangan || `Termin ${existingCount + 1}`;
+            const payload = { kategori: 'termin', tanggal, nama, uraian: keterangan, jumlah, persentase, nominalTermin, pajak, pph, keterangan, metodeBayar: 'Transfer Bank' };
+            if (editId) {
+                const idx = payData.findIndex(d => d.id == editId);
+                if (idx !== -1) payData[idx] = { ...payData[idx], ...payload };
+            } else {
+                payData.push({ id: Date.now() + Math.random(), projId: activeProjectId, ...payload });
+            }
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            cancelTerminEdit();
+            renderPayTerminTable();
+        }
+
+        function editTerminItem(id) {
+            const item = payData.find(d => d.id === id);
+            if (!item) return;
+            document.getElementById('tmEditId').value = id;
+            document.getElementById('tmTanggal').value = item.tanggal || '';
+            document.getElementById('tmPersentase').value = item.persentase || '';
+            document.getElementById('tmPajak').value = item.pajak || '';
+            document.getElementById('tmPph').value = item.pph || '';
+            document.getElementById('tmKeterangan').value = item.keterangan || '';
+            updateTerminPreview();
+            document.getElementById('tmFormTitle').innerText = 'Edit Termin';
+            document.getElementById('tmSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('tmCancelBtn').classList.remove('hidden');
+            document.getElementById('tmFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelTerminEdit() {
+            document.getElementById('tmEditId').value = '';
+            const form = document.getElementById('formTermin');
+            if (form) form.reset();
+            document.getElementById('tmTanggal').value = new Date().toISOString().split('T')[0];
+            updateTerminPreview();
+            document.getElementById('tmFormTitle').innerText = 'Tambah Termin';
+            document.getElementById('tmSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Termin';
+            document.getElementById('tmCancelBtn').classList.add('hidden');
+        }
+
+        function deleteTerminItem(id) {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menghapus data ini.'); return; }
+            if (!confirm('Hapus data termin ini?')) return;
+            payData = payData.filter(d => d.id !== id);
+            localStorage.setItem('erp_pay', JSON.stringify(payData));
+            renderPayTerminTable();
+        }
+
+        function renderPayTerminTable() {
+            const tbody = document.getElementById('payTerminTableBody');
+            if (!tbody) return;
+            const admin = isAdminUser();
+            document.getElementById('tmSumKontrak').innerText = formatRupiah(getRabKontrakValue(activeProjectId));
+            const data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'termin').sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+            const { totalNetto, totalPersen } = getTerminTotalNettoAndPersen(activeProjectId);
+            document.getElementById('tmSumNetto').innerText = formatRupiah(totalNetto);
+            document.getElementById('tmSumPersen').innerText = formatAngka(totalPersen) + '%';
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data termin.</td></tr>`; return; }
+            tbody.innerHTML = data.map(item => {
+                const aksi = admin ? `<button onclick="editTerminItem(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1 rounded mr-1"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="deleteTerminItem(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1 rounded"><i class="fa-solid fa-trash-can text-xs"></i></button>` : '-';
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-mono text-amber-400">${item.tanggal || '-'}</td>
+                    <td class="p-3 font-bold text-white">${escapeHtml(item.keterangan) || escapeHtml(item.nama)}</td>
+                    <td class="p-3 font-mono">${formatAngka(item.persentase)}%</td>
+                    <td class="p-3 font-mono text-slate-300">${formatRupiah(item.nominalTermin)}</td>
+                    <td class="p-3 font-mono text-red-400">${formatRupiah(item.pajak)}</td>
+                    <td class="p-3 font-mono text-red-400">${formatRupiah(item.pph)}</td>
+                    <td class="p-3 font-mono font-bold text-emerald-400">${formatRupiah(item.jumlah)}</td>
+                    <td class="p-3 text-center">${aksi}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ===================================================================
+        // PEMBAYARAN INVESTOR: settings (Modal & Persentase Keuntungan) + kartu pengembalian modal
+        // otomatis dari kumulatif Termin (netto), capped di Nilai Modal. Keuntungan = Persentase x Modal.
+        // ===================================================================
+        function computeInvestorWaterfall(projId) {
+            const proj = projects.find(p => p.id === projId) || {};
+            const modal = Number(proj.investorModal) || 0;
+            const persen = Number(proj.investorProfitPersen) || 0;
+            const { totalNetto: totalTermin } = getTerminTotalNettoAndPersen(projId);
+            const dikembalikan = Math.min(totalTermin, modal);
+            const sisa = Math.max(0, modal - dikembalikan);
+            const keuntungan = modal * (persen / 100);
+            return { modal, persen, totalTermin, dikembalikan, sisa, keuntungan };
+        }
+
+        function renderPayInvestorSection() {
+            const admin = isAdminUser();
+            document.getElementById('ivReadOnlyNotice').classList.toggle('hidden', admin);
+            document.getElementById('ivFormBox').classList.toggle('hidden', !admin);
+            const proj = projects.find(p => p.id === activeProjectId) || {};
+            document.getElementById('ivModal').value = proj.investorModal || '';
+            document.getElementById('ivPersen').value = proj.investorProfitPersen || '';
+            renderPayInvestorCards();
+        }
+
+        function handleInvestorSettingSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengubah pengaturan Investor.'); return; }
+            const proj = projects.find(p => p.id === activeProjectId);
+            if (!proj) return;
+            proj.investorModal = parseFloat(document.getElementById('ivModal').value) || 0;
+            proj.investorProfitPersen = parseFloat(document.getElementById('ivPersen').value) || 0;
+            localStorage.setItem('erp_projects', JSON.stringify(projects));
+            renderPayInvestorCards();
+            alert('Pengaturan Investor berhasil disimpan.');
+        }
+
+        function renderPayInvestorCards() {
+            const w = computeInvestorWaterfall(activeProjectId);
+            document.getElementById('ivViewModal').innerText = formatRupiah(w.modal);
+            document.getElementById('ivViewTermin').innerText = formatRupiah(w.totalTermin);
+            document.getElementById('ivViewDikembalikan').innerText = formatRupiah(w.dikembalikan);
+            document.getElementById('ivViewSisa').innerText = formatRupiah(w.sisa);
+            document.getElementById('ivViewKeuntungan').innerText = formatRupiah(w.keuntungan) + ` (${formatAngka(w.persen)}%)`;
+        }

@@ -17,6 +17,7 @@
                     materialMasuk: materialMasukData.filter(d => d.projId === activeProjectId),
                     materialKeluar: materialKeluarData.filter(d => d.projId === activeProjectId),
                     karyawan: karyawanData.filter(k => k.projId === activeProjectId),
+                    absenTukangSubkon: absenTukangSubkonData.filter(a => a.projId === activeProjectId),
                     absenMasuk: absenMasukData.filter(a => a.projId === activeProjectId),
                     absenKeluar: absenKeluarData.filter(a => a.projId === activeProjectId),
                     leave: leaveData.filter(l => l.projId === activeProjectId),
@@ -71,6 +72,7 @@
                     materialMasukData = mergeByProj(materialMasukData, backup.data.materialMasuk, 'projId');
                     materialKeluarData = mergeByProj(materialKeluarData, backup.data.materialKeluar, 'projId');
                     karyawanData = mergeByProj(karyawanData, backup.data.karyawan, 'projId');
+                    absenTukangSubkonData = mergeByProj(absenTukangSubkonData, backup.data.absenTukangSubkon, 'projId');
                     absenMasukData = mergeByProj(absenMasukData, backup.data.absenMasuk, 'projId');
                     absenKeluarData = mergeByProj(absenKeluarData, backup.data.absenKeluar, 'projId');
                     leaveData = mergeByProj(leaveData, backup.data.leave, 'projId');
@@ -91,6 +93,7 @@
                     localStorage.setItem('erp_mat_masuk', JSON.stringify(materialMasukData));
                     localStorage.setItem('erp_mat_keluar', JSON.stringify(materialKeluarData));
                     localStorage.setItem('erp_karyawan', JSON.stringify(karyawanData));
+                    localStorage.setItem('erp_absen_tukang_subkon', JSON.stringify(absenTukangSubkonData));
                     localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));
@@ -137,6 +140,7 @@
                     materialMasuk: materialMasukData,
                     materialKeluar: materialKeluarData,
                     karyawan: karyawanData,
+                    absenTukangSubkon: absenTukangSubkonData,
                     absenMasuk: absenMasukData,
                     absenKeluar: absenKeluarData,
                     leave: leaveData,
@@ -195,6 +199,7 @@
                     materialMasukData = mergeAllByProj(materialMasukData, backup.data.materialMasuk);
                     materialKeluarData = mergeAllByProj(materialKeluarData, backup.data.materialKeluar);
                     karyawanData = mergeAllByProj(karyawanData, backup.data.karyawan);
+                    absenTukangSubkonData = mergeAllByProj(absenTukangSubkonData, backup.data.absenTukangSubkon);
                     absenMasukData = mergeAllByProj(absenMasukData, backup.data.absenMasuk);
                     absenKeluarData = mergeAllByProj(absenKeluarData, backup.data.absenKeluar);
                     leaveData = mergeAllByProj(leaveData, backup.data.leave);
@@ -215,6 +220,7 @@
                     localStorage.setItem('erp_mat_masuk', JSON.stringify(materialMasukData));
                     localStorage.setItem('erp_mat_keluar', JSON.stringify(materialKeluarData));
                     localStorage.setItem('erp_karyawan', JSON.stringify(karyawanData));
+                    localStorage.setItem('erp_absen_tukang_subkon', JSON.stringify(absenTukangSubkonData));
                     localStorage.setItem('erp_absen_masuk', JSON.stringify(absenMasukData));
                     localStorage.setItem('erp_absen_keluar', JSON.stringify(absenKeluarData));
                     localStorage.setItem('erp_leave', JSON.stringify(leaveData));

@@ -207,6 +207,10 @@
                 alert('Akses ditolak. Halaman Absen Manual hanya tersedia untuk akun Admin.');
                 tabId = 'rab';
             }
+            if ((tabId === 'absen-tukang-manual' || tabId === 'daftar-hadir-tukang') && !isAdminUser()) {
+                alert('Akses ditolak. Halaman ini hanya tersedia untuk akun Admin.');
+                tabId = 'rab';
+            }
             currentTab = tabId;
             // Sembunyikan SEMUA section lain secara ganda: lewat class "hidden" (Tailwind) DAN langsung lewat
             // style.display (inline, prioritas paling tinggi & tidak bergantung pada CSS eksternal selesai
@@ -251,6 +255,26 @@
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 requestAnimationFrame(renderLabaRugi);
+            } else if (tabId === 'pay-material') {
+                showSection('sec-pay-material');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderPayMaterialSection);
+            } else if (tabId === 'pay-subkon') {
+                showSection('sec-pay-subkon');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderPaySubkonSection);
+            } else if (tabId === 'pay-termin') {
+                showSection('sec-pay-termin');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderPayTerminSection);
+            } else if (tabId === 'pay-investor') {
+                showSection('sec-pay-investor');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderPayInvestorSection);
             } else if (tabId.startsWith('pay-')) {
                 activePayKategori = tabId.replace('pay-', '');
                 payEditContext = null;
@@ -268,6 +292,16 @@
                 const btn = document.getElementById('menu-' + tabId);
                 if (btn) btn.classList.add('active');
                 requestAnimationFrame(renderAbsenManualSection);
+            } else if (tabId === 'absen-tukang-manual') {
+                showSection('sec-absen-tukang-manual');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderAbsenTukangSubkonSection);
+            } else if (tabId === 'daftar-hadir-tukang') {
+                showSection('sec-daftar-hadir-tukang');
+                const btn = document.getElementById('menu-' + tabId);
+                if (btn) btn.classList.add('active');
+                requestAnimationFrame(renderDaftarHadirTukangSubkon);
             } else if (tabId.startsWith('absen-')) {
                 // Jika sedang mode edit foto tapi user berpindah ke jenis absen yang berbeda (Masuk <-> Keluar), batalkan mode edit
                 if (typeof editingAbsenContext !== 'undefined' && editingAbsenContext && editingAbsenContext.isMasuk !== (tabId === 'absen-masuk')) {

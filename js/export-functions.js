@@ -732,6 +732,62 @@
                 return { title: `Daftar Hadir - ${bulanStr}`, columns, rows, orientation: 'landscape' };
             }
 
+            if (type === 'pay-material') {
+                const data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'material').sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Tanggal', key: 'tanggal' }, { header: 'Material (PO)', key: 'nama' },
+                    { header: 'Harga Dasar (Rp)', key: 'hargaDasar' }, { header: 'Biaya Tambahan (Rincian)', key: 'tambahan' },
+                    { header: 'Total Biaya Tambahan (Rp)', key: 'totalTambahan' }, { header: 'Total Pembayaran (Rp)', key: 'jumlah' }
+                ];
+                const rows = data.map((d, i) => {
+                    const tambahan = d.biayaTambahan || [];
+                    return {
+                        no: i + 1, tanggal: d.tanggal || '-', nama: d.nama, hargaDasar: d.hargaDasar || 0,
+                        tambahan: tambahan.map(b => `${b.label}: ${formatRupiah(b.nominal)}`).join('; ') || '-',
+                        totalTambahan: tambahan.reduce((a, b) => a + (Number(b.nominal) || 0), 0), jumlah: d.jumlah || 0
+                    };
+                });
+                return { title: 'Pembayaran Material', columns, rows, orientation: 'landscape', totalRow: { label: 'TOTAL', sumKeys: ['hargaDasar', 'totalTambahan', 'jumlah'] } };
+            }
+
+            if (type === 'pay-subkon') {
+                const data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'subkon').sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Tanggal', key: 'tanggal' }, { header: 'Subkon', key: 'nama' },
+                    { header: 'Jenis Transaksi', key: 'jenis' }, { header: 'Arah', key: 'arah' }, { header: 'Persentase (%)', key: 'persen' },
+                    { header: 'Nominal (Rp)', key: 'jumlah' }, { header: 'Keterangan', key: 'keterangan' }
+                ];
+                const rows = data.map((d, i) => {
+                    const info = SUBKON_JENIS_INFO[d.jenis] || { label: d.jenis, arah: 'keluar' };
+                    return { no: i + 1, tanggal: d.tanggal || '-', nama: d.nama, jenis: info.label, arah: info.arah === 'masuk' ? 'Masuk' : 'Keluar', persen: d.persentase != null ? d.persentase : '-', jumlah: d.jumlah || 0, keterangan: d.keterangan || '-' };
+                });
+                return { title: 'Pembayaran Subkon', columns, rows, orientation: 'landscape' };
+            }
+
+            if (type === 'pay-termin') {
+                const data = payData.filter(d => d.projId === activeProjectId && d.kategori === 'termin').sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || '') || a.id - b.id);
+                const columns = [
+                    { header: 'No', key: 'no' }, { header: 'Tanggal', key: 'tanggal' }, { header: 'Keterangan', key: 'nama' },
+                    { header: 'Persentase (%)', key: 'persen' }, { header: 'Nominal Termin (Rp)', key: 'nominal' },
+                    { header: 'Pajak (Rp)', key: 'pajak' }, { header: 'PPh (Rp)', key: 'pph' }, { header: 'Netto Diterima (Rp)', key: 'jumlah' }
+                ];
+                const rows = data.map((d, i) => ({ no: i + 1, tanggal: d.tanggal || '-', nama: d.keterangan || d.nama, persen: d.persentase || 0, nominal: d.nominalTermin || 0, pajak: d.pajak || 0, pph: d.pph || 0, jumlah: d.jumlah || 0 }));
+                return { title: 'Pembayaran Termin', columns, rows, orientation: 'landscape', subtitle: `Nilai Kontrak (di luar PPN/PPH): ${formatRupiah(getRabKontrakValue(activeProjectId))}`, totalRow: { label: 'TOTAL', sumKeys: ['nominal', 'pajak', 'pph', 'jumlah'] } };
+            }
+
+            if (type === 'pay-investor') {
+                const w = computeInvestorWaterfall(activeProjectId);
+                const columns = [{ header: 'Keterangan', key: 'ket' }, { header: 'Nilai (Rp)', key: 'nilai' }];
+                const rows = [
+                    { ket: 'Nilai Modal Investor', nilai: w.modal },
+                    { ket: 'Total Termin Masuk (Netto)', nilai: w.totalTermin },
+                    { ket: 'Modal Sudah Dikembalikan', nilai: w.dikembalikan },
+                    { ket: 'Sisa Modal Belum Dikembalikan', nilai: w.sisa },
+                    { ket: `Keuntungan Investor (${w.persen}% x Modal)`, nilai: w.keuntungan }
+                ];
+                return { title: 'Pembayaran Investor', columns, rows, orientation: 'portrait' };
+            }
+
             if (type.startsWith('pay-') && type !== 'pay-labarugi') {
                 const kategori = type.replace('pay-', '');
                 const cfg = PAY_KATEGORI[kategori];
@@ -748,21 +804,15 @@
             }
 
             if (type === 'pay-labarugi') {
-                const projPay = payData.filter(d => d.projId === activeProjectId);
+                const lr = computeLabaRugiData();
                 const columns = [
                     { header: 'Kategori', key: 'kategori' }, { header: 'Arah', key: 'arah' },
                     { header: 'Jumlah Transaksi', key: 'count' }, { header: 'Total (Rp)', key: 'total' }
                 ];
-                const rows = Object.keys(PAY_KATEGORI).map(k => {
-                    const cfg = PAY_KATEGORI[k];
-                    const items = projPay.filter(d => d.kategori === k);
-                    return { kategori: cfg.label, arah: cfg.arah === 'masuk' ? 'Pemasukan' : 'Pengeluaran', count: items.length, total: items.reduce((a, d) => a + (Number(d.jumlah) || 0), 0) };
-                });
-                const totalMasuk = rows.filter(r => r.arah === 'Pemasukan').reduce((a, r) => a + r.total, 0);
-                const totalKeluar = rows.filter(r => r.arah === 'Pengeluaran').reduce((a, r) => a + r.total, 0);
-                rows.push({ kategori: 'TOTAL PEMASUKAN', arah: '', count: '', total: totalMasuk });
-                rows.push({ kategori: 'TOTAL PENGELUARAN', arah: '', count: '', total: totalKeluar });
-                rows.push({ kategori: (totalMasuk - totalKeluar) >= 0 ? 'LABA / UNTUNG' : 'RUGI', arah: '', count: '', total: totalMasuk - totalKeluar });
+                const rows = lr.rows.map(r => ({ kategori: r.label, arah: r.arah === 'masuk' ? 'Pemasukan' : 'Pengeluaran', count: r.count, total: r.total }));
+                rows.push({ kategori: 'TOTAL PEMASUKAN', arah: '', count: '', total: lr.totalMasuk });
+                rows.push({ kategori: 'TOTAL PENGELUARAN', arah: '', count: '', total: lr.totalKeluar });
+                rows.push({ kategori: lr.labaRugi >= 0 ? 'LABA / UNTUNG' : 'RUGI', arah: '', count: '', total: lr.labaRugi });
                 return { title: 'Laba Rugi & Untung', columns, rows, orientation: 'portrait' };
             }
 
@@ -902,17 +952,12 @@
                 if (data.length === 0) text += 'Belum ada data.\n';
                 else text += `\n${cfg.arah === 'masuk' ? '💵 *Total Diterima:*' : '💸 *Total Dibayarkan:*'} ${formatRupiah(total)}\n`;
             } else if (currentWaType === 'pay-labarugi') {
-                const projPay = payData.filter(d => d.projId === activeProjectId);
-                let totalMasuk = 0, totalKeluar = 0;
+                const lr = computeLabaRugiData();
                 text += `⚖️ *LABA RUGI & UNTUNG*\n\n`;
-                Object.keys(PAY_KATEGORI).forEach(k => {
-                    const cfg = PAY_KATEGORI[k];
-                    const sub = projPay.filter(d => d.kategori === k).reduce((a, d) => a + (Number(d.jumlah) || 0), 0);
-                    if (cfg.arah === 'masuk') totalMasuk += sub; else totalKeluar += sub;
-                    text += `${cfg.arah === 'masuk' ? '➕' : '➖'} ${cfg.label}: ${formatRupiah(sub)}\n`;
+                lr.rows.forEach(r => {
+                    text += `${r.arah === 'masuk' ? '➕' : '➖'} ${r.label}: ${formatRupiah(r.total)}\n`;
                 });
-                const labaRugi = totalMasuk - totalKeluar;
-                text += `\n💵 *Total Pemasukan:* ${formatRupiah(totalMasuk)}\n💸 *Total Pengeluaran:* ${formatRupiah(totalKeluar)}\n${labaRugi >= 0 ? '✅ *Laba/Untung:*' : '⚠️ *Rugi:*'} ${formatRupiah(labaRugi)}\n`;
+                text += `\n💵 *Total Pemasukan:* ${formatRupiah(lr.totalMasuk)}\n💸 *Total Pengeluaran:* ${formatRupiah(lr.totalKeluar)}\n${lr.labaRugi >= 0 ? '✅ *Laba/Untung:*' : '⚠️ *Rugi:*'} ${formatRupiah(lr.labaRugi)}\n`;
             } else {
                 text += `📌 *LAPORAN DETAIL ${currentWaType.toUpperCase()}*\nData lengkap dan akurat sesuai sistem ERP.\n`;
             }

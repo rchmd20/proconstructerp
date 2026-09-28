@@ -59,11 +59,15 @@
         let materialMasukData = JSON.parse(localStorage.getItem('erp_mat_masuk')) || [];
         let materialKeluarData = JSON.parse(localStorage.getItem('erp_mat_keluar')) || [];
         let karyawanData = JSON.parse(localStorage.getItem('erp_karyawan')) || [
-            { id: 1, projId: 'PRJ-01', nama: 'Budi Santoso', jabatan: 'Mandor Struktur', hp: '08123456789', email: 'budi@gmail.com', status: 'Tetap', tglMasuk: '2026-01-05', photo: '' },
-            { id: 2, projId: 'PRJ-01', nama: 'Andi Pratama', jabatan: 'Tukang Batu', hp: '08198765432', email: 'andi@gmail.com', status: 'Kontrak', tglMasuk: '2026-01-10', photo: '' }
+            { id: 1, projId: 'PRJ-01', kategori: 'Karyawan', nama: 'Budi Santoso', jabatan: 'Mandor Struktur', hp: '08123456789', email: 'budi@gmail.com', status: 'Tetap', tglMasuk: '2026-01-05', photo: '' },
+            { id: 2, projId: 'PRJ-01', kategori: 'Karyawan', nama: 'Andi Pratama', jabatan: 'Tukang Batu', hp: '08198765432', email: 'andi@gmail.com', status: 'Kontrak', tglMasuk: '2026-01-10', photo: '' }
         ];
         let absenMasukData = JSON.parse(localStorage.getItem('erp_absen_masuk')) || [];
         let absenKeluarData = JSON.parse(localStorage.getItem('erp_absen_keluar')) || [];
+        // Absensi khusus Tukang/Subkon: berbeda dari absenMasukData/absenKeluarData (yang per-nama individu),
+        // di sini 1 baris = 1 kategori Tukang atau 1 Subkon pada 1 tanggal, dengan JUMLAH ORANG yang hadir
+        // (bukan nama satu-satu) - lihat halaman Absen Manual Tukang/Subkon.
+        let absenTukangSubkonData = JSON.parse(localStorage.getItem('erp_absen_tukang_subkon')) || [];
         let leaveData = JSON.parse(localStorage.getItem('erp_leave')) || []; // Izin / Sakit / Cuti
         let bqResultsData = JSON.parse(localStorage.getItem('erp_bq_results')) || [];
         // Data Opname Lapangan (Backup Quantity > Opname): tiap baris = 1 hitungan opname untuk 1 item pekerjaan RAB
@@ -145,7 +149,7 @@
             erp_rab: 'rab', erp_lap_harian: 'lapHarian', erp_lap_harian_kendala: 'lapHarianKendala',
             erp_lap_mingguan: 'lapMingguan', erp_div_schedule: 'divSchedule', erp_kebutuhan_mat: 'kebutuhanMat',
             erp_mat_order: 'materialOrder', erp_mat_masuk: 'materialMasuk', erp_mat_keluar: 'materialKeluar',
-            erp_karyawan: 'karyawan',
+            erp_karyawan: 'karyawan', erp_absen_tukang_subkon: 'absenTukangSubkon',
             erp_leave: 'leave', erp_bq_results: 'bqResults', erp_bq_opname: 'bqOpname',
             erp_rab_cco_list: 'rabCcoList', erp_rab_cco_items: 'rabCcoItems', erp_vol_cco: 'volCco', erp_pay: 'pay'
         };
@@ -183,6 +187,7 @@
                     case 'erp_mat_masuk': materialMasukData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_mat_keluar': materialKeluarData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_karyawan': karyawanData = JSON.parse(localStorage.getItem(k)) || []; break;
+                    case 'erp_absen_tukang_subkon': absenTukangSubkonData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_absen_masuk': absenMasukData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_absen_keluar': absenKeluarData = JSON.parse(localStorage.getItem(k)) || []; break;
                     case 'erp_leave': leaveData = JSON.parse(localStorage.getItem(k)) || []; break;
@@ -439,17 +444,30 @@
         let homeBudgetChartInstance = null;
         let activeMaterialSub = 'mat-kebutuhan';
         // ==== LAPORAN KEUANGAN ====
-        let activePayKategori = 'subkon'; // subkon|tenaga|material|karyawan|termin|investor
+        // CATATAN ARSITEKTUR: Subkon, Material, Termin & Investor sekarang punya halaman & form KHUSUS
+        // sendiri-sendiri (lihat keuangan.js: renderPaySubkonSection, renderPayMaterialSection,
+        // renderPayTerminSection, renderPayInvestorSection) karena kebutuhan datanya jauh berbeda dari
+        // form generik (Tanggal/Nama/Jumlah/Uraian). PAY_KATEGORI di bawah ini HANYA dipakai untuk 2
+        // kategori yang masih cocok dengan form generik lama: Tenaga & Karyawan.
+        let activePayKategori = 'tenaga'; // tenaga|karyawan (kategori lain sudah punya halaman sendiri)
         let payEditContext = null; // id baris yang sedang diedit, null = mode tambah baru
         let payData = JSON.parse(localStorage.getItem('erp_pay')) || [];
         // { id, projId, kategori, tanggal, nama, uraian, jumlah, metodeBayar, keterangan }
+        // Kategori 'material' menambah field: orderId, hargaDasar, biayaTambahan:[{id,label,nominal}]
+        // Kategori 'subkon' menambah field: karyawanId, jenis:'pengambilan'|'pajak'|'utang'|'pengembalian', persentase
+        // Kategori 'termin' menambah field: persentase, nominalTermin, pajak, pph (jumlah = netto diterima)
         const PAY_KATEGORI = {
-            subkon: { label: 'Pembayaran Subkontraktor', namaLabel: 'Nama Subkontraktor', namaPlaceholder: 'CV Karya Beton', uraianLabel: 'Uraian Pekerjaan', arah: 'keluar', icon: 'fa-people-roof' },
             tenaga: { label: 'Pembayaran Tenaga (Upah)', namaLabel: 'Nama Mandor / Kelompok Kerja', namaPlaceholder: 'Mandor Slamet', uraianLabel: 'Uraian Pekerjaan', arah: 'keluar', icon: 'fa-helmet-safety' },
-            material: { label: 'Pembayaran Material', namaLabel: 'Nama Toko / Supplier', namaPlaceholder: 'TB Sinar Jaya', uraianLabel: 'Uraian Material', arah: 'keluar', icon: 'fa-truck-field' },
-            karyawan: { label: 'Pembayaran Karyawan (Gaji)', namaLabel: 'Nama Karyawan', namaPlaceholder: 'Budi Santoso', uraianLabel: 'Uraian (Gaji Bulan/Posisi)', arah: 'keluar', icon: 'fa-id-badge' },
-            termin: { label: 'Pembayaran Termin (dari Owner)', namaLabel: 'Termin Ke-', namaPlaceholder: 'Termin 1 (Uang Muka)', uraianLabel: 'Uraian Termin', arah: 'masuk', icon: 'fa-hand-holding-dollar' },
-            investor: { label: 'Pembayaran Investor', namaLabel: 'Nama Investor', namaPlaceholder: 'PT Modal Sejahtera', uraianLabel: 'Uraian (Modal/Investasi)', arah: 'masuk', icon: 'fa-sack-dollar' }
+            karyawan: { label: 'Pembayaran Karyawan (Gaji)', namaLabel: 'Nama Karyawan', namaPlaceholder: 'Budi Santoso', uraianLabel: 'Uraian (Gaji Bulan/Posisi)', arah: 'keluar', icon: 'fa-id-badge' }
+        };
+        // Jenis transaksi Pembayaran Subkon beserta arah uangnya (disepakati bersama user):
+        // - pengambilan & pajak  = uang KELUAR dari perusahaan ke Subkon
+        // - utang & pengembalian = uang MASUK dari Subkon ke perusahaan (subkon melunasi utang / ganti rugi)
+        const SUBKON_JENIS_INFO = {
+            pengambilan: { label: 'Pengambilan Dana Subkon', arah: 'keluar', icon: 'fa-money-bill-transfer', badge: 'bg-red-500/20 text-red-300' },
+            pajak: { label: 'Pajak Subkon', arah: 'keluar', icon: 'fa-receipt', badge: 'bg-amber-500/20 text-amber-300' },
+            utang: { label: 'Pembayaran Utang Subkon', arah: 'masuk', icon: 'fa-hand-holding-dollar', badge: 'bg-emerald-500/20 text-emerald-300' },
+            pengembalian: { label: 'Pengembalian / Ganti Rugi Subkon', arah: 'masuk', icon: 'fa-rotate-left', badge: 'bg-sky-500/20 text-sky-300' }
         };
         let materialEditContext = null; // { type: 'kebutuhan'|'order'|'masuk'|'keluar', id } - null jika sedang mode tambah baru
         let activeAbsenType = 'absen-masuk';
@@ -1056,6 +1074,15 @@
             if (menuAbsenManual) menuAbsenManual.classList.toggle('hidden', !admin);
             // Jika akun User sedang berada di halaman Absen Manual (mis. sesi lama), alihkan ke RAB.
             if (!admin && currentTab === 'absen-manual') {
+                switchTab('rab');
+            }
+
+            // --- Absen Manual Tukang/Subkon & Daftar Hadir Tukang/Subkon: khusus Admin ---
+            const menuAbsenTukangManual = document.getElementById('menu-absen-tukang-manual');
+            if (menuAbsenTukangManual) menuAbsenTukangManual.classList.toggle('hidden', !admin);
+            const menuDaftarHadirTukang = document.getElementById('menu-daftar-hadir-tukang');
+            if (menuDaftarHadirTukang) menuDaftarHadirTukang.classList.toggle('hidden', !admin);
+            if (!admin && (currentTab === 'absen-tukang-manual' || currentTab === 'daftar-hadir-tukang')) {
                 switchTab('rab');
             }
         }

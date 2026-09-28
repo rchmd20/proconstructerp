@@ -737,7 +737,9 @@
             const karyawanSelect = document.getElementById('amKaryawanSelect');
             if (karyawanSelect) {
                 const currentVal = karyawanSelect.value;
-                const projEmps = karyawanData.filter(k => k.projId === activeProjectId);
+                // Khusus kategori "Karyawan" (perorangan) - Subkon & Tukang diabsen di halaman
+                // Absen Manual Tukang/Subkon (per jumlah orang, bukan per nama).
+                const projEmps = karyawanData.filter(k => k.projId === activeProjectId && (k.kategori || 'Karyawan') === 'Karyawan');
                 karyawanSelect.innerHTML = projEmps.map(k => `<option value="${escapeHtml(k.nama)}">${escapeHtml(k.nama)} - ${escapeHtml(k.jabatan || '-')}</option>`).join('');
                 if (currentVal && projEmps.some(k => k.nama === currentVal)) karyawanSelect.value = currentVal;
             }
@@ -886,6 +888,129 @@
                             <button onclick="deleteAbsenManualEntry(${masuk.pairId})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </td>
                     </tr>`;
+            }).join('');
+        }
+
+        // ===================================================================
+        // ABSEN MANUAL TUKANG/SUBKON (khusus Admin): sama seperti Absen Manual biasa, tapi berbasis
+        // JUMLAH ORANG hadir per kategori Tukang atau per Subkon pada 1 tanggal (bukan per-nama individu).
+        // ===================================================================
+        let atsEditId = null; // id baris yang sedang diedit, null = mode tambah baru
+
+        function getTukangSubkonList() {
+            return karyawanData.filter(k => k.projId === activeProjectId && (k.kategori === 'Subkon' || k.kategori === 'Tukang'));
+        }
+
+        function renderAbsenTukangSubkonSection() {
+            const sel = document.getElementById('atsKaryawanSelect');
+            if (sel) {
+                const currentVal = sel.value;
+                const list = getTukangSubkonList();
+                sel.innerHTML = list.map(k => `<option value="${k.id}">${escapeHtml(k.nama)} (${escapeHtml(k.kategori)})</option>`).join('');
+                if (currentVal && list.some(k => String(k.id) === currentVal)) sel.value = currentVal;
+            }
+            const tglInput = document.getElementById('atsTanggal');
+            if (tglInput && !tglInput.value) tglInput.value = new Date().toISOString().split('T')[0];
+            renderAbsenTukangSubkonTable();
+        }
+
+        function computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir) {
+            const [hM, mM] = jamMasuk.split(':').map(Number);
+            const [hP, mP] = jamPulang.split(':').map(Number);
+            let totalJamKotor = (hP + mP / 60) - (hM + mM / 60);
+            if (totalJamKotor <= 0) totalJamKotor += 24;
+            const totalJamBersih = Math.max(0, totalJamKotor - (istirahat || 0));
+            return `${jumlahHadir} orang - Masuk ${jamMasuk} - Pulang ${jamPulang} (Istirahat ${formatAngka(istirahat)} jam, Lembur ${formatAngka(lembur)} jam/orang) — Kerja: ${formatAngka(totalJamBersih)} jam`;
+        }
+
+        function handleAbsenTukangSubkonSubmit(e) {
+            e.preventDefault();
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat mengisi Absen Manual Tukang/Subkon.'); return; }
+            const karyawanId = document.getElementById('atsKaryawanSelect').value;
+            const k = karyawanData.find(x => x.id == karyawanId);
+            if (!k) { alert('Pilih Kategori Tukang / Subkon terlebih dahulu.'); return; }
+            const tanggal = document.getElementById('atsTanggal').value;
+            const jumlahHadir = parseInt(document.getElementById('atsJumlahHadir').value, 10) || 0;
+            const jamMasuk = document.getElementById('atsJamMasuk').value;
+            const jamPulang = document.getElementById('atsJamPulang').value;
+            const istirahat = parseFloat(document.getElementById('atsIstirahat').value) || 0;
+            const lembur = parseFloat(document.getElementById('atsLembur').value) || 0;
+            const catatan = document.getElementById('atsCatatan').value.trim();
+
+            if (!tanggal || !jamMasuk || !jamPulang) { alert('Tanggal, Jam Masuk, dan Jam Pulang wajib diisi.'); return; }
+            if (jumlahHadir <= 0) { alert('Jumlah Hadir harus lebih dari 0 orang.'); return; }
+
+            const jamKerja = computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir);
+            const payload = {
+                projId: activeProjectId, karyawanId: k.id, nama: k.nama, kategori: k.kategori,
+                tanggal, jumlahHadir, jamMasuk, jamPulang, istirahat, lembur, jamKerja, catatan
+            };
+            if (atsEditId) {
+                const idx = absenTukangSubkonData.findIndex(a => a.id === atsEditId);
+                if (idx !== -1) absenTukangSubkonData[idx] = { ...absenTukangSubkonData[idx], ...payload };
+            } else {
+                absenTukangSubkonData.push({ id: Date.now(), ...payload });
+            }
+            localStorage.setItem('erp_absen_tukang_subkon', JSON.stringify(absenTukangSubkonData));
+            cancelAbsenTukangSubkonEdit();
+            renderAbsenTukangSubkonTable();
+        }
+
+        function editAbsenTukangSubkonEntry(id) {
+            const item = absenTukangSubkonData.find(a => a.id === id);
+            if (!item) return;
+            atsEditId = id;
+            document.getElementById('atsKaryawanSelect').value = item.karyawanId;
+            document.getElementById('atsTanggal').value = item.tanggal;
+            document.getElementById('atsJumlahHadir').value = item.jumlahHadir;
+            document.getElementById('atsJamMasuk').value = item.jamMasuk;
+            document.getElementById('atsJamPulang').value = item.jamPulang;
+            document.getElementById('atsIstirahat').value = item.istirahat || 0;
+            document.getElementById('atsLembur').value = item.lembur || 0;
+            document.getElementById('atsCatatan').value = item.catatan || '';
+            document.getElementById('atsFormTitle').innerText = 'Edit Absen Tukang/Subkon';
+            document.getElementById('atsSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
+            document.getElementById('atsCancelBtn').classList.remove('hidden');
+            document.getElementById('formAbsenTukangSubkon').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelAbsenTukangSubkonEdit() {
+            atsEditId = null;
+            const form = document.getElementById('formAbsenTukangSubkon');
+            if (form) form.reset();
+            document.getElementById('atsTanggal').value = new Date().toISOString().split('T')[0];
+            document.getElementById('atsFormTitle').innerText = 'Input Absen Manual Tukang/Subkon';
+            document.getElementById('atsSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Absen';
+            document.getElementById('atsCancelBtn').classList.add('hidden');
+        }
+
+        function deleteAbsenTukangSubkonEntry(id) {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menghapus data ini.'); return; }
+            if (!confirm('Hapus data absen ini?')) return;
+            absenTukangSubkonData = absenTukangSubkonData.filter(a => a.id !== id);
+            localStorage.setItem('erp_absen_tukang_subkon', JSON.stringify(absenTukangSubkonData));
+            if (atsEditId === id) cancelAbsenTukangSubkonEdit();
+            renderAbsenTukangSubkonTable();
+        }
+
+        function renderAbsenTukangSubkonTable() {
+            const tbody = document.getElementById('absenTukangSubkonTableBody');
+            if (!tbody) return;
+            const admin = isAdminUser();
+            const data = absenTukangSubkonData.filter(a => a.projId === activeProjectId).sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || b.id - a.id);
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data absen Tukang/Subkon.</td></tr>`; return; }
+            tbody.innerHTML = data.map(item => {
+                const aksi = admin ? `<button onclick="editAbsenTukangSubkonEntry(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded-lg transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="deleteAbsenTukangSubkonEntry(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>` : '-';
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-mono text-amber-400">${item.tanggal}</td>
+                    <td class="p-3 font-bold text-white">${escapeHtml(item.nama)}</td>
+                    <td class="p-3 text-sky-400">${escapeHtml(item.kategori)}</td>
+                    <td class="p-3 font-mono font-bold text-emerald-400">${item.jumlahHadir} orang</td>
+                    <td class="p-3 font-mono">${item.jamMasuk} - ${item.jamPulang}</td>
+                    <td class="p-3 font-mono text-slate-300">${formatAngka(item.istirahat)} jam</td>
+                    <td class="p-3 font-mono text-amber-300">${formatAngka(item.lembur)} jam</td>
+                    <td class="p-3 text-center">${aksi}</td>
+                </tr>`;
             }).join('');
         }
 

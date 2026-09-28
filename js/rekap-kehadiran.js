@@ -131,7 +131,7 @@
         // Diurutkan berdasarkan Jabatan (abjad) lalu Nama (abjad) di dalam jabatan yang sama, supaya rekap
         // kehadiran bulanan berkelompok rapi per jabatan dan mudah dicari.
         function getVisibleKaryawanForDaftarHadir() {
-            const list = karyawanData.filter(k => k.projId === activeProjectId);
+            const list = karyawanData.filter(k => k.projId === activeProjectId && (k.kategori || 'Karyawan') === 'Karyawan');
             const myName = ((currentUser && currentUser.name) || '').trim().toLowerCase();
             const visible = isAdminUser() ? list : list.filter(k => (k.nama || '').trim().toLowerCase() === myName);
             return visible.slice().sort((a, b) => {
@@ -256,22 +256,38 @@
         function renderEmployeeTable() {
             const tbody = document.getElementById('employeeTableBody');
             tbody.innerHTML = '';
-            const projEmps = karyawanData.filter(e => e.projId === activeProjectId);
+            const search = (document.getElementById('empSearchInput').value || '').toLowerCase();
+            const kategoriFilterEl = document.getElementById('empKategoriFilter');
+            const kategoriFilter = kategoriFilterEl ? kategoriFilterEl.value : '';
+            let projEmps = karyawanData.filter(e => e.projId === activeProjectId);
+            if (kategoriFilter) projEmps = projEmps.filter(e => (e.kategori || 'Karyawan') === kategoriFilter);
+            if (search) projEmps = projEmps.filter(e => (e.nama || '').toLowerCase().includes(search) || (e.jabatan || '').toLowerCase().includes(search));
+            // Urutkan per Kategori (abjad) lalu Nama (abjad) supaya Karyawan/Subkon/Tukang berkelompok rapi.
+            projEmps = projEmps.slice().sort((a, b) => {
+                const ka = (a.kategori || 'Karyawan'), kb = (b.kategori || 'Karyawan');
+                if (ka !== kb) return ka.localeCompare(kb, 'id');
+                return (a.nama || '').toLowerCase().localeCompare((b.nama || '').toLowerCase(), 'id');
+            });
 
             if (projEmps.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data karyawan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data.</td></tr>`;
                 return;
             }
 
+            const kategoriBadge = { Karyawan: 'bg-indigo-500/20 text-indigo-300', Subkon: 'bg-amber-500/20 text-amber-300', Tukang: 'bg-sky-500/20 text-sky-300' };
+
             projEmps.forEach(emp => {
+                const kategori = emp.kategori || 'Karyawan';
                 const isAdmin = currentUser && currentUser.role === 'Admin';
                 const editBtn = isAdmin ? `<button onclick="editEmployee(${emp.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button>` : '';
-                const deleteBtn = isAdmin ? `<button onclick="deleteEmployee(${emp.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded transition"><i class="fa-solid fa-trash-can text-xs"></i></button>` : `<span class="text-slate-600 text-[10px]" title="Hanya Admin yang dapat mengubah/menghapus data karyawan"><i class="fa-solid fa-lock"></i></span>`;
+                const deleteBtn = isAdmin ? `<button onclick="deleteEmployee(${emp.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded transition"><i class="fa-solid fa-trash-can text-xs"></i></button>` : `<span class="text-slate-600 text-[10px]" title="Hanya Admin yang dapat mengubah/menghapus data"><i class="fa-solid fa-lock"></i></span>`;
+                const kontrakInfo = (kategori === 'Subkon' && emp.nilaiKontrak) ? `<div class="text-[10px] text-emerald-400 mt-0.5">Kontrak: ${formatRupiah(emp.nilaiKontrak)}</div>` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-800/50 transition">
                         <td class="p-3"><div class="w-9 h-9 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center font-bold">${emp.photo ? `<img src="${emp.photo}" class="w-full h-full object-cover">` : escapeHtml(emp.nama).substring(0,2)}</div></td>
-                        <td class="p-3 font-bold text-white">${escapeHtml(emp.nama)}</td>
-                        <td class="p-3 text-sky-400">${escapeHtml(emp.jabatan)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kategoriBadge[kategori] || kategoriBadge.Karyawan}">${kategori}</span></td>
+                        <td class="p-3 font-bold text-white">${escapeHtml(emp.nama)}${kontrakInfo}</td>
+                        <td class="p-3 text-sky-400">${escapeHtml(emp.jabatan) || '-'}</td>
                         <td class="p-3 font-mono">${escapeHtml(emp.hp) || '-'}</td>
                         <td class="p-3 text-slate-400">${escapeHtml(emp.email) || '-'}</td>
                         <td class="p-3"><span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold">${escapeHtml(emp.status)}</span></td>
@@ -281,6 +297,42 @@
                     </tr>
                 `;
             });
+        }
+
+        // Sesuaikan label & field yang tampil pada modal Data Karyawan mengikuti Kategori yang dipilih -
+        // Karyawan (perorangan) vs Subkon (perusahaan, punya Nilai Kontrak) vs Tukang (kategori/jenis tukang,
+        // bukan nama orang - jumlah yang hadir diinput di halaman Absen Manual Tukang/Subkon).
+        function handleEmpKategoriChange() {
+            const kategori = document.getElementById('empKategori').value;
+            const namaLabel = document.getElementById('empNamaLabel');
+            const jabatanLabel = document.getElementById('empJabatanLabel');
+            const hintEl = document.getElementById('empKategoriHint');
+            const nilaiKontrakBox = document.getElementById('empNilaiKontrakBox');
+            const namaInput = document.getElementById('empNama');
+            const jabatanInput = document.getElementById('empJabatan');
+            if (!namaLabel) return;
+
+            nilaiKontrakBox.classList.toggle('hidden', kategori !== 'Subkon');
+
+            if (kategori === 'Subkon') {
+                namaLabel.innerText = 'Nama Subkon (Perusahaan/CV/PT)';
+                namaInput.placeholder = 'CV Karya Beton Sejahtera';
+                jabatanLabel.innerText = 'Jenis Pekerjaan / Spesialisasi';
+                jabatanInput.placeholder = 'Pekerjaan Struktur Beton';
+                hintEl.innerText = 'Subkon = perusahaan/CV/PT mitra. Nilai Kontrak bisa diubah lagi kapan saja lewat halaman Pembayaran Subkon. Absensi tukang dari Subkon ini dicatat di halaman Absen Manual Tukang/Subkon (per jumlah orang, bukan per nama).';
+            } else if (kategori === 'Tukang') {
+                namaLabel.innerText = 'Nama Kategori Tukang';
+                namaInput.placeholder = 'Tukang Batu / Tukang Besi / Tukang Kayu';
+                jabatanLabel.innerText = 'Keterangan / Spesialisasi';
+                jabatanInput.placeholder = 'Pemasangan bata & plesteran';
+                hintEl.innerText = 'Tukang di sini adalah KATEGORI/JENIS tukang (bukan nama satu orang) - jumlah orang yang hadir per hari diinput di halaman Absen Manual Tukang/Subkon, bukan per nama satu-satu.';
+            } else {
+                namaLabel.innerText = 'Nama Lengkap';
+                namaInput.placeholder = 'Budi Santoso';
+                jabatanLabel.innerText = 'Jabatan / Posisi';
+                jabatanInput.placeholder = 'Mandor Struktur / Drafter';
+                hintEl.innerText = 'Karyawan tetap/kontrak perorangan biasa - absensi tetap lewat Absen Masuk/Keluar/Manual per nama.';
+            }
         }
 
         function openEmployeeModal(isEdit, id) {
@@ -293,15 +345,20 @@
             document.getElementById('empPhotoPreview').innerHTML = `<i class="fa-solid fa-user text-2xl"></i>`;
             tempEmpPhoto = '';
             document.getElementById('empEditId').value = '';
-            document.getElementById('empModalTitle').innerText = 'Tambah Karyawan Baru';
+            document.getElementById('empModalTitle').innerText = 'Tambah Data Baru';
+            document.getElementById('empKategori').value = 'Karyawan';
+            handleEmpKategoriChange();
 
             if (isEdit && id) {
                 const emp = karyawanData.find(e => e.id == id);
                 if (!emp) return;
-                document.getElementById('empModalTitle').innerText = 'Edit Data Karyawan';
+                document.getElementById('empModalTitle').innerText = 'Edit Data';
                 document.getElementById('empEditId').value = emp.id;
+                document.getElementById('empKategori').value = emp.kategori || 'Karyawan';
+                handleEmpKategoriChange();
                 document.getElementById('empNama').value = emp.nama || '';
                 document.getElementById('empJabatan').value = emp.jabatan || '';
+                document.getElementById('empNilaiKontrak').value = emp.nilaiKontrak || '';
                 document.getElementById('empHp').value = emp.hp || '';
                 document.getElementById('empStatus').value = emp.status || 'Tetap';
                 document.getElementById('empEmail').value = emp.email || '';
@@ -344,7 +401,9 @@
         function handleEmployeeFormSubmit(e) {
             e.preventDefault();
             const editId = document.getElementById('empEditId').value;
+            const kategori = document.getElementById('empKategori').value || 'Karyawan';
             const payload = {
+                kategori,
                 nama: document.getElementById('empNama').value.trim(),
                 jabatan: document.getElementById('empJabatan').value.trim(),
                 hp: document.getElementById('empHp').value.trim(),
@@ -353,6 +412,9 @@
                 tglMasuk: document.getElementById('empTglMasuk').value,
                 photo: tempEmpPhoto
             };
+            if (kategori === 'Subkon') {
+                payload.nilaiKontrak = parseFloat(document.getElementById('empNilaiKontrak').value) || 0;
+            }
 
             if (editId) {
                 // Edit hanya boleh dilakukan oleh Admin
@@ -364,7 +426,7 @@
                 if (idx !== -1) karyawanData[idx] = { ...karyawanData[idx], ...payload };
             } else {
                 if (!isAdminUser()) {
-                    alert('Akses ditolak. Hanya Admin yang dapat menambah data karyawan.');
+                    alert('Akses ditolak. Hanya Admin yang dapat menambah data.');
                     return;
                 }
                 karyawanData.push({ id: Date.now(), projId: activeProjectId, ...payload });
@@ -554,3 +616,111 @@
 
         // ===================================================================
         // BACKUP DATA PROYEK (EXPORT / IMPORT LENGKAP PER AKUN/PROYEK)
+
+        // ===================================================================
+        // DAFTAR HADIR TUKANG/SUBKON - REKAP BULANAN (headcount per hari, bukan H/I/S/C per-nama)
+        // ===================================================================
+        function buildDaftarHadirTukangSubkonRekap(bulanStr) {
+            const list = getTukangSubkonList();
+            const [y, m] = bulanStr.split('-').map(Number);
+            const jumlahHari = new Date(y, m, 0).getDate();
+            const projData = absenTukangSubkonData.filter(a => a.projId === activeProjectId && a.tanggal && a.tanggal.startsWith(bulanStr));
+
+            return list.map(k => {
+                const entries = projData.filter(a => a.karyawanId === k.id);
+                const days = [];
+                let totalOrangHari = 0, totalJamKerja = 0, totalLembur = 0, hariAktif = 0;
+                for (let d = 1; d <= jumlahHari; d++) {
+                    const tgl = `${bulanStr}-${String(d).padStart(2, '0')}`;
+                    const dayEntries = entries.filter(a => a.tanggal === tgl);
+                    const jumlahHadir = dayEntries.reduce((a, c) => a + (Number(c.jumlahHadir) || 0), 0);
+                    if (jumlahHadir > 0) {
+                        hariAktif++;
+                        totalOrangHari += jumlahHadir;
+                        dayEntries.forEach(e => {
+                            const [hM, mM] = (e.jamMasuk || '0:0').split(':').map(Number);
+                            const [hP, mP] = (e.jamPulang || '0:0').split(':').map(Number);
+                            let kotor = (hP + mP / 60) - (hM + mM / 60);
+                            if (kotor <= 0) kotor += 24;
+                            const bersih = Math.max(0, kotor - (Number(e.istirahat) || 0));
+                            totalJamKerja += bersih * (Number(e.jumlahHadir) || 0);
+                            totalLembur += (Number(e.lembur) || 0) * (Number(e.jumlahHadir) || 0);
+                        });
+                    }
+                    days.push({ tgl, jumlahHadir });
+                }
+                return { nama: k.nama, kategori: k.kategori, days, hariAktif, totalOrangHari, totalJamKerja: totalJamKerja.toFixed(1), totalLembur: totalLembur.toFixed(1) };
+            });
+        }
+
+        function renderDaftarHadirTukangSubkon() {
+            const bulanInput = document.getElementById('dhtFilterBulan');
+            if (bulanInput && !bulanInput.value) bulanInput.value = new Date().toISOString().slice(0, 7);
+            const bulanStr = bulanInput ? bulanInput.value : new Date().toISOString().slice(0, 7);
+            const [y, m] = bulanStr.split('-').map(Number);
+            const jumlahHari = new Date(y, m, 0).getDate();
+            const rekap = buildDaftarHadirTukangSubkonRekap(bulanStr);
+
+            const head = document.getElementById('dhtRekapTableHead');
+            if (head) {
+                let dayHeaders = '';
+                for (let d = 1; d <= jumlahHari; d++) dayHeaders += `<th class="p-1 text-center font-mono">${d}</th>`;
+                head.innerHTML = `<tr>
+                    <th class="p-3 sticky left-0 bg-[#1c2541]">Nama (Kategori)</th>
+                    ${dayHeaders}
+                    <th class="p-3 text-center">Hari Aktif</th>
+                    <th class="p-3 text-center">Total Orang-Hari</th>
+                    <th class="p-3 text-center">Total Jam Kerja</th>
+                    <th class="p-3 text-center">Total Lembur</th>
+                </tr>`;
+            }
+
+            const tbody = document.getElementById('dhtRekapTableBody');
+            tbody.innerHTML = '';
+            if (rekap.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${jumlahHari + 5}" class="p-6 text-center text-slate-500">Belum ada data Tukang/Subkon pada proyek ini. Tambahkan dulu di halaman Data Karyawan.</td></tr>`;
+                return;
+            }
+            rekap.forEach(r => {
+                let dayCells = '';
+                r.days.forEach(d => {
+                    dayCells += `<td class="p-1 text-center align-top">${d.jumlahHadir > 0 ? `<span class="text-emerald-400 font-bold">${d.jumlahHadir}</span>` : '<span class="text-slate-600">-</span>'}</td>`;
+                });
+                tbody.innerHTML += `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${escapeHtml(r.nama)}<div class="text-[10px] font-normal text-sky-400">${escapeHtml(r.kategori)}</div></td>
+                    ${dayCells}
+                    <td class="p-3 font-mono text-emerald-400 text-center">${r.hariAktif} hari</td>
+                    <td class="p-3 font-mono text-amber-400 text-center">${r.totalOrangHari}</td>
+                    <td class="p-3 font-mono text-center">${r.totalJamKerja} jam</td>
+                    <td class="p-3 font-mono text-amber-300 text-center">${r.totalLembur} jam</td>
+                </tr>`;
+            });
+        }
+
+        function getDaftarHadirTukangExportDataset() {
+            const bulanInput = document.getElementById('dhtFilterBulan');
+            const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
+            const [y, m] = bulanStr.split('-').map(Number);
+            const jumlahHari = new Date(y, m, 0).getDate();
+            const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            const rekap = buildDaftarHadirTukangSubkonRekap(bulanStr);
+
+            const columns = [{ header: 'Nama', key: 'nama', width: 20 }, { header: 'Kategori', key: 'kategori', width: 14 }];
+            for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 4 });
+            columns.push(
+                { header: 'Hari Aktif', key: 'hariAktif' }, { header: 'Total Orang-Hari', key: 'totalOrangHari' },
+                { header: 'Total Jam Kerja', key: 'totalJamKerja' }, { header: 'Total Lembur', key: 'totalLembur' }
+            );
+            const rows = rekap.map(r => {
+                const obj = { nama: r.nama, kategori: r.kategori, hariAktif: r.hariAktif, totalOrangHari: r.totalOrangHari, totalJamKerja: r.totalJamKerja, totalLembur: r.totalLembur };
+                r.days.forEach((d, idx) => { obj['d' + (idx + 1)] = d.jumlahHadir > 0 ? d.jumlahHadir : '-'; });
+                return obj;
+            });
+            return { title: `Daftar Hadir Tukang-Subkon - ${bulanLabel}`, columns, rows, orientation: 'landscape', subtitle: `Periode: ${bulanLabel} | Angka = jumlah orang hadir hari itu` };
+        }
+
+        function exportDaftarHadirTukangExcel() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getDaftarHadirTukangExportDataset();
+            exportProfessionalExcel(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`, { subtitle: ds.subtitle });
+        }
