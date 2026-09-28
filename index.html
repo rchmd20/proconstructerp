@@ -327,6 +327,14 @@
                             <i class="fa-solid fa-clipboard-list text-[10px]"></i>
                             <span>Daftar Hadir (Rekap Bulanan)</span>
                         </button>
+                        <button onclick="switchTab('absen-tukang-manual')" id="menu-absen-tukang-manual" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-people-group text-[10px]"></i>
+                            <span>Absen Manual Tukang/Subkon</span>
+                        </button>
+                        <button onclick="switchTab('daftar-hadir-tukang')" id="menu-daftar-hadir-tukang" class="nav-sub-item w-full text-left px-3 py-2 rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                            <i class="fa-solid fa-table-list text-[10px]"></i>
+                            <span>Daftar Hadir Tukang/Subkon</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1359,6 +1367,256 @@
                             <tbody id="payTableBody" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.5b: PEMBAYARAN MATERIAL (khusus - ambil dari Material Order) -->
+            <!-- =================================================================== -->
+            <section id="sec-pay-material" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-truck-field text-amber-400"></i>
+                            <span>Pembayaran Material</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Pilih PO dari Material Order (harga dasar otomatis terisi), lalu tambahkan biaya tambahan (Ongkir, Admin, Pajak, dll) secara lengkap. Total pembayaran = Harga Dasar + seluruh Biaya Tambahan.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('pay-material')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                        <button onclick="triggerPdfExport('pay-material')" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-pdf"></i><span>Export PDF</span></button>
+                    </div>
+                </div>
+
+                <div id="pmReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i><span>Halaman ini bersifat lihat-saja untuk akun Anda.</span>
+                </div>
+
+                <div id="pmFormBox" class="navy-card p-5 rounded-2xl space-y-4">
+                    <h3 id="pmFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Tambah Pembayaran Material</h3>
+                    <form id="formPayMaterial" onsubmit="handlePayMaterialSubmit(event)" class="space-y-3 text-xs">
+                        <input type="hidden" id="pmEditId" value="">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div><label class="block text-slate-400 mb-1">Tanggal Bayar</label><input type="date" id="pmTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                            <div class="md:col-span-2">
+                                <label class="block text-slate-400 mb-1">Pilih PO Material Order <span class="text-red-400">*</span></label>
+                                <select id="pmOrderId" required onchange="fillPmFromOrder()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                    <option value="">-- Pilih Material Order --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="pmOrderPreview" class="text-[11px] bg-[#0b132b] border border-slate-700 rounded-lg p-3 text-slate-300">Pilih PO untuk melihat harga dasarnya.</div>
+
+                        <div class="p-3 bg-[#0b132b] rounded-xl border border-indigo-500/30 space-y-3">
+                            <span class="font-bold text-indigo-300 text-[11px] uppercase">Biaya Tambahan (Ongkir, Admin, Pajak, dll)</span>
+                            <div class="flex flex-wrap items-end gap-2">
+                                <div class="flex-1 min-w-[140px]"><label class="block text-slate-400 mb-1">Nama Biaya</label><input type="text" id="pmTambahanLabel" placeholder="Ongkir" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                                <div class="w-32"><label class="block text-slate-400 mb-1">Nominal (Rp)</label><input type="number" step="any" id="pmTambahanNominal" placeholder="0" class="w-full bg-[#1c2541] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                                <button type="button" onclick="addPmBiayaTambahan()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i>Tambah</button>
+                            </div>
+                            <div id="pmTambahanList" class="space-y-1.5"></div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="navy-card p-3 rounded-xl"><span class="text-slate-400 text-[10px]">Harga Dasar (PO)</span><div id="pmHargaDasarView" class="font-mono font-bold text-white text-sm mt-1">Rp 0</div></div>
+                            <div class="navy-card p-3 rounded-xl border border-emerald-500/40"><span class="text-emerald-400 text-[10px] font-bold">TOTAL PEMBAYARAN</span><div id="pmTotalView" class="font-mono font-black text-emerald-400 text-sm mt-1">Rp 0</div></div>
+                        </div>
+
+                        <div class="flex justify-end items-center gap-2">
+                            <button type="button" id="pmCancelBtn" onclick="cancelPayMaterialEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">Batal Edit</button>
+                            <button type="submit" id="pmSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Simpan Pembayaran</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Pembayaran Material</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Material (PO)</th><th class="p-3">Harga Dasar</th><th class="p-3">Biaya Tambahan</th><th class="p-3">Total</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
+                            <tbody id="payMaterialTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.5c: PEMBAYARAN SUBKON (kontrak + 4 jenis transaksi) -->
+            <!-- =================================================================== -->
+            <section id="sec-pay-subkon" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-people-roof text-amber-400"></i>
+                            <span>Pembayaran Subkontraktor</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Kelola Nilai Kontrak, Pengambilan Dana (%), Pajak, Pembayaran Utang, dan Pengembalian/Ganti Rugi per Subkon. List terurut berdasarkan tanggal.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('pay-subkon')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                        <button onclick="triggerPdfExport('pay-subkon')" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-pdf"></i><span>Export PDF</span></button>
+                    </div>
+                </div>
+
+                <div id="skReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i><span>Halaman ini bersifat lihat-saja untuk akun Anda.</span>
+                </div>
+
+                <div class="navy-card p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3">
+                    <label class="text-xs font-bold text-slate-300 whitespace-nowrap">Pilih Subkon:</label>
+                    <select id="skSubkonSelect" onchange="handleSkSubkonChange()" class="bg-[#0b132b] border border-amber-500/50 rounded-xl px-4 py-2 font-bold text-amber-300 text-xs flex-1"></select>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400 whitespace-nowrap">Filter Minggu:</label>
+                        <select id="skFilterMinggu" onchange="renderSkTransaksiTable()" class="bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs"><option value="">Semua Minggu</option></select>
+                    </div>
+                </div>
+
+                <div id="skEmptyState" class="hidden navy-card rounded-2xl p-10 text-center text-slate-500">
+                    <i class="fa-solid fa-people-roof text-3xl mb-3"></i>
+                    <p>Belum ada data Subkon. Tambahkan dulu di halaman <b>Data Karyawan</b> dengan Kategori "Subkon".</p>
+                </div>
+
+                <div id="skContent" class="hidden space-y-6">
+                    <div class="navy-card p-4 rounded-2xl space-y-3">
+                        <div class="flex flex-wrap items-end gap-2">
+                            <div class="flex-1 min-w-[200px]"><label class="block text-slate-400 text-xs mb-1">Nilai Kontrak Subkon Ini (Rp)</label><input type="number" step="any" min="0" id="skNilaiKontrakInput" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-xs"></div>
+                            <button type="button" onclick="saveSkNilaiKontrak()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition"><i class="fa-solid fa-floppy-disk mr-1"></i>Simpan Nilai Kontrak</button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-slate-700"><span class="text-slate-400 text-[10px]">Nilai Kontrak</span><div id="skSumKontrak" class="font-mono font-bold text-white mt-1">Rp 0</div></div>
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-red-500/30"><span class="text-slate-400 text-[10px]">Total Pengambilan</span><div id="skSumPengambilan" class="font-mono font-bold text-red-400 mt-1">Rp 0</div></div>
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-sky-500/30"><span class="text-slate-400 text-[10px]">Sisa Kontrak</span><div id="skSumSisa" class="font-mono font-bold text-sky-300 mt-1">Rp 0</div></div>
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-amber-500/30"><span class="text-slate-400 text-[10px]">Total Pajak</span><div id="skSumPajak" class="font-mono font-bold text-amber-400 mt-1">Rp 0</div></div>
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-emerald-500/30"><span class="text-slate-400 text-[10px]">Utang Diterima</span><div id="skSumUtang" class="font-mono font-bold text-emerald-400 mt-1">Rp 0</div></div>
+                            <div class="p-3 bg-[#0b132b] rounded-xl border border-purple-500/30"><span class="text-slate-400 text-[10px]">Pengembalian Diterima</span><div id="skSumPengembalian" class="font-mono font-bold text-purple-300 mt-1">Rp 0</div></div>
+                        </div>
+                    </div>
+
+                    <div id="skFormBox" class="navy-card p-5 rounded-2xl space-y-3">
+                        <h3 id="skFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Tambah Transaksi Subkon</h3>
+                        <form id="formSkTransaksi" onsubmit="handleSkTransaksiSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                            <input type="hidden" id="skEditId" value="">
+                            <div><label class="block text-slate-400 mb-1">Tanggal</label><input type="date" id="skTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                            <div>
+                                <label class="block text-slate-400 mb-1">Jenis Transaksi</label>
+                                <select id="skJenis" onchange="updateSkFormFields()" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white">
+                                    <option value="pengambilan">Pengambilan Dana Subkon (keluar)</option>
+                                    <option value="pajak">Pajak Subkon (keluar)</option>
+                                    <option value="utang">Pembayaran Utang Subkon (masuk)</option>
+                                    <option value="pengembalian">Pengembalian / Ganti Rugi Subkon (masuk)</option>
+                                </select>
+                            </div>
+                            <div id="skPersentaseBox"><label class="block text-slate-400 mb-1">Persentase Pengambilan (%)</label><input type="number" step="any" min="0" max="100" id="skPersentase" oninput="updateSkNominalPreview()" placeholder="10" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                            <div><label id="skNominalLabel" class="block text-slate-400 mb-1">Nominal (Rp)</label><input type="number" step="any" min="0" id="skNominal" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                            <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Keterangan</label><input type="text" id="skKeterangan" placeholder="Catatan tambahan..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                            <div class="md:col-span-4 flex justify-end items-center gap-2">
+                                <button type="button" id="skCancelBtn" onclick="cancelSkTransaksiEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">Batal Edit</button>
+                                <button type="submit" id="skSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Simpan Transaksi</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="navy-card rounded-2xl overflow-hidden">
+                        <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Transaksi (Terurut Tanggal)</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-300">
+                                <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Jenis</th><th class="p-3">Persentase</th><th class="p-3">Nominal</th><th class="p-3">Keterangan</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
+                                <tbody id="skTransaksiTableBody" class="divide-y divide-slate-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.5d: PEMBAYARAN TERMIN (persentase dari nilai kontrak RAB) -->
+            <!-- =================================================================== -->
+            <section id="sec-pay-termin" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-hand-holding-dollar text-amber-400"></i>
+                            <span>Pembayaran Termin (dari Owner)</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Nilai Kontrak diambil otomatis dari RAB (di luar PPN/PPH). Tiap termin ditagih sebagai persentase dari nilai kontrak, dikurangi Pajak & PPh per termin. List terurut berdasarkan tanggal.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerExcelExport('pay-termin')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                        <button onclick="triggerPdfExport('pay-termin')" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-pdf"></i><span>Export PDF</span></button>
+                    </div>
+                </div>
+
+                <div id="tmReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i><span>Halaman ini bersifat lihat-saja untuk akun Anda.</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div class="navy-card p-3 rounded-xl border border-sky-500/40 sm:col-span-2"><span class="text-slate-400 text-[10px]">Nilai Kontrak (di luar PPN/PPH, dari RAB)</span><div id="tmSumKontrak" class="font-mono font-bold text-sky-300 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-3 rounded-xl border border-emerald-500/30"><span class="text-slate-400 text-[10px]">Total Netto Diterima</span><div id="tmSumNetto" class="font-mono font-bold text-emerald-400 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-3 rounded-xl border border-amber-500/30"><span class="text-slate-400 text-[10px]">Total % Sudah Ditagih</span><div id="tmSumPersen" class="font-mono font-bold text-amber-400 mt-1 text-sm">0%</div></div>
+                </div>
+
+                <div id="tmFormBox" class="navy-card p-5 rounded-2xl space-y-3">
+                    <h3 id="tmFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Tambah Termin</h3>
+                    <form id="formTermin" onsubmit="handleTerminSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                        <input type="hidden" id="tmEditId" value="">
+                        <div><label class="block text-slate-400 mb-1">Tanggal</label><input type="date" id="tmTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Persentase Ditagih (%)</label><input type="number" step="any" min="0" max="100" id="tmPersentase" required oninput="updateTerminPreview()" placeholder="20" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Pajak (Rp)</label><input type="number" step="any" min="0" id="tmPajak" oninput="updateTerminPreview()" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">PPh (Rp)</label><input type="number" step="any" min="0" id="tmPph" oninput="updateTerminPreview()" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div class="md:col-span-4" id="tmPreviewBox"></div>
+                        <div class="md:col-span-4"><label class="block text-slate-400 mb-1">Keterangan</label><input type="text" id="tmKeterangan" placeholder="Termin 1 - Uang Muka" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div class="md:col-span-4 flex justify-end items-center gap-2">
+                            <button type="button" id="tmCancelBtn" onclick="cancelTerminEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">Batal Edit</button>
+                            <button type="submit" id="tmSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Simpan Termin</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Termin (Terurut Tanggal)</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Keterangan</th><th class="p-3">%</th><th class="p-3">Nominal Termin</th><th class="p-3">Pajak</th><th class="p-3">PPh</th><th class="p-3">Netto Diterima</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
+                            <tbody id="payTerminTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 2.5e: PEMBAYARAN INVESTOR (settings + kartu pengembalian modal, otomatis) -->
+            <!-- =================================================================== -->
+            <section id="sec-pay-investor" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-sack-dollar text-amber-400"></i>
+                            <span>Pembayaran Investor</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Modal Investor dikembalikan otomatis dari Termin yang masuk (sampai modal habis dikembalikan). Keuntungan Investor = Persentase x Nilai Modal Investor.</p>
+                    </div>
+                </div>
+
+                <div id="ivReadOnlyNotice" class="hidden navy-card p-3 rounded-2xl border border-slate-600 text-xs text-slate-300 flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i><span>Pengaturan Investor hanya dapat diubah oleh Admin.</span>
+                </div>
+
+                <div id="ivFormBox" class="navy-card p-5 rounded-2xl space-y-3">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Pengaturan Modal & Keuntungan Investor</h3>
+                    <form id="formInvestorSetting" onsubmit="handleInvestorSettingSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div><label class="block text-slate-400 mb-1">Nilai Modal Investor (Rp)</label><input type="number" step="any" min="0" id="ivModal" placeholder="100000000" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Persentase Keuntungan Investor (%)</label><input type="number" step="any" min="0" id="ivPersen" placeholder="20" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div class="flex items-end"><button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 rounded-lg transition"><i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pengaturan</button></div>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="navy-card p-4 rounded-2xl border border-sky-500/40"><span class="text-slate-400 text-[10px] uppercase">Nilai Modal Investor</span><div id="ivViewModal" class="font-mono font-bold text-sky-300 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-4 rounded-2xl border border-emerald-500/40"><span class="text-slate-400 text-[10px] uppercase">Total Termin Masuk (Netto)</span><div id="ivViewTermin" class="font-mono font-bold text-emerald-400 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-4 rounded-2xl border border-amber-500/40"><span class="text-slate-400 text-[10px] uppercase">Modal Sudah Dikembalikan</span><div id="ivViewDikembalikan" class="font-mono font-bold text-amber-400 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-4 rounded-2xl border border-red-500/40"><span class="text-slate-400 text-[10px] uppercase">Sisa Modal Belum Dikembalikan</span><div id="ivViewSisa" class="font-mono font-bold text-red-400 mt-1 text-sm">Rp 0</div></div>
+                    <div class="navy-card p-4 rounded-2xl border border-purple-500/40 sm:col-span-2"><span class="text-slate-400 text-[10px] uppercase">Keuntungan Investor (Persentase x Modal)</span><div id="ivViewKeuntungan" class="font-mono font-bold text-purple-300 mt-1 text-sm">Rp 0</div></div>
                 </div>
             </section>
 
@@ -2406,6 +2664,82 @@
             </section>
 
             <!-- =================================================================== -->
+            <!-- SECTION 5.0c: ABSEN MANUAL TUKANG/SUBKON (headcount, bukan per-nama) -->
+            <!-- =================================================================== -->
+            <section id="sec-absen-tukang-manual" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-people-group text-amber-400"></i>
+                            <span>Absen Manual Tukang / Subkon</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Sama seperti Absen Manual, tapi khusus kategori Tukang/Subkon dan berbasis JUMLAH ORANG hadir (bukan per-nama satu-satu).</p>
+                    </div>
+                </div>
+
+                <div class="navy-card p-5 rounded-2xl space-y-4">
+                    <h3 id="atsFormTitle" class="text-xs font-bold text-white uppercase tracking-wider border-b border-slate-700 pb-2">Input Absen Manual Tukang/Subkon</h3>
+                    <form id="formAbsenTukangSubkon" onsubmit="handleAbsenTukangSubkonSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block text-slate-400 mb-1">Kategori Tukang / Subkon <span class="text-red-400">*</span></label>
+                            <select id="atsKaryawanSelect" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></select>
+                        </div>
+                        <div><label class="block text-slate-400 mb-1">Tanggal <span class="text-red-400">*</span></label><input type="date" id="atsTanggal" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Jumlah Hadir (orang) <span class="text-red-400">*</span></label><input type="number" min="1" step="1" id="atsJumlahHadir" required placeholder="5" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Jam Masuk <span class="text-red-400">*</span></label><input type="time" id="atsJamMasuk" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Jam Pulang <span class="text-red-400">*</span></label><input type="time" id="atsJamPulang" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div><label class="block text-slate-400 mb-1">Istirahat (jam)</label><input type="number" step="0.5" min="0" id="atsIstirahat" placeholder="1" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Lembur (jam, per-orang)</label><input type="number" step="0.5" min="0" id="atsLembur" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div class="md:col-span-2"><label class="block text-slate-400 mb-1">Catatan (opsional)</label><input type="text" id="atsCatatan" placeholder="Catatan tambahan..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
+                        <div class="md:col-span-3 flex justify-end items-center gap-2">
+                            <button type="button" id="atsCancelBtn" onclick="cancelAbsenTukangSubkonEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">Batal Edit</button>
+                            <button type="submit" id="atsSubmitBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-6 rounded-lg transition"><i class="fa-solid fa-plus mr-1"></i> Simpan Absen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Absen Tukang/Subkon</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kategori</th><th class="p-3">Jumlah Hadir</th><th class="p-3">Jam</th><th class="p-3">Istirahat</th><th class="p-3">Lembur</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
+                            <tbody id="absenTukangSubkonTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
+            <!-- SECTION 5.0d: DAFTAR HADIR TUKANG/SUBKON (REKAP BULANAN, headcount per hari) -->
+            <!-- =================================================================== -->
+            <section id="sec-daftar-hadir-tukang" class="content-section hidden space-y-6" style="display:none;">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#1c2541] p-4 rounded-2xl border border-[#334155]">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-table-list text-amber-400"></i>
+                            <span>Daftar Hadir Tukang/Subkon - Rekap Bulanan</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Rekap jumlah orang hadir per hari untuk tiap kategori Tukang/Subkon, dilihat per bulan.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="month" id="dhtFilterBulan" onchange="renderDaftarHadirTukangSubkon()" class="bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs">
+                        <button onclick="exportDaftarHadirTukangExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                    </div>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Rekap Kehadiran Tukang/Subkon Bulanan</div>
+                    <p class="px-3 pt-2 text-[10px] text-slate-400">Angka pada kolom tanggal menunjukkan jumlah orang yang hadir pada hari itu untuk kategori/subkon tersebut.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase" id="dhtRekapTableHead"></thead>
+                            <tbody id="dhtRekapTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================== -->
             <!-- SECTION 5.1: DAFTAR HADIR (REKAP BULANAN) -->
             <!-- =================================================================== -->
             <section id="sec-absen-daftar-hadir" class="content-section hidden space-y-6" style="display:none;">
@@ -2485,20 +2819,29 @@
                 </div>
 
                 <div class="navy-card rounded-2xl overflow-hidden">
-                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex justify-between items-center text-xs">
-                        <span class="font-bold text-slate-200">Daftar Karyawan Aktif</span>
-                        <input type="text" id="empSearchInput" onkeyup="renderEmployeeTableSearchDebounced()" placeholder="Cari karyawan / jabatan..." class="bg-[#1c2541] border border-slate-700 rounded-lg px-3 py-1 text-xs text-white">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+                        <span class="font-bold text-slate-200">Daftar Karyawan / Subkon / Tukang Aktif</span>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <select id="empKategoriFilter" onchange="renderEmployeeTable()" class="bg-[#1c2541] border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                                <option value="">Semua Kategori</option>
+                                <option value="Karyawan">Karyawan</option>
+                                <option value="Subkon">Subkon</option>
+                                <option value="Tukang">Tukang</option>
+                            </select>
+                            <input type="text" id="empSearchInput" onkeyup="renderEmployeeTableSearchDebounced()" placeholder="Cari nama / jabatan..." class="bg-[#1c2541] border border-slate-700 rounded-lg px-3 py-1 text-xs text-white flex-1 sm:flex-none">
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
                                 <tr>
                                     <th class="p-3">Foto</th>
-                                    <th class="p-3">Nama Lengkap</th>
+                                    <th class="p-3">Kategori</th>
+                                    <th class="p-3">Nama</th>
                                     <th class="p-3">Jabatan / Posisi</th>
                                     <th class="p-3">No. Telepon / WA</th>
                                     <th class="p-3">Email</th>
-                                    <th class="p-3">Status Kerja</th>
+                                    <th class="p-3">Status</th>
                                     <th class="p-3 text-center col-aksi">Aksi</th>
                                 </tr>
                             </thead>
@@ -2972,9 +3315,19 @@
             </div>
             <form id="employeeForm" onsubmit="handleEmployeeFormSubmit(event)" class="p-5 space-y-3 text-xs overflow-y-auto custom-scroll flex-1">
                 <input type="hidden" id="empEditId" value="">
-                
+
+                <div>
+                    <label class="block text-slate-300 mb-1">Kategori <span class="text-red-400">*</span></label>
+                    <select id="empKategori" onchange="handleEmpKategoriChange()" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-amber-400 font-bold">
+                        <option value="Karyawan">Karyawan (perorangan)</option>
+                        <option value="Subkon">Subkon (perusahaan/CV/PT)</option>
+                        <option value="Tukang">Tukang (kategori/jenis tukang)</option>
+                    </select>
+                    <p id="empKategoriHint" class="text-[10px] text-slate-500 mt-1">Karyawan tetap/kontrak perorangan biasa - absensi tetap lewat Absen Masuk/Keluar/Manual per nama.</p>
+                </div>
+
                 <!-- FOTO PROFIL KARYAWAN INPUT -->
-                <div class="flex flex-col items-center justify-center space-y-2">
+                <div id="empPhotoBox" class="flex flex-col items-center justify-center space-y-2">
                     <div id="empPhotoPreview" class="w-20 h-20 rounded-full bg-slate-800 border-2 border-dashed border-slate-600 flex items-center justify-center text-slate-500 overflow-hidden">
                         <i class="fa-solid fa-user text-2xl"></i>
                     </div>
@@ -2988,12 +3341,17 @@
                 </div>
 
                 <div>
-                    <label class="block text-slate-300 mb-1">Nama Lengkap</label>
+                    <label id="empNamaLabel" class="block text-slate-300 mb-1">Nama Lengkap</label>
                     <input type="text" id="empNama" required placeholder="Budi Santoso" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
                 </div>
                 <div>
-                    <label class="block text-slate-300 mb-1">Jabatan / Posisi</label>
+                    <label id="empJabatanLabel" class="block text-slate-300 mb-1">Jabatan / Posisi</label>
                     <input type="text" id="empJabatan" required placeholder="Mandor Struktur / Drafter" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
+                </div>
+                <div id="empNilaiKontrakBox" class="hidden">
+                    <label class="block text-slate-300 mb-1">Nilai Kontrak Subkon (Rp)</label>
+                    <input type="number" step="any" min="0" id="empNilaiKontrak" placeholder="150000000" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white font-mono">
+                    <p class="text-[10px] text-slate-500 mt-1">Bisa diubah lagi kapan saja lewat halaman Pembayaran Subkon.</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -3001,7 +3359,7 @@
                         <input type="text" id="empHp" placeholder="08123456789" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
                     </div>
                     <div>
-                        <label class="block text-slate-300 mb-1">Status Karyawan</label>
+                        <label class="block text-slate-300 mb-1">Status</label>
                         <select id="empStatus" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
                             <option value="Tetap">Tetap</option>
                             <option value="Kontrak">Kontrak</option>
@@ -3009,12 +3367,12 @@
                         </select>
                     </div>
                 </div>
-                <div>
+                <div id="empEmailBox">
                     <label class="block text-slate-300 mb-1">Email</label>
                     <input type="email" id="empEmail" placeholder="budi@proconstruct.com" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
                 </div>
                 <div>
-                    <label class="block text-slate-300 mb-1">Tanggal Masuk</label>
+                    <label id="empTglMasukLabel" class="block text-slate-300 mb-1">Tanggal Masuk</label>
                     <input type="date" id="empTglMasuk" class="w-full bg-[#0b132b] border border-[#334155] rounded-lg px-3 py-2 text-white">
                 </div>
                 <div class="pt-3 border-t border-[#334155] flex justify-end space-x-2 shrink-0">
