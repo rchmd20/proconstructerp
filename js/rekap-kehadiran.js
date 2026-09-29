@@ -629,11 +629,15 @@
             return list.map(k => {
                 const entries = projData.filter(a => a.karyawanId === k.id);
                 const days = [];
-                let totalOrangHari = 0, totalJamKerja = 0, totalLembur = 0, hariAktif = 0;
+                let totalOrangHari = 0, totalJamKerja = 0, totalLembur = 0, hariAktif = 0, hariLembur = 0, orangLembur = 0;
                 for (let d = 1; d <= jumlahHari; d++) {
                     const tgl = `${bulanStr}-${String(d).padStart(2, '0')}`;
                     const dayEntries = entries.filter(a => a.tanggal === tgl);
                     const jumlahHadir = dayEntries.reduce((a, c) => a + (Number(c.jumlahHadir) || 0), 0);
+                    // Jumlah ORANG yang lembur pada hari ini = jumlah hadir dari baris-baris yang jam
+                    // lemburnya > 0 (1 baris = 1 kelompok orang dengan jam lembur yang sama pada hari itu).
+                    const jumlahOrangLemburHariIni = dayEntries.filter(e => (Number(e.lembur) || 0) > 0).reduce((a, c) => a + (Number(c.jumlahHadir) || 0), 0);
+                    const totalJamLemburHariIni = dayEntries.reduce((a, e) => a + (Number(e.lembur) || 0) * (Number(e.jumlahHadir) || 0), 0);
                     if (jumlahHadir > 0) {
                         hariAktif++;
                         totalOrangHari += jumlahHadir;
@@ -644,12 +648,20 @@
                             if (kotor <= 0) kotor += 24;
                             const bersih = Math.max(0, kotor - (Number(e.istirahat) || 0));
                             totalJamKerja += bersih * (Number(e.jumlahHadir) || 0);
-                            totalLembur += (Number(e.lembur) || 0) * (Number(e.jumlahHadir) || 0);
                         });
                     }
-                    days.push({ tgl, jumlahHadir });
+                    if (jumlahOrangLemburHariIni > 0) {
+                        hariLembur++;
+                        orangLembur += jumlahOrangLemburHariIni;
+                        totalLembur += totalJamLemburHariIni;
+                    }
+                    days.push({ tgl, jumlahHadir, jumlahOrangLembur: jumlahOrangLemburHariIni, jamLembur: totalJamLemburHariIni });
                 }
-                return { nama: k.nama, kategori: k.kategori, days, hariAktif, totalOrangHari, totalJamKerja: totalJamKerja.toFixed(1), totalLembur: totalLembur.toFixed(1) };
+                return {
+                    nama: k.nama, kategori: k.kategori, days, hariAktif, totalOrangHari,
+                    totalJamKerja: totalJamKerja.toFixed(1), totalLembur: totalLembur.toFixed(1),
+                    hariLembur, orangLembur
+                };
             });
         }
 
@@ -671,20 +683,24 @@
                     <th class="p-3 text-center">Hari Aktif</th>
                     <th class="p-3 text-center">Total Orang-Hari</th>
                     <th class="p-3 text-center">Total Jam Kerja</th>
-                    <th class="p-3 text-center">Total Lembur</th>
+                    <th class="p-3 text-center bg-amber-500/10">Hari Lembur</th>
+                    <th class="p-3 text-center bg-amber-500/10">Orang Lembur</th>
+                    <th class="p-3 text-center bg-amber-500/10">Total Jam Lembur</th>
                 </tr>`;
             }
 
             const tbody = document.getElementById('dhtRekapTableBody');
             tbody.innerHTML = '';
             if (rekap.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${jumlahHari + 5}" class="p-6 text-center text-slate-500">Belum ada data Tukang/Subkon pada proyek ini. Tambahkan dulu di halaman Data Karyawan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${jumlahHari + 7}" class="p-6 text-center text-slate-500">Belum ada data Tukang/Subkon pada proyek ini. Tambahkan dulu di halaman Data Karyawan.</td></tr>`;
                 return;
             }
             rekap.forEach(r => {
                 let dayCells = '';
                 r.days.forEach(d => {
-                    dayCells += `<td class="p-1 text-center align-top">${d.jumlahHadir > 0 ? `<span class="text-emerald-400 font-bold">${d.jumlahHadir}</span>` : '<span class="text-slate-600">-</span>'}</td>`;
+                    const hadirHtml = d.jumlahHadir > 0 ? `<span class="text-emerald-400 font-bold">${d.jumlahHadir}</span>` : '<span class="text-slate-600">-</span>';
+                    const lemburHtml = d.jumlahOrangLembur > 0 ? `<div class="text-[9px] text-amber-400 font-bold" title="${d.jumlahOrangLembur} orang lembur, total ${formatAngka(d.jamLembur)} jam">+L ${d.jumlahOrangLembur}</div>` : '';
+                    dayCells += `<td class="p-1 text-center align-top">${hadirHtml}${lemburHtml}</td>`;
                 });
                 tbody.innerHTML += `<tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${escapeHtml(r.nama)}<div class="text-[10px] font-normal text-sky-400">${escapeHtml(r.kategori)}</div></td>
@@ -692,7 +708,9 @@
                     <td class="p-3 font-mono text-emerald-400 text-center">${r.hariAktif} hari</td>
                     <td class="p-3 font-mono text-amber-400 text-center">${r.totalOrangHari}</td>
                     <td class="p-3 font-mono text-center">${r.totalJamKerja} jam</td>
-                    <td class="p-3 font-mono text-amber-300 text-center">${r.totalLembur} jam</td>
+                    <td class="p-3 font-mono text-amber-300 text-center bg-amber-500/5">${r.hariLembur} hari</td>
+                    <td class="p-3 font-mono text-amber-300 text-center bg-amber-500/5">${r.orangLembur} orang</td>
+                    <td class="p-3 font-mono text-amber-300 text-center bg-amber-500/5">${r.totalLembur} jam</td>
                 </tr>`;
             });
         }
@@ -709,10 +727,11 @@
             for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 4 });
             columns.push(
                 { header: 'Hari Aktif', key: 'hariAktif' }, { header: 'Total Orang-Hari', key: 'totalOrangHari' },
-                { header: 'Total Jam Kerja', key: 'totalJamKerja' }, { header: 'Total Lembur', key: 'totalLembur' }
+                { header: 'Total Jam Kerja', key: 'totalJamKerja' }, { header: 'Hari Lembur', key: 'hariLembur' },
+                { header: 'Orang Lembur', key: 'orangLembur' }, { header: 'Total Jam Lembur', key: 'totalLembur' }
             );
             const rows = rekap.map(r => {
-                const obj = { nama: r.nama, kategori: r.kategori, hariAktif: r.hariAktif, totalOrangHari: r.totalOrangHari, totalJamKerja: r.totalJamKerja, totalLembur: r.totalLembur };
+                const obj = { nama: r.nama, kategori: r.kategori, hariAktif: r.hariAktif, totalOrangHari: r.totalOrangHari, totalJamKerja: r.totalJamKerja, hariLembur: r.hariLembur, orangLembur: r.orangLembur, totalLembur: r.totalLembur };
                 r.days.forEach((d, idx) => { obj['d' + (idx + 1)] = d.jumlahHadir > 0 ? d.jumlahHadir : '-'; });
                 return obj;
             });
