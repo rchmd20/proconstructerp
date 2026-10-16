@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProConstruct ERP v3.0 - Integrated Construction Management</title>
+    <!-- PWA: manifest & icon (dipakai saat "Add to Home Screen" / install di Android/Chrome) -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#0f172a">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -80,6 +86,9 @@
                 </button>
                 <button onclick="openProjectModal(true)" id="btnEditProject" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 px-3 py-2 rounded-xl text-xs font-medium transition" title="Edit Proyek Aktif">
                     <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="duplicateActiveProject()" id="btnCopyProject" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 px-3 py-2 rounded-xl text-xs font-medium transition" title="Salin Proyek Aktif (RAB & Pengaturan)">
+                    <i class="fa-solid fa-copy"></i>
                 </button>
                 <button onclick="confirmDeleteProject()" id="btnDeleteProject" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/40 px-3 py-2 rounded-xl text-xs font-semibold transition" title="Hapus Proyek Ini">
                     <i class="fa-solid fa-trash-can"></i>
@@ -2641,7 +2650,17 @@
                 </div>
 
                 <div class="navy-card rounded-2xl overflow-hidden">
-                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Absen Manual</div>
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span class="font-bold text-xs text-slate-200">Riwayat Absen Manual (dikelompokkan per Minggu, Minggu s/d Sabtu)</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="relative w-full sm:w-56">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                                <input type="text" id="amSearchNama" oninput="renderAbsenManualTable()" placeholder="Cari nama karyawan..." class="w-full bg-[#1c2541] border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-white text-xs">
+                            </div>
+                            <input type="date" id="amFilterTanggal" onchange="renderAbsenManualTable()" class="bg-[#1c2541] border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs">
+                            <button onclick="document.getElementById('amSearchNama').value=''; document.getElementById('amFilterTanggal').value=''; renderAbsenManualTable();" class="bg-slate-800 text-slate-300 px-2 py-1.5 rounded-lg text-[11px] hover:bg-slate-700">Reset</button>
+                        </div>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase">
@@ -2689,7 +2708,9 @@
                         <div><label class="block text-slate-400 mb-1">Jam Masuk <span class="text-red-400">*</span></label><input type="time" id="atsJamMasuk" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                         <div><label class="block text-slate-400 mb-1">Jam Pulang <span class="text-red-400">*</span></label><input type="time" id="atsJamPulang" required class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                         <div><label class="block text-slate-400 mb-1">Istirahat (jam)</label><input type="number" step="0.5" min="0" id="atsIstirahat" placeholder="1" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
-                        <div><label class="block text-slate-400 mb-1">Lembur (jam, per-orang)</label><input type="number" step="0.5" min="0" id="atsLembur" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Jumlah Orang Lembur <span class="text-slate-500">(dari Jumlah Hadir)</span></label><input type="number" min="0" step="1" id="atsJumlahLembur" oninput="validateAtsJumlahLembur()" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="block text-slate-400 mb-1">Jam Lembur (per-orang)</label><input type="number" step="0.5" min="0" id="atsLembur" placeholder="0" class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <p id="atsLemburWarning" class="hidden md:col-span-3 text-[11px] text-red-400 -mt-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Jumlah Orang Lembur tidak boleh melebihi Jumlah Hadir.</p>
                         <div class="md:col-span-2"><label class="block text-slate-400 mb-1">Catatan (opsional)</label><input type="text" id="atsCatatan" placeholder="Catatan tambahan..." class="w-full bg-[#0b132b] border border-slate-700 rounded-lg px-3 py-2 text-white"></div>
                         <div class="md:col-span-3 flex justify-end items-center gap-2">
                             <button type="button" id="atsCancelBtn" onclick="cancelAbsenTukangSubkonEdit()" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-lg transition">Batal Edit</button>
@@ -2702,7 +2723,7 @@
                     <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200">Riwayat Absen Tukang/Subkon</div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kategori</th><th class="p-3">Jumlah Hadir</th><th class="p-3">Jam</th><th class="p-3">Istirahat</th><th class="p-3">Lembur</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase"><tr><th class="p-3">Tanggal</th><th class="p-3">Nama</th><th class="p-3">Kategori</th><th class="p-3">Jumlah Hadir</th><th class="p-3">Jam</th><th class="p-3">Istirahat</th><th class="p-3">Org Lembur</th><th class="p-3">Jam Lembur</th><th class="p-3 text-center col-aksi">Aksi</th></tr></thead>
                             <tbody id="absenTukangSubkonTableBody" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
@@ -2724,6 +2745,8 @@
                     <div class="flex items-center gap-2">
                         <input type="month" id="dhtFilterBulan" onchange="renderDaftarHadirTukangSubkon()" class="bg-[#0b132b] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs">
                         <button onclick="exportDaftarHadirTukangExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-excel"></i><span>Export Excel</span></button>
+                        <button onclick="exportDaftarHadirTukangPdf()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-solid fa-file-pdf"></i><span>Export PDF</span></button>
+                        <button onclick="openWaExportModal('daftar-hadir-tukang')" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition"><i class="fa-brands fa-whatsapp text-sm"></i><span>Export WA</span></button>
                     </div>
                 </div>
 
@@ -2734,6 +2757,17 @@
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase" id="dhtRekapTableHead"></thead>
                             <tbody id="dhtRekapTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200"><i class="fa-regular fa-calendar-week text-amber-400 mr-1.5"></i>Rekap Per Minggu (Minggu s/d Sabtu) &mdash; untuk Pembayaran Upah Mingguan</div>
+                    <p class="px-3 pt-2 text-[10px] text-slate-400">Format sel: Orang-Hari (jumlah orang x hari kerja normal) &middot; Jam Kerja. Baris amber = lembur: jumlah orang-hari lembur &middot; hari ada lembur &middot; total jam lembur. Orang kerja siang & orang lembur dibedakan.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase" id="dhtWeeklyTableHead"></thead>
+                            <tbody id="dhtWeeklyTableBody" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -2760,6 +2794,10 @@
                         <button onclick="exportDaftarHadirPdf()" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
                             <i class="fa-solid fa-file-pdf"></i>
                             <span>Export PDF</span>
+                        </button>
+                        <button onclick="openWaExportModal('absen-daftar-hadir')" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-2 rounded-xl font-semibold flex items-center space-x-1.5 transition">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <span>Export WA</span>
                         </button>
                     </div>
                 </div>
@@ -2795,6 +2833,17 @@
                                 <!-- JS Populated (dinamis sesuai jumlah hari dalam bulan) -->
                             </thead>
                             <tbody id="dhRekapTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="navy-card rounded-2xl overflow-hidden">
+                    <div class="p-3 bg-[#0b132b] border-b border-slate-700 font-bold text-xs text-slate-200"><i class="fa-regular fa-calendar-week text-amber-400 mr-1.5"></i>Rekap Per Minggu (Minggu s/d Sabtu) &mdash; untuk Pembayaran Gaji Mingguan</div>
+                    <p class="px-3 pt-2 text-[10px] text-slate-400">Format sel: Hari Hadir &middot; Jam Hadir. Baris amber = lembur (hari &middot; jam). I/S/C = Izin/Sakit/Cuti. Minggu pertama &amp; terakhir bisa kurang dari 7 hari karena dipotong batas bulan.</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-[#1c2541] text-slate-400 text-[11px] uppercase" id="dhWeeklyTableHead"></thead>
+                            <tbody id="dhWeeklyTableBody" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
