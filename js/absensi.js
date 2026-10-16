@@ -862,20 +862,47 @@
             renderAbsenManualTable();
         }
 
+        // Rentang minggu kalender Minggu-Sabtu yang memuat 1 tanggal tertentu. Dipakai untuk mengelompokkan
+        // riwayat absen manual per minggu (bukan "Minggu ke-N" relatif proyek yang dipakai di Time Schedule),
+        // karena gaji mingguan umumnya mengikuti kalender Minggu-Sabtu biasa.
+        function getCalendarWeekRange(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            const dow = d.getDay(); // 0 = Minggu
+            const sunday = new Date(d); sunday.setDate(d.getDate() - dow);
+            const saturday = new Date(sunday); saturday.setDate(sunday.getDate() + 6);
+            const fmt = (x) => x.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            return { key: sunday.toISOString().split('T')[0], label: `Minggu ${fmt(sunday)} s/d Sabtu ${fmt(saturday)}` };
+        }
+
         function renderAbsenManualTable() {
             const tbody = document.getElementById('absenManualTableBody');
             if (!tbody) return;
-            const pairs = absenMasukData.filter(a => a.projId === activeProjectId && a.manual).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+            const searchNama = (document.getElementById('amSearchNama') ? document.getElementById('amSearchNama').value : '').trim().toLowerCase();
+            const filterTanggal = document.getElementById('amFilterTanggal') ? document.getElementById('amFilterTanggal').value : '';
+
+            let pairs = absenMasukData.filter(a => a.projId === activeProjectId && a.manual);
+            if (searchNama) pairs = pairs.filter(a => (a.nama || '').toLowerCase().includes(searchNama));
+            if (filterTanggal) pairs = pairs.filter(a => a.tanggal === filterTanggal);
+            pairs = pairs.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
             if (pairs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada data absen manual.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">Tidak ada data absen manual yang cocok.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = pairs.map(masuk => {
+
+            let rowsHtml = '';
+            let currentWeekKey = null;
+            pairs.forEach(masuk => {
+                const wk = getCalendarWeekRange(masuk.tanggal);
+                if (wk.key !== currentWeekKey) {
+                    rowsHtml += `<tr class="bg-[#0b132b]"><td colspan="7" class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 border-y border-amber-500/20"><i class="fa-regular fa-calendar-week mr-1.5"></i>${wk.label}</td></tr>`;
+                    currentWeekKey = wk.key;
+                }
                 const keluar = absenKeluarData.find(k => k.pairId === masuk.pairId);
                 const karyawan = karyawanData.find(k => k.projId === activeProjectId && k.nama === masuk.nama);
                 const jamMasukLabel = new Date(masuk.ts).toTimeString().slice(0, 5);
                 const jamPulangLabel = keluar ? new Date(keluar.ts).toTimeString().slice(0, 5) : '-';
-                return `
+                rowsHtml += `
                     <tr class="hover:bg-slate-800/50 transition">
                         <td class="p-3 font-mono text-amber-400">${masuk.tanggal}</td>
                         <td class="p-3 font-bold text-white">${escapeHtml(masuk.nama)}</td>
@@ -888,7 +915,8 @@
                             <button onclick="deleteAbsenManualEntry(${masuk.pairId})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </td>
                     </tr>`;
-            }).join('');
+            });
+            tbody.innerHTML = rowsHtml;
         }
 
         // ===================================================================
@@ -914,13 +942,25 @@
             renderAbsenTukangSubkonTable();
         }
 
-        function computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir) {
+        function computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir, jumlahLembur) {
             const [hM, mM] = jamMasuk.split(':').map(Number);
             const [hP, mP] = jamPulang.split(':').map(Number);
             let totalJamKotor = (hP + mP / 60) - (hM + mM / 60);
             if (totalJamKotor <= 0) totalJamKotor += 24;
             const totalJamBersih = Math.max(0, totalJamKotor - (istirahat || 0));
-            return `${jumlahHadir} orang - Masuk ${jamMasuk} - Pulang ${jamPulang} (Istirahat ${formatAngka(istirahat)} jam, Lembur ${formatAngka(lembur)} jam/orang) — Kerja: ${formatAngka(totalJamBersih)} jam`;
+            const lemburTxt = jumlahLembur > 0 ? `, ${jumlahLembur} orang lembur ${formatAngka(lembur)} jam` : '';
+            return `${jumlahHadir} orang - Masuk ${jamMasuk} - Pulang ${jamPulang} (Istirahat ${formatAngka(istirahat)} jam${lemburTxt}) — Kerja: ${formatAngka(totalJamBersih)} jam`;
+        }
+
+        // Validasi real-time: Jumlah Orang Lembur tidak boleh melebihi Jumlah Hadir (karena lembur adalah
+        // SEBAGIAN dari orang yang hadir, bukan tambahan orang baru).
+        function validateAtsJumlahLembur() {
+            const jumlahHadir = parseInt(document.getElementById('atsJumlahHadir').value, 10) || 0;
+            const jumlahLembur = parseInt(document.getElementById('atsJumlahLembur').value, 10) || 0;
+            const warn = document.getElementById('atsLemburWarning');
+            const invalid = jumlahLembur > jumlahHadir;
+            if (warn) warn.classList.toggle('hidden', !invalid);
+            return !invalid;
         }
 
         function handleAbsenTukangSubkonSubmit(e) {
@@ -934,16 +974,18 @@
             const jamMasuk = document.getElementById('atsJamMasuk').value;
             const jamPulang = document.getElementById('atsJamPulang').value;
             const istirahat = parseFloat(document.getElementById('atsIstirahat').value) || 0;
+            const jumlahLembur = parseInt(document.getElementById('atsJumlahLembur').value, 10) || 0;
             const lembur = parseFloat(document.getElementById('atsLembur').value) || 0;
             const catatan = document.getElementById('atsCatatan').value.trim();
 
             if (!tanggal || !jamMasuk || !jamPulang) { alert('Tanggal, Jam Masuk, dan Jam Pulang wajib diisi.'); return; }
             if (jumlahHadir <= 0) { alert('Jumlah Hadir harus lebih dari 0 orang.'); return; }
+            if (!validateAtsJumlahLembur()) { alert('Jumlah Orang Lembur tidak boleh melebihi Jumlah Hadir.'); return; }
 
-            const jamKerja = computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir);
+            const jamKerja = computeAtsJamKerjaText(jamMasuk, jamPulang, istirahat, lembur, jumlahHadir, jumlahLembur);
             const payload = {
                 projId: activeProjectId, karyawanId: k.id, nama: k.nama, kategori: k.kategori,
-                tanggal, jumlahHadir, jamMasuk, jamPulang, istirahat, lembur, jamKerja, catatan
+                tanggal, jumlahHadir, jamMasuk, jamPulang, istirahat, jumlahLembur, lembur, jamKerja, catatan
             };
             if (atsEditId) {
                 const idx = absenTukangSubkonData.findIndex(a => a.id === atsEditId);
@@ -966,8 +1008,12 @@
             document.getElementById('atsJamMasuk').value = item.jamMasuk;
             document.getElementById('atsJamPulang').value = item.jamPulang;
             document.getElementById('atsIstirahat').value = item.istirahat || 0;
+            // Kompatibilitas data lama (sebelum fitur ini ada): jika jumlahLembur belum pernah disimpan
+            // tapi jam lembur > 0, anggap SEMUA orang hadir hari itu ikut lembur (perilaku lama).
+            document.getElementById('atsJumlahLembur').value = (item.jumlahLembur !== undefined && item.jumlahLembur !== null) ? item.jumlahLembur : ((Number(item.lembur) || 0) > 0 ? item.jumlahHadir : 0);
             document.getElementById('atsLembur').value = item.lembur || 0;
             document.getElementById('atsCatatan').value = item.catatan || '';
+            validateAtsJumlahLembur();
             document.getElementById('atsFormTitle').innerText = 'Edit Absen Tukang/Subkon';
             document.getElementById('atsSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan';
             document.getElementById('atsCancelBtn').classList.remove('hidden');
@@ -979,6 +1025,8 @@
             const form = document.getElementById('formAbsenTukangSubkon');
             if (form) form.reset();
             document.getElementById('atsTanggal').value = new Date().toISOString().split('T')[0];
+            const warn = document.getElementById('atsLemburWarning');
+            if (warn) warn.classList.add('hidden');
             document.getElementById('atsFormTitle').innerText = 'Input Absen Manual Tukang/Subkon';
             document.getElementById('atsSubmitBtn').innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Simpan Absen';
             document.getElementById('atsCancelBtn').classList.add('hidden');
@@ -993,13 +1041,21 @@
             renderAbsenTukangSubkonTable();
         }
 
+        // Jumlah orang lembur efektif pada 1 baris data: pakai field jumlahLembur kalau sudah ada
+        // (data baru), fallback ke "semua jumlahHadir dianggap lembur" untuk data lama sebelum fitur ini.
+        function getAtsEffectiveJumlahLembur(entry) {
+            if (entry.jumlahLembur !== undefined && entry.jumlahLembur !== null) return Number(entry.jumlahLembur) || 0;
+            return (Number(entry.lembur) || 0) > 0 ? (Number(entry.jumlahHadir) || 0) : 0;
+        }
+
         function renderAbsenTukangSubkonTable() {
             const tbody = document.getElementById('absenTukangSubkonTableBody');
             if (!tbody) return;
             const admin = isAdminUser();
             const data = absenTukangSubkonData.filter(a => a.projId === activeProjectId).sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || b.id - a.id);
-            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Belum ada data absen Tukang/Subkon.</td></tr>`; return; }
+            if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500">Belum ada data absen Tukang/Subkon.</td></tr>`; return; }
             tbody.innerHTML = data.map(item => {
+                const orgLembur = getAtsEffectiveJumlahLembur(item);
                 const aksi = admin ? `<button onclick="editAbsenTukangSubkonEntry(${item.id})" class="bg-sky-600/20 hover:bg-sky-600 text-sky-400 hover:text-white p-1.5 rounded-lg transition mr-1"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="deleteAbsenTukangSubkonEntry(${item.id})" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-1.5 rounded-lg transition"><i class="fa-solid fa-trash-can text-xs"></i></button>` : '-';
                 return `<tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-mono text-amber-400">${item.tanggal}</td>
@@ -1008,7 +1064,8 @@
                     <td class="p-3 font-mono font-bold text-emerald-400">${item.jumlahHadir} orang</td>
                     <td class="p-3 font-mono">${item.jamMasuk} - ${item.jamPulang}</td>
                     <td class="p-3 font-mono text-slate-300">${formatAngka(item.istirahat)} jam</td>
-                    <td class="p-3 font-mono text-amber-300">${formatAngka(item.lembur)} jam</td>
+                    <td class="p-3 font-mono text-amber-300">${orgLembur > 0 ? orgLembur + ' orang' : '-'}</td>
+                    <td class="p-3 font-mono text-amber-300">${orgLembur > 0 ? formatAngka(item.lembur) + ' jam' : '-'}</td>
                     <td class="p-3 text-center">${aksi}</td>
                 </tr>`;
             }).join('');

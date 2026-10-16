@@ -951,6 +951,61 @@
                 });
                 if (data.length === 0) text += 'Belum ada data.\n';
                 else text += `\n${cfg.arah === 'masuk' ? '💵 *Total Diterima:*' : '💸 *Total Dibayarkan:*'} ${formatRupiah(total)}\n`;
+            } else if (currentWaType === 'absen-daftar-hadir') {
+                // Rekap kehadiran Karyawan per minggu (Minggu-Sabtu) + total bulan, siap untuk hitung gaji mingguan
+                const bulanInput = document.getElementById('dhFilterBulan');
+                const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
+                const [yy, mm] = bulanStr.split('-').map(Number);
+                const bulanLabel = new Date(yy, mm - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                const rekap = buildDaftarHadirRekap(bulanStr);
+                const weeks = getCalendarWeeksInMonth(bulanStr);
+                text += `📋 *DAFTAR HADIR KARYAWAN*\nPeriode: ${bulanLabel}\n(Rekap per minggu: Minggu s/d Sabtu)\n`;
+                if (rekap.length === 0) text += `\nBelum ada data karyawan.\n`;
+                weeks.forEach(w => {
+                    text += `\n*${w.label}*\n`;
+                    let no = 0;
+                    rekap.forEach(r => {
+                        const x = buildWeeklyKaryawan(r, [w])[0];
+                        if (x.hariHadir === 0 && x.jamLembur === 0 && !x.izin && !x.sakit && !x.cuti) return;
+                        no++;
+                        text += `${no}. ${r.nama} (${r.jabatan}): ${formatAngka(x.hariHadir)} hr | ${formatAngka(x.jamHadir)} jam`;
+                        if (x.jamLembur > 0) text += ` | Lembur ${x.hariLembur} hr/${formatAngka(x.jamLembur)} jam`;
+                        if (x.izin || x.sakit || x.cuti) text += ` | I${x.izin} S${x.sakit} C${x.cuti}`;
+                        text += `\n`;
+                    });
+                    if (no === 0) text += `(tidak ada kehadiran)\n`;
+                });
+                text += `\n*TOTAL BULAN ${bulanLabel.toUpperCase()}*\n`;
+                rekap.forEach((r, i) => {
+                    text += `${i + 1}. ${r.nama} (${r.jabatan}): ${r.hariHadir} hr | ${r.jamHadir} jam | Lembur ${r.hariLembur} hr/${r.jamLembur} jam\n`;
+                });
+            } else if (currentWaType === 'daftar-hadir-tukang') {
+                // Rekap Tukang/Subkon per minggu (Minggu-Sabtu): orang kerja biasa dibedakan dari orang lembur
+                const bulanInput = document.getElementById('dhtFilterBulan');
+                const bulanStr = (bulanInput && bulanInput.value) || new Date().toISOString().slice(0, 7);
+                const [yy, mm] = bulanStr.split('-').map(Number);
+                const bulanLabel = new Date(yy, mm - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                const rekap = buildDaftarHadirTukangSubkonRekap(bulanStr);
+                const weeks = getCalendarWeeksInMonth(bulanStr);
+                text += `👷 *DAFTAR HADIR TUKANG / SUBKON*\nPeriode: ${bulanLabel}\n(Rekap per minggu: Minggu s/d Sabtu)\n`;
+                if (rekap.length === 0) text += `\nBelum ada data Tukang/Subkon.\n`;
+                weeks.forEach(w => {
+                    text += `\n*${w.label}*\n`;
+                    let no = 0;
+                    rekap.forEach(r => {
+                        const x = buildWeeklyTukang(r, [w])[0];
+                        if (x.orangHari === 0) return;
+                        no++;
+                        text += `${no}. ${r.nama} (${r.kategori}): ${x.orangHari} org-hari | ${formatAngka(x.jamKerja)} jam`;
+                        if (x.orangLembur > 0) text += `\n    Lembur: ${x.orangLembur} org-hari | ${x.hariLembur} hari | ${formatAngka(x.jamLembur)} jam`;
+                        text += `\n`;
+                    });
+                    if (no === 0) text += `(tidak ada kehadiran)\n`;
+                });
+                text += `\n*TOTAL BULAN ${bulanLabel.toUpperCase()}*\n`;
+                rekap.forEach((r, i) => {
+                    text += `${i + 1}. ${r.nama} (${r.kategori}): ${r.totalOrangHari} org-hari | ${r.totalJamKerja} jam | Lembur ${r.orangLembur} org-hari/${r.hariLembur} hari/${r.totalLembur} jam\n`;
+                });
             } else if (currentWaType === 'pay-labarugi') {
                 const lr = computeLabaRugiData();
                 text += `⚖️ *LABA RUGI & UNTUNG*\n\n`;

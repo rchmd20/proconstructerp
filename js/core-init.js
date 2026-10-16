@@ -1020,6 +1020,8 @@
             const admin = isAdminUser();
 
             // --- Kelola Proyek: hanya Admin yang boleh edit/hapus proyek ---
+            const btnCopyProject = document.getElementById('btnCopyProject');
+            if (btnCopyProject) btnCopyProject.classList.toggle('hidden', !admin);
             const btnEditProject = document.getElementById('btnEditProject');
             const btnDeleteProject = document.getElementById('btnDeleteProject');
             if (btnEditProject) btnEditProject.classList.toggle('hidden', !admin);

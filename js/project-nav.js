@@ -120,6 +120,38 @@
             renderActiveTabContent();
         }
 
+        // Salin Proyek: duplikat Nama/Lokasi/Owner/Pengaturan (PPN/PPH/Biaya Tambahan/Investor) + seluruh
+        // Data RAB sebagai template proyek baru. Data PELAKSANAAN (Laporan, Absensi, Karyawan, Material,
+        // Pembayaran, Time Schedule, dsb) SENGAJA TIDAK ikut disalin karena itu riwayat eksekusi proyek asli.
+        function duplicateActiveProject() {
+            if (!isAdminUser()) { alert('Akses ditolak. Hanya Admin yang dapat menyalin proyek.'); return; }
+            const proj = projects.find(p => p.id === activeProjectId);
+            if (!proj) return;
+            const ok = confirm(
+                `Salin proyek "${proj.nama}" menjadi proyek baru?\n\n` +
+                `YANG DISALIN: Nama, Lokasi, Owner, Pengaturan PPN/PPH/Biaya Tambahan, Pengaturan Investor, dan seluruh Data RAB (sebagai template).\n\n` +
+                `YANG TIDAK DISALIN (karena itu riwayat pelaksanaan proyek asli): Laporan Harian/Mingguan/Bulanan, Absensi & Karyawan, Material, Pembayaran, Time Schedule, Backup Quantity.\n\n` +
+                `Lanjutkan?`
+            );
+            if (!ok) return;
+
+            const newId = 'PRJ-' + Date.now();
+            const newProj = { ...proj, id: newId, kode: proj.kode + '-COPY', nama: proj.nama + ' (Copy)', ownerId: currentUser.id };
+            projects.push(newProj);
+            localStorage.setItem('erp_projects', JSON.stringify(projects));
+
+            const rabCopy = rabData.filter(r => r.projId === proj.id).map((r, i) => ({ ...r, id: Date.now() + i, projId: newId }));
+            rabData.push(...rabCopy);
+            localStorage.setItem('erp_rab', JSON.stringify(rabData));
+
+            activeProjectId = newId;
+            localStorage.setItem('erp_active_project', activeProjectId);
+            initProjectSelector();
+            updateSidebarProjectInfo();
+            renderActiveTabContent();
+            alert(`Proyek berhasil disalin menjadi "${newProj.nama}" beserta ${rabCopy.length} item RAB.`);
+        }
+
         function confirmDeleteProject() {
             if (!isAdminUser()) {
                 alert('Akses ditolak. Hanya Admin yang dapat menghapus proyek.');

@@ -161,6 +161,7 @@
             const jumlahHari = new Date(y, m, 0).getDate();
 
             const rekap = buildDaftarHadirRekap(bulanStr);
+            renderDaftarHadirWeekly(rekap, bulanStr);
 
             // Header dinamis: Nama Karyawan | tanggal 1..N | kolom total
             const head = document.getElementById('dhRekapTableHead');
@@ -636,8 +637,9 @@
                     const jumlahHadir = dayEntries.reduce((a, c) => a + (Number(c.jumlahHadir) || 0), 0);
                     // Jumlah ORANG yang lembur pada hari ini = jumlah hadir dari baris-baris yang jam
                     // lemburnya > 0 (1 baris = 1 kelompok orang dengan jam lembur yang sama pada hari itu).
-                    const jumlahOrangLemburHariIni = dayEntries.filter(e => (Number(e.lembur) || 0) > 0).reduce((a, c) => a + (Number(c.jumlahHadir) || 0), 0);
-                    const totalJamLemburHariIni = dayEntries.reduce((a, e) => a + (Number(e.lembur) || 0) * (Number(e.jumlahHadir) || 0), 0);
+                    const jumlahOrangLemburHariIni = dayEntries.reduce((a, e) => a + getAtsEffectiveJumlahLembur(e), 0);
+                    const totalJamLemburHariIni = dayEntries.reduce((a, e) => a + (Number(e.lembur) || 0) * getAtsEffectiveJumlahLembur(e), 0);
+                    let jamKerjaHariIni = 0;
                     if (jumlahHadir > 0) {
                         hariAktif++;
                         totalOrangHari += jumlahHadir;
@@ -648,6 +650,7 @@
                             if (kotor <= 0) kotor += 24;
                             const bersih = Math.max(0, kotor - (Number(e.istirahat) || 0));
                             totalJamKerja += bersih * (Number(e.jumlahHadir) || 0);
+                            jamKerjaHariIni += bersih * (Number(e.jumlahHadir) || 0);
                         });
                     }
                     if (jumlahOrangLemburHariIni > 0) {
@@ -655,7 +658,7 @@
                         orangLembur += jumlahOrangLemburHariIni;
                         totalLembur += totalJamLemburHariIni;
                     }
-                    days.push({ tgl, jumlahHadir, jumlahOrangLembur: jumlahOrangLemburHariIni, jamLembur: totalJamLemburHariIni });
+                    days.push({ tgl, jumlahHadir, jumlahOrangLembur: jumlahOrangLemburHariIni, jamLembur: totalJamLemburHariIni, jamKerja: jamKerjaHariIni });
                 }
                 return {
                     nama: k.nama, kategori: k.kategori, days, hariAktif, totalOrangHari,
@@ -672,6 +675,7 @@
             const [y, m] = bulanStr.split('-').map(Number);
             const jumlahHari = new Date(y, m, 0).getDate();
             const rekap = buildDaftarHadirTukangSubkonRekap(bulanStr);
+            renderDaftarHadirTukangWeekly(rekap, bulanStr);
 
             const head = document.getElementById('dhtRekapTableHead');
             if (head) {
@@ -723,8 +727,8 @@
             const bulanLabel = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
             const rekap = buildDaftarHadirTukangSubkonRekap(bulanStr);
 
-            const columns = [{ header: 'Nama', key: 'nama', width: 20 }, { header: 'Kategori', key: 'kategori', width: 14 }];
-            for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 4 });
+            const columns = [{ header: 'Nama', key: 'nama', width: 16 }, { header: 'Kategori', key: 'kategori', width: 10 }];
+            for (let d = 1; d <= jumlahHari; d++) columns.push({ header: String(d), key: 'd' + d, width: 3 });
             columns.push(
                 { header: 'Hari Aktif', key: 'hariAktif' }, { header: 'Total Orang-Hari', key: 'totalOrangHari' },
                 { header: 'Total Jam Kerja', key: 'totalJamKerja' }, { header: 'Hari Lembur', key: 'hariLembur' },
@@ -742,4 +746,115 @@
             const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
             const ds = getDaftarHadirTukangExportDataset();
             exportProfessionalExcel(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.xlsx`, { subtitle: ds.subtitle });
+        }
+
+
+        // ===================================================================
+        // REKAP PER MINGGU (MINGGU s/d SABTU) - untuk pembayaran gaji/upah mingguan semua kategori
+        // (Karyawan, Subkon, Tukang). Memakai minggu KALENDER (Minggu-Sabtu), bukan "Minggu ke-N" proyek.
+        // Minggu pertama & terakhir bisa kurang dari 7 hari karena dipotong batas bulan.
+        // ===================================================================
+        function getCalendarWeeksInMonth(bulanStr) {
+            const [y, m] = bulanStr.split('-').map(Number);
+            const jumlahHari = new Date(y, m, 0).getDate();
+            const weeks = [];
+            let cur = null;
+            for (let d = 1; d <= jumlahHari; d++) {
+                const dow = new Date(y, m - 1, d).getDay(); // 0 = Minggu
+                if (dow === 0 || !cur) { cur = { weekNum: weeks.length + 1, dayNumbers: [] }; weeks.push(cur); }
+                cur.dayNumbers.push(d);
+            }
+            const bln = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'short' });
+            weeks.forEach(w => {
+                const f = w.dayNumbers[0], l = w.dayNumbers[w.dayNumbers.length - 1];
+                w.label = `Minggu ${w.weekNum} (${f}-${l} ${bln})`;
+            });
+            return weeks;
+        }
+
+        // Agregasi data harian 1 karyawan (hasil buildDaftarHadirRekap) menjadi total per minggu
+        function buildWeeklyKaryawan(r, weeks) {
+            return weeks.map(w => {
+                let hariHadir = 0, jamHadir = 0, jamLembur = 0, hariLembur = 0, izin = 0, sakit = 0, cuti = 0;
+                w.dayNumbers.forEach(dNum => {
+                    const day = r.days[dNum - 1];
+                    if (!day) return;
+                    hariHadir += day.hariValue || 0;
+                    jamHadir += day.jamKerja || 0;
+                    if ((day.jamLembur || 0) > 0) { jamLembur += day.jamLembur; hariLembur++; }
+                    if (day.jenis === 'Izin') izin++;
+                    if (day.jenis === 'Sakit') sakit++;
+                    if (day.jenis === 'Cuti') cuti++;
+                });
+                return { label: w.label, hariHadir, jamHadir: Math.round(jamHadir * 10) / 10, hariLembur, jamLembur: Math.round(jamLembur * 10) / 10, izin, sakit, cuti };
+            });
+        }
+
+        // Agregasi data harian 1 kategori Tukang/Subkon menjadi total per minggu
+        function buildWeeklyTukang(r, weeks) {
+            return weeks.map(w => {
+                let hariAktif = 0, orangHari = 0, jamKerja = 0, hariLembur = 0, orangLembur = 0, jamLembur = 0;
+                w.dayNumbers.forEach(dNum => {
+                    const day = r.days[dNum - 1];
+                    if (!day) return;
+                    if (day.jumlahHadir > 0) { hariAktif++; orangHari += day.jumlahHadir; jamKerja += day.jamKerja || 0; }
+                    if (day.jumlahOrangLembur > 0) { hariLembur++; orangLembur += day.jumlahOrangLembur; jamLembur += day.jamLembur || 0; }
+                });
+                return { label: w.label, hariAktif, orangHari, jamKerja: Math.round(jamKerja * 10) / 10, hariLembur, orangLembur, jamLembur: Math.round(jamLembur * 10) / 10 };
+            });
+        }
+
+        function renderDaftarHadirWeekly(rekap, bulanStr) {
+            const head = document.getElementById('dhWeeklyTableHead');
+            const body = document.getElementById('dhWeeklyTableBody');
+            if (!head || !body) return;
+            const weeks = getCalendarWeeksInMonth(bulanStr);
+            head.innerHTML = `<tr><th class="p-3 sticky left-0 bg-[#1c2541]">Nama Karyawan</th>${weeks.map(w => `<th class="p-3 text-center">${w.label}</th>`).join('')}<th class="p-3 text-center bg-amber-500/10">Total Bulan</th></tr>`;
+            if (rekap.length === 0) { body.innerHTML = `<tr><td colspan="${weeks.length + 2}" class="p-6 text-center text-slate-500">Belum ada data karyawan.</td></tr>`; return; }
+            body.innerHTML = rekap.map(r => {
+                const wk = buildWeeklyKaryawan(r, weeks);
+                const cells = wk.map(x => {
+                    if (x.hariHadir === 0 && x.jamLembur === 0 && !x.izin && !x.sakit && !x.cuti) return `<td class="p-3 text-center text-slate-600">-</td>`;
+                    return `<td class="p-3 text-center align-top">
+                        <div class="font-bold text-emerald-400">${formatAngka(x.hariHadir)} hr &middot; ${formatAngka(x.jamHadir)}j</div>
+                        ${x.jamLembur > 0 ? `<div class="text-[10px] text-amber-400">Lembur ${x.hariLembur} hr &middot; ${formatAngka(x.jamLembur)}j</div>` : ''}
+                        ${(x.izin || x.sakit || x.cuti) ? `<div class="text-[10px] text-slate-400">I${x.izin} S${x.sakit} C${x.cuti}</div>` : ''}
+                    </td>`;
+                }).join('');
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${escapeHtml(r.nama)}<div class="text-[10px] font-normal text-sky-400">${escapeHtml(r.jabatan)}</div></td>
+                    ${cells}
+                    <td class="p-3 text-center bg-amber-500/5 align-top"><div class="font-bold text-emerald-300">${r.hariHadir} hr &middot; ${r.jamHadir}j</div><div class="text-[10px] text-amber-400">Lembur ${r.hariLembur} hr &middot; ${r.jamLembur}j</div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderDaftarHadirTukangWeekly(rekap, bulanStr) {
+            const head = document.getElementById('dhtWeeklyTableHead');
+            const body = document.getElementById('dhtWeeklyTableBody');
+            if (!head || !body) return;
+            const weeks = getCalendarWeeksInMonth(bulanStr);
+            head.innerHTML = `<tr><th class="p-3 sticky left-0 bg-[#1c2541]">Nama (Kategori)</th>${weeks.map(w => `<th class="p-3 text-center">${w.label}</th>`).join('')}<th class="p-3 text-center bg-amber-500/10">Total Bulan</th></tr>`;
+            if (rekap.length === 0) { body.innerHTML = `<tr><td colspan="${weeks.length + 2}" class="p-6 text-center text-slate-500">Belum ada data Tukang/Subkon.</td></tr>`; return; }
+            body.innerHTML = rekap.map(r => {
+                const wk = buildWeeklyTukang(r, weeks);
+                const cells = wk.map(x => {
+                    if (x.orangHari === 0) return `<td class="p-3 text-center text-slate-600">-</td>`;
+                    return `<td class="p-3 text-center align-top">
+                        <div class="font-bold text-emerald-400">${x.orangHari} org-hr &middot; ${formatAngka(x.jamKerja)}j</div>
+                        ${x.orangLembur > 0 ? `<div class="text-[10px] text-amber-400">Lembur ${x.orangLembur} org-hr &middot; ${x.hariLembur} hr &middot; ${formatAngka(x.jamLembur)}j</div>` : ''}
+                    </td>`;
+                }).join('');
+                return `<tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-bold text-white sticky left-0 bg-[#0f172a]">${escapeHtml(r.nama)}<div class="text-[10px] font-normal text-sky-400">${escapeHtml(r.kategori)}</div></td>
+                    ${cells}
+                    <td class="p-3 text-center bg-amber-500/5 align-top"><div class="font-bold text-emerald-300">${r.totalOrangHari} org-hr &middot; ${r.totalJamKerja}j</div><div class="text-[10px] text-amber-400">Lembur ${r.orangLembur} org-hr &middot; ${r.hariLembur} hr &middot; ${r.totalLembur}j</div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportDaftarHadirTukangPdf() {
+            const proj = projects.find(p => p.id === activeProjectId) || { nama: 'Proyek' };
+            const ds = getDaftarHadirTukangExportDataset();
+            exportProfessionalPdf(ds.title, ds.columns, ds.rows, `${ds.title.replace(/[\\\/\?\*\[\]:]/g, ' ')}_${proj.nama}.pdf`, { orientation: ds.orientation, subtitle: ds.subtitle });
         }
